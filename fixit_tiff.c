@@ -36,8 +36,55 @@ void copy_file (const char * inf, const char * outf) {
   fclose(in);
   fclose(out);
 }
-	
-    
+
+int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec) {
+  printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
+  if (
+      1500 < *year && 
+      2100 > *year &&
+      0 < *month &&
+      13 > *month &&
+      0 < *day &&
+      32 > *day &&
+      0 <= *hour &&
+      24 > *hour &&
+      0 <= *min &&
+      60 > *min &&
+      0 <= *sec &&
+      60 > *sec
+     ) {
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
+/* RULE0: default rule (string is correct) */
+int rule_default (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
+  printf ("rule00\n");
+  if (6 == sscanf(datestring, "%04d:%02d:%02d%02d:%02d:%02d", year, month, day, hour, min, sec)) {
+    test_plausibility(year, month, day, hour, min, sec);
+  } else {
+    return -2;
+  }
+}
+
+/* RULE1: fix: '04.03.2010 09:59:17' => '04:03:2010 09:59:17' */
+int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
+  printf ("rule01\n");
+  if (6 == sscanf(datestring, "%02d.%02d.%04d%02d:%02d:%02d", day, month, year, hour, min, sec)) {
+    test_plausibility(year, month, day, hour, min, sec);
+  } else {
+    return -2;
+  }
+}
+
+/* Array of rules */
+int (*rules_ptr[2])(char *, int *, int *,int *, int *,int *, int *) = {
+  rule_default,
+  rule_ddmmyyhhmmss_01
+};
+
 /** corrects broken date string to expected format, see 
  * http://www.awaresystems.be/imaging/tiff/tifftags/datetime.html
  * @param broken_datetime string with wrong datetime
@@ -51,12 +98,17 @@ char * correct_datestring (char * broken_datetime) {
   int min;
   int sec;
   /* TODO: if ret is wrong, you could try another rules to apply */
-  /* RULE1: fix: '04.03.2010 09:59:17' => '04:03:2010 09:59:17' */
-  int ret=sscanf(broken_datetime, "%02d.%02d.%04d%02d:%02d:%02d", &day, &month, &year, &hour, &min, &sec);
-  if (ret != 6) {
-    fprintf(stderr, "error in datetime parsing of string '%s', ret=%d, year=%04d, month=%02d, day=%02d, hour=%02d, min=%02d, sec=%02d\n", broken_datetime, ret, year, month, day, hour, min, sec);
-    exit (-3);
-  } 
+  int r;
+  for (r = 0; r < 2; r++) {
+    printf("Applying rule%i", r);
+    if (0 != (*rules_ptr[r])(broken_datetime, &year, &month, &day, &hour, &min, &sec)) {
+      fprintf(stderr, "applying next rule\n");
+    } else {
+      break;
+    }
+  }
+
+  printf("datetime parsing of string '%s', year=%04d, month=%02d, day=%02d, hour=%02d, min=%02d, sec=%02d\n", broken_datetime, year, month, day, hour, min, sec);
   /* write corrected value to new string */
   char * fixed_date = NULL;
   fixed_date=malloc(sizeof(char) * 20); /* 20 comes from TIFF definition */
@@ -73,51 +125,57 @@ char * correct_datestring (char * broken_datetime) {
   return fixed_date;
 }
 
+/* loads a tiff, fix it if needed, stores tiff */
 void fix_tiff(const char * filename) {
-   /* load file */
+  /* load file */
   TIFF* tif = TIFFOpen(filename, "r+");
   if (NULL == tif) {
     fprintf( stderr, "file '%s' could not be opened\n", filename);
     exit (-2);
   };
   /* find date-tag and fix it */
-  printf("Before correction\n-----------------\n");	
-  TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
   char *datetime;
   uint32 count;
   int found=TIFFGetField(tif, TIFFTAG_DATETIME, &datetime, &count);
-  if (1==found) {
+  if (1==found) { /* there exists a datetime field */
+    printf("Before correction\n-----------------\n");	
+    TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
     printf("c=%u datetime:'%s'\n", count, datetime);
-    /* correct TIFF DateTIME */
-    TIFFSetField(tif, TIFFTAG_DATETIME, correct_datestring( datetime ));
-
+    /* should be corrected? */
+    char * new_datetime = correct_datestring( datetime );
+    if (0 != strncmp(datetime, new_datetime, 20)) {
+      /* yes, correct TIFF DateTIME */
+      TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
+      printf("After  correction\n-----------------\n");
+      TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
+      /* write data back */
+      int written = TIFFRewriteDirectory(tif);
+      if (1 != written) {
+        fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
+        exit (-3);
+      }
+    } else { /* no, should not be touched */
+      printf ("no correction needed\n");
+    }
   } else if (0 == found) {
     printf ("no datetime found!\n");
   }
-  printf("After  correction\n-----------------\n");
-  TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
-  /* write data back */
-  int written = TIFFRewriteDirectory(tif);
-  if (1 != written) {
-    fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
-    exit (-3);
-  }
-  /* write file */
+
   TIFFClose(tif);
 }
 
 /* main */
 int main (int argc, char * argv[]) {
-	if (argc != 3) {
-		help();
-		exit(-1);
-	}
-	const char *infilename = argv[1];
-	const char *outfilename= argv[2];
-        printf ("infile='%s', outfile='%s'\n", infilename, outfilename);
-        copy_file (infilename, outfilename);
-        fix_tiff(outfilename);
-	return 0;
+  if (argc != 3) {
+    help();
+    exit(-1);
+  }
+  const char *infilename = argv[1];
+  const char *outfilename= argv[2];
+  printf ("infile='%s', outfile='%s'\n", infilename, outfilename);
+  copy_file (infilename, outfilename);
+  fix_tiff(outfilename);
+  return 0;
 }
 
-	
+

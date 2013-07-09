@@ -37,6 +37,7 @@ void copy_file (const char * inf, const char * outf) {
   fclose(out);
 }
 
+/* check if date / time values are within correct ranges */
 int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec) {
   printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
   if (
@@ -97,7 +98,7 @@ char * correct_datestring (char * broken_datetime) {
   int hour;
   int min;
   int sec;
-  /* TODO: if ret is wrong, you could try another rules to apply */
+  /* if ret is wrong, you could try another rules to apply */
   int r;
   for (r = 0; r < 2; r++) {
     printf("Applying rule%i", r);
@@ -107,7 +108,6 @@ char * correct_datestring (char * broken_datetime) {
       break;
     }
   }
-
   printf("datetime parsing of string '%s', year=%04d, month=%02d, day=%02d, hour=%02d, min=%02d, sec=%02d\n", broken_datetime, year, month, day, hour, min, sec);
   /* write corrected value to new string */
   char * fixed_date = NULL;

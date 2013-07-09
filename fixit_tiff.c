@@ -67,7 +67,7 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
 int rule_default (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
   printf ("rule00\n");
   if (6 == sscanf(datestring, "%04d:%02d:%02d%02d:%02d:%02d", year, month, day, hour, min, sec)) {
-    test_plausibility(year, month, day, hour, min, sec);
+    return test_plausibility(year, month, day, hour, min, sec);
   } else {
     return -2;
   }
@@ -77,7 +77,7 @@ int rule_default (char * datestring, int * year, int * month, int * day, int * h
 int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
   printf ("rule01\n");
   if (6 == sscanf(datestring, "%02d.%02d.%04d%02d:%02d:%02d", day, month, year, hour, min, sec)) {
-    test_plausibility(year, month, day, hour, min, sec);
+    return test_plausibility(year, month, day, hour, min, sec);
   } else {
     return -2;
   }

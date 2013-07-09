@@ -85,7 +85,7 @@ int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day,
 
 #define COUNT_OF_RULES 2
 /* Array of rules */
-int (*rules_ptr[COUNT_OF_RULES])(char *, int *, int *,int *, int *,int *, int *) = {
+int (*rules_ptr[COUNT_OF_RULES])(char *, int *, int *, int *, int *, int *, int *) = {
   rule_default,
   rule_ddmmyyhhmmss_01
 };

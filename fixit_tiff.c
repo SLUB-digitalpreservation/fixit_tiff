@@ -4,6 +4,9 @@
 
 #include "fixit_tiff.h"
 
+/* 20 comes from TIFF definition */
+#define TIFFDATETIMELENGTH 20
+
 void help () {
   printf ("fixit_tiff broken_tiff_file corrected_tiff_file\n");
 }
@@ -80,8 +83,9 @@ int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day,
   }
 }
 
+#define COUNT_OF_RULES 2
 /* Array of rules */
-int (*rules_ptr[2])(char *, int *, int *,int *, int *,int *, int *) = {
+int (*rules_ptr[COUNT_OF_RULES])(char *, int *, int *,int *, int *,int *, int *) = {
   rule_default,
   rule_ddmmyyhhmmss_01
 };
@@ -100,7 +104,7 @@ char * correct_datestring (char * broken_datetime) {
   int sec;
   /* if ret is wrong, you could try another rules to apply */
   int r;
-  for (r = 0; r < 2; r++) {
+  for (r = 0; r < COUNT_OF_RULES; r++) {
     printf("Applying rule%i", r);
     if (0 != (*rules_ptr[r])(broken_datetime, &year, &month, &day, &hour, &min, &sec)) {
       fprintf(stderr, "applying next rule\n");
@@ -111,15 +115,15 @@ char * correct_datestring (char * broken_datetime) {
   printf("datetime parsing of string '%s', year=%04d, month=%02d, day=%02d, hour=%02d, min=%02d, sec=%02d\n", broken_datetime, year, month, day, hour, min, sec);
   /* write corrected value to new string */
   char * fixed_date = NULL;
-  fixed_date=malloc(sizeof(char) * 20); /* 20 comes from TIFF definition */
+  fixed_date=malloc(sizeof(char) * TIFFDATETIMELENGTH); /* 20 comes from TIFF definition */
   if (NULL == fixed_date) {
     fprintf(stderr, "could not allocate memory for datetime conversion, abort\n");
     exit (-4);
   }
-  int written = snprintf(fixed_date, 20, "%04d:%02d:%02d %02d:%02d:%02d", year, month, day, hour, min, sec);
+  int written = snprintf(fixed_date, TIFFDATETIMELENGTH, "%04d:%02d:%02d %02d:%02d:%02d", year, month, day, hour, min, sec);
 
-  if (written != 19) {
-    fprintf(stderr, "something wrong, instead 19 chars, %d chars were written\n", written);
+  if (written != (TIFFDATETIMELENGTH)-1) {
+    fprintf(stderr, "something wrong, instead %d chars, %d chars were written\n",TIFFDATETIMELENGTH ,written);
     exit (-5);
   }
   return fixed_date;
@@ -143,7 +147,7 @@ void fix_tiff(const char * filename) {
     printf("c=%u datetime:'%s'\n", count, datetime);
     /* should be corrected? */
     char * new_datetime = correct_datestring( datetime );
-    if (0 != strncmp(datetime, new_datetime, 20)) {
+    if (0 != strncmp(datetime, new_datetime, TIFFDATETIMELENGTH)) {
       /* yes, correct TIFF DateTIME */
       TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
       printf("After  correction\n-----------------\n");

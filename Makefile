@@ -15,6 +15,10 @@ strip: all
 fixit_tiff: fixit_tiff.o
 	$(CC) $(CFLAGS) $(INC) $(LIB) -o $@ $<
 
+# doc
+doc: doxygen.conf
+	@doxygen doxygen.conf
+
 # clean workdir
 clean:
 	@rm -f *.o
@@ -23,5 +27,6 @@ clean:
 # mrproper clean
 distclean: clean
 	@rm -f *~
+	@rm -Rf doc/
 
 .PHONY: all clean distclean strip

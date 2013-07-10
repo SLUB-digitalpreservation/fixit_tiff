@@ -21,9 +21,11 @@ static int flag_check_only=UNFLAGGED;
 
 /** help function */
 void help () {
-  printf ("fixit_tiff broken_tiff_file corrected_tiff_file\n");
+  printf ("fixit_tiff\n");
   printf ("call it with:\n");
-  printf ("\tfixit_tiff [-h|-c|-s] -i infile [-o outfile]\n");
+  printf ("\tfixit_tiff [-h|-c|-s] -i <infile> [-o <outfile>]\n");
+  printf ("\nwhere <infile> is the possibly broken file\n");
+  printf ("and <outfile> is the name of the corrected file\n");
 }
 
 /** copy infile to outfile 

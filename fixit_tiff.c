@@ -183,6 +183,7 @@ void fix_tiff(const char * filename) {
       /* yes, correct TIFF DateTime is needed */
       if (1==flag_check_only) {
         if (1==flag_be_verbose) printf ("datetime correction needed\n");
+        exit (1);
       } else { /* repair */
         TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
         if (1==flag_be_verbose) printf("After  correction\n-----------------\n");
@@ -196,9 +197,11 @@ void fix_tiff(const char * filename) {
       }
     } else { /* no, should not be touched, check only */
       if (1==flag_be_verbose) printf ("no correction needed\n");
+      exit(0);
     }
   } else if (0 == found) {
     if (1==flag_be_verbose) printf ("no datetime found!\n");
+    exit(0);
   }
   TIFFClose(tif);
 }
@@ -269,6 +272,6 @@ int main (int argc, char * argv[]) {
     copy_file (infilename, outfilename);
     fix_tiff(outfilename);
   }
-  exit (0);
+  exit (1);
 }
 

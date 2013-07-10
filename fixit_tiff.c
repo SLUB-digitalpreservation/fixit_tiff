@@ -14,9 +14,10 @@
  */
 #define TIFFDATETIMELENGTH 20
 
+
 /** global variables */
-static int flag_be_verbose=1;
-static int flag_check_only=0;
+static int flag_be_verbose=FLAGGED;
+static int flag_check_only=UNFLAGGED;
 
 /** help function */
 void help () {
@@ -33,12 +34,12 @@ void copy_file (const char * inf, const char * outf) {
   FILE * in = fopen( inf, "rb");
   if (NULL == in) {
     fprintf(stderr, "could not open file '%s' for reading\n", inf);
-    exit (-20);
+    exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
   }
   FILE * out = fopen(outf, "wb");
   if (NULL == out) {
     fprintf(stderr, "could not open file '%s' for writing\n", outf);
-    exit (-21);
+    exit (FIXIT_TIFF_WRITE_PERMISSION_ERROR);
   }
   /* copy infile to outfile */
   char            buffer[512];
@@ -47,7 +48,7 @@ void copy_file (const char * inf, const char * outf) {
   {
     if (n != fwrite(buffer, sizeof(char), n, out)) {
       fprintf(stderr, "failure writing to file '%s'\n", outf);
-      exit (-22);
+      exit (FIXIT_TIFF_WRITE_ERROR);
     }
   }
   fclose(in);
@@ -64,7 +65,7 @@ void copy_file (const char * inf, const char * outf) {
  * @return 0 if success, otherwise -1
  */
 int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  if (1 == flag_be_verbose) printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
+  if (FLAGGED == flag_be_verbose) printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
   if (
       1500 < *year && 
       2100 > *year &&
@@ -87,7 +88,7 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
 
 /** RULE0: default rule (string is correct) */
 int rule_default (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  if (1==flag_be_verbose) printf ("rule00\n");
+  if (FLAGGED == flag_be_verbose) printf ("rule00\n");
   if (6 == sscanf(datestring, "%04d:%02d:%02d%02d:%02d:%02d", year, month, day, hour, min, sec)) {
     return test_plausibility(year, month, day, hour, min, sec);
   } else {
@@ -97,7 +98,7 @@ int rule_default (char * datestring, int * year, int * month, int * day, int * h
 
 /** RULE1: fix: '04.03.2010 09:59:17' => '04:03:2010 09:59:17' */
 int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  if (1==flag_be_verbose) printf ("rule01\n");
+  if (FLAGGED == flag_be_verbose) printf ("rule01\n");
   if (6 == sscanf(datestring, "%02d.%02d.%04d%02d:%02d:%02d", day, month, year, hour, min, sec)) {
     return test_plausibility(year, month, day, hour, min, sec);
   } else {
@@ -108,7 +109,7 @@ int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day,
 /** RULENOFIX: dummy rule if no other rule matches, calls only exit */
 int rule_nofix (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
   fprintf(stderr, "rule nofix, there is no applyable rule left, aborted without fixing problem\n");
-  exit(-6);
+  exit(FIXIT_TIFF_DATETIME_RULE_NOT_FOUND);
 }
 
 /** used for array of rules */
@@ -135,26 +136,26 @@ char * correct_datestring (char * broken_datetime) {
   /* if ret is wrong, you could try another rules to apply */
   int r;
   for (r = 0; r < COUNT_OF_RULES; r++) {
-    if (1==flag_be_verbose) printf("Applying rule%i", r);
+    if (FLAGGED == flag_be_verbose) printf("Applying rule%i", r);
     if (0 != (*rules_ptr[r])(broken_datetime, &year, &month, &day, &hour, &min, &sec)) {
-      if (1==flag_be_verbose) printf("applying next rule\n");
+      if (FLAGGED == flag_be_verbose) printf("applying next rule\n");
     } else {
       break;
     }
   }
-  if (1==flag_be_verbose) printf("datetime parsing of string '%s', year=%04d, month=%02d, day=%02d, hour=%02d, min=%02d, sec=%02d\n", broken_datetime, year, month, day, hour, min, sec);
+  if (FLAGGED == flag_be_verbose) printf("datetime parsing of string '%s', year=%04d, month=%02d, day=%02d, hour=%02d, min=%02d, sec=%02d\n", broken_datetime, year, month, day, hour, min, sec);
   /* write corrected value to new string */
   char * fixed_date = NULL;
   fixed_date=malloc(sizeof(char) * TIFFDATETIMELENGTH); /* 20 comes from TIFF definition */
   if (NULL == fixed_date) {
     fprintf(stderr, "could not allocate memory for datetime conversion, abort\n");
-    exit (-4);
+    exit (FIXIT_TIFF_MEMORY_ALLOCATION_ERROR);
   }
   int written = snprintf(fixed_date, TIFFDATETIMELENGTH, "%04d:%02d:%02d %02d:%02d:%02d", year, month, day, hour, min, sec);
 
   if (written != (TIFFDATETIMELENGTH)-1) {
     fprintf(stderr, "something wrong, instead %d chars, %d chars were written\n",TIFFDATETIMELENGTH-1 ,written);
-    exit (-5);
+    exit (FIXIT_TIFF_STRING_COPY_ERROR);
   }
   return fixed_date;
 }
@@ -167,41 +168,41 @@ void fix_tiff(const char * filename) {
   TIFF* tif = TIFFOpen(filename, "r+");
   if (NULL == tif) {
     fprintf( stderr, "file '%s' could not be opened\n", filename);
-    exit (-2);
+    exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
   };
   /* find date-tag and fix it */
   char *datetime=NULL;
   uint32 count=0;
   int found=TIFFGetField(tif, TIFFTAG_DATETIME, &datetime, &count);
   if (1==found) { /* there exists a datetime field */
-    if (1==flag_be_verbose) printf("Before correction\n-----------------\n");	
-    if (1==flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
-    if (1==flag_be_verbose) printf("c=%u datetime:'%s'\n", count, datetime);
+    if (FLAGGED == flag_be_verbose) printf("Before correction\n-----------------\n");	
+    if (FLAGGED == flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
+    if (FLAGGED == flag_be_verbose) printf("c=%u datetime:'%s'\n", count, datetime);
     /* should be corrected? */
     char * new_datetime = correct_datestring( datetime );
     if (0 != strncmp(datetime, new_datetime, TIFFDATETIMELENGTH)) {
       /* yes, correct TIFF DateTime is needed */
-      if (1==flag_check_only) {
-        if (1==flag_be_verbose) printf ("datetime correction needed\n");
-        exit (1);
+      if (FLAGGED == flag_check_only) {
+        if (FLAGGED == flag_be_verbose) printf ("datetime correction needed\n");
+        exit (FIXIT_TIFF_IS_CHECKED);
       } else { /* repair */
         TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
-        if (1==flag_be_verbose) printf("After  correction\n-----------------\n");
-        if (1==flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
+        if (FLAGGED == flag_be_verbose) printf("After  correction\n-----------------\n");
+        if (FLAGGED == flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
         /* write data back, only if no flag_check_only is set */
         int written = TIFFRewriteDirectory(tif);
         if (1 != written) {
           fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
-          exit (-3);
+          exit (FIXIT_TIFF_WRITE_ERROR);
         }
       }
     } else { /* no, should not be touched, check only */
-      if (1==flag_be_verbose) printf ("no correction needed\n");
-      exit(0);
+      if (FLAGGED == flag_be_verbose) printf ("no correction needed\n");
+      exit(FIXIT_TIFF_IS_VALID);
     }
   } else if (0 == found) {
-    if (1==flag_be_verbose) printf ("no datetime found!\n");
-    exit(0);
+    if (FLAGGED == flag_be_verbose) printf ("no datetime found!\n");
+    exit(FIXIT_TIFF_IS_VALID);
   }
   TIFFClose(tif);
 }
@@ -212,7 +213,7 @@ int main (int argc, char * argv[]) {
   const char *outfilename= NULL;
   //opterr = 0;
   int c;
-  int flag_substitute_only=0;
+  int flag_substitute_only=UNFLAGGED;
   while ((c = getopt (argc, argv, "s::cq::hi:o:")) != -1) {
       switch (c)
            {
@@ -220,13 +221,13 @@ int main (int argc, char * argv[]) {
              help();
              exit (0);
            case 's': /* inplace substitution */
-             flag_substitute_only = 1;
+             flag_substitute_only = FLAGGED;
              break;
            case 'c': /* reports only if repair needed */
-             flag_check_only = 1; 
+             flag_check_only = FLAGGED; 
              break;
            case 'q': /* disables describing messages */
-             flag_be_verbose = 0;
+             flag_be_verbose = UNFLAGGED;
              break;
            case 'i': /* expects infile */
              infilename=optarg;
@@ -248,30 +249,30 @@ int main (int argc, char * argv[]) {
            }
   }
   /* added additional checks */
-  if ((1==flag_substitute_only) && (1==flag_check_only)) {
+  if ((FLAGGED == flag_substitute_only) && (FLAGGED == flag_check_only)) {
     fprintf (stderr, "The options '-s' and '-c' could not be used in combination, see '%s -h' for details\n", argv[0]);
-    exit (-7);
+    exit (FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
   }
   if (NULL == infilename) {
     fprintf (stderr, "You need to specify infile with '-i filename', see '%s -h' for details\n", argv[0]);
-    exit (-8);
+    exit (FIXIT_TIFF_MISSED_INFILE);
   }
-  if ((1!=flag_substitute_only) && (1!=flag_check_only)) {
+  if ((FLAGGED!=flag_substitute_only) && (FLAGGED!=flag_check_only)) {
     if (NULL == outfilename) {
       fprintf (stderr, "You need to specify outfile with '-o outfilename', see '%s -h' for details\n", argv[0]);
-      exit (-9);
+      exit (FIXIT_TIFF_MISSED_OUTFILE);
     }
   }
-  if (1==flag_be_verbose) printf ("infile='%s', outfile='%s'\n", infilename, outfilename);
+  if (FLAGGED == flag_be_verbose) printf ("infile='%s', outfile='%s'\n", infilename, outfilename);
   if (
-      (1==flag_substitute_only) || /* inplace correction */
-      (1==flag_check_only)
+      (FLAGGED == flag_substitute_only) || /* inplace correction */
+      (FLAGGED == flag_check_only)
      ) {
     fix_tiff(infilename);
   } else { /* source target */
     copy_file (infilename, outfilename);
     fix_tiff(outfilename);
   }
-  exit (1);
+  exit (FIXIT_TIFF_IS_CORRECTED);
 }
 

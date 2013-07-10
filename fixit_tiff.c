@@ -83,11 +83,18 @@ int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day,
   }
 }
 
-#define COUNT_OF_RULES 2
+/* RULENOFIX: dummy rule if no other rule matches, calls only exit */
+int rule_nofix (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
+  fprintf(stderr, "rule nofix, there is no applyable rule left, aborted without fixing problem\n");
+  exit(-1000);
+}
+
+#define COUNT_OF_RULES 3
 /* Array of rules */
 int (*rules_ptr[COUNT_OF_RULES])(char *, int *, int *, int *, int *, int *, int *) = {
   rule_default,
-  rule_ddmmyyhhmmss_01
+  rule_ddmmyyhhmmss_01,
+  rule_nofix
 };
 
 /** corrects broken date string to expected format, see 

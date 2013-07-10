@@ -153,7 +153,7 @@ char * correct_datestring (char * broken_datetime) {
   int written = snprintf(fixed_date, TIFFDATETIMELENGTH, "%04d:%02d:%02d %02d:%02d:%02d", year, month, day, hour, min, sec);
 
   if (written != (TIFFDATETIMELENGTH)-1) {
-    fprintf(stderr, "something wrong, instead %d chars, %d chars were written\n",TIFFDATETIMELENGTH ,written);
+    fprintf(stderr, "something wrong, instead %d chars, %d chars were written\n",TIFFDATETIMELENGTH-1 ,written);
     exit (-5);
   }
   return fixed_date;

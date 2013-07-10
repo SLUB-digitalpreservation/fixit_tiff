@@ -1,14 +1,28 @@
-/** fixes broken TIFF Files */
-/* author: Andreas Romeyke, 2013 */
-/* licensed under conditions of libtiff */
+/* fixes broken TIFF Files
+ * 
+ * fixes invalid DateTime-field in Baseline-TIFFs,
+ * based on http://www.awaresystems.be/imaging/tiff/tifftags/baseline.html
+ *
+ * author: Andreas Romeyke, 2013
+ * licensed under conditions of libtiff 
+ */
+
 
 #include "fixit_tiff.h"
 
-/* 20 comes from TIFF definition */
+/** 20 comes from TIFF definition 
+ */
 #define TIFFDATETIMELENGTH 20
 
+/** global variables */
+static int flag_be_quiet=0;
+static int flag_check_only=0;
+
+/** help function */
 void help () {
   printf ("fixit_tiff broken_tiff_file corrected_tiff_file\n");
+  printf ("call it with:\n");
+  printf ("\tfixit_tiff [-h|-c|-s] -i infile [-o outfile]\n");
 }
 
 /** copy infile to outfile 
@@ -26,7 +40,7 @@ void copy_file (const char * inf, const char * outf) {
     fprintf(stderr, "could not open file '%s' for writing\n", outf);
     exit (-21);
   }
-  /* first, copy infile to outfile */
+  /* copy infile to outfile */
   char            buffer[512];
   size_t          n;
   while ((n = fread(buffer, sizeof(char), sizeof(buffer), in)) > 0)
@@ -40,9 +54,17 @@ void copy_file (const char * inf, const char * outf) {
   fclose(out);
 }
 
-/* check if date / time values are within correct ranges */
+/** check if date / time values are within correct ranges 
+ * @param year year
+ * @param month month
+ * @param day day
+ * @param hour hour
+ * @param min min
+ * @param sec sec
+ * @return 0 if success, otherwise -1
+ */
 int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
+  if (flag_be_quiet) printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
   if (
       1500 < *year && 
       2100 > *year &&
@@ -63,9 +85,9 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
   }
 }
 
-/* RULE0: default rule (string is correct) */
+/** RULE0: default rule (string is correct) */
 int rule_default (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  printf ("rule00\n");
+  if (flag_be_quiet) printf ("rule00\n");
   if (6 == sscanf(datestring, "%04d:%02d:%02d%02d:%02d:%02d", year, month, day, hour, min, sec)) {
     return test_plausibility(year, month, day, hour, min, sec);
   } else {
@@ -73,9 +95,9 @@ int rule_default (char * datestring, int * year, int * month, int * day, int * h
   }
 }
 
-/* RULE1: fix: '04.03.2010 09:59:17' => '04:03:2010 09:59:17' */
+/** RULE1: fix: '04.03.2010 09:59:17' => '04:03:2010 09:59:17' */
 int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  printf ("rule01\n");
+  if (flag_be_quiet) printf ("rule01\n");
   if (6 == sscanf(datestring, "%02d.%02d.%04d%02d:%02d:%02d", day, month, year, hour, min, sec)) {
     return test_plausibility(year, month, day, hour, min, sec);
   } else {
@@ -83,14 +105,15 @@ int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day,
   }
 }
 
-/* RULENOFIX: dummy rule if no other rule matches, calls only exit */
+/** RULENOFIX: dummy rule if no other rule matches, calls only exit */
 int rule_nofix (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
   fprintf(stderr, "rule nofix, there is no applyable rule left, aborted without fixing problem\n");
-  exit(-1000);
+  exit(-6);
 }
 
+/** used for array of rules */
 #define COUNT_OF_RULES 3
-/* Array of rules */
+/** Array of rules */
 int (*rules_ptr[COUNT_OF_RULES])(char *, int *, int *, int *, int *, int *, int *) = {
   rule_default,
   rule_ddmmyyhhmmss_01,
@@ -112,7 +135,7 @@ char * correct_datestring (char * broken_datetime) {
   /* if ret is wrong, you could try another rules to apply */
   int r;
   for (r = 0; r < COUNT_OF_RULES; r++) {
-    printf("Applying rule%i", r);
+    if (flag_be_quiet) printf("Applying rule%i", r);
     if (0 != (*rules_ptr[r])(broken_datetime, &year, &month, &day, &hour, &min, &sec)) {
       fprintf(stderr, "applying next rule\n");
     } else {
@@ -136,7 +159,9 @@ char * correct_datestring (char * broken_datetime) {
   return fixed_date;
 }
 
-/* loads a tiff, fix it if needed, stores tiff */
+/** loads a tiff, fix it if needed, stores tiff
+ * @param filename filename which should be processed, repaired
+ */
 void fix_tiff(const char * filename) {
   /* load file */
   TIFF* tif = TIFFOpen(filename, "r+");
@@ -149,44 +174,98 @@ void fix_tiff(const char * filename) {
   uint32 count;
   int found=TIFFGetField(tif, TIFFTAG_DATETIME, &datetime, &count);
   if (1==found) { /* there exists a datetime field */
-    printf("Before correction\n-----------------\n");	
-    TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
-    printf("c=%u datetime:'%s'\n", count, datetime);
+    if (flag_be_quiet) printf("Before correction\n-----------------\n");	
+    if (flag_be_quiet) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
+    if (flag_be_quiet) printf("c=%u datetime:'%s'\n", count, datetime);
     /* should be corrected? */
     char * new_datetime = correct_datestring( datetime );
     if (0 != strncmp(datetime, new_datetime, TIFFDATETIMELENGTH)) {
-      /* yes, correct TIFF DateTIME */
-      TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
-      printf("After  correction\n-----------------\n");
-      TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
-      /* write data back */
-      int written = TIFFRewriteDirectory(tif);
-      if (1 != written) {
-        fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
-        exit (-3);
+      /* yes, correct TIFF DateTime is needed */
+      if (!flag_check_only) {
+        TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
+        if (flag_be_quiet) printf("After  correction\n-----------------\n");
+        if (flag_be_quiet) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
+        /* write data back, only if no flag_check_only is set */
+        int written = TIFFRewriteDirectory(tif);
+        if (1 != written) {
+          fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
+          exit (-3);
+        }
+      } else {
+        if (flag_be_quiet) printf ("datetime correction needed\n");
       }
     } else { /* no, should not be touched */
-      printf ("no correction needed\n");
+      if (flag_be_quiet) printf ("no correction needed\n");
     }
   } else if (0 == found) {
-    printf ("no datetime found!\n");
+    if (flag_be_quiet) printf ("no datetime found!\n");
   }
-
   TIFFClose(tif);
 }
 
-/* main */
+/** main */
 int main (int argc, char * argv[]) {
-  if (argc != 3) {
-    help();
-    exit(-1);
+  const char *infilename = NULL;
+  const char *outfilename= NULL;
+  opterr = 0;
+  int c;
+  int flag_substitute_only=0;
+  while ((c = getopt (argc, argv, "s::cq::hi:o:")) != -1) {
+      switch (c)
+           {
+           case 'h': /* help */
+             help();
+             exit (0);
+           case 's': /* inplace substitution */
+             flag_substitute_only = 1;
+             break;
+           case 'c': /* reports only if repair needed */
+             flag_check_only = 1;
+             break;
+           case 'q': /* disables describing messages */
+             flag_be_quiet = 1;
+             break;
+           case 'i': /* expects infile */
+             infilename=optarg;
+             break;
+           case 'o': /* expects outfile */
+             outfilename=optarg;
+           case '?': /* something goes wrong */
+             if (optopt == 'c')
+               fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+             else if (isprint (optopt))
+               fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+             else
+               fprintf (stderr,
+                        "Unknown option character `\\x%x'.\n",
+                        optopt);
+             exit (-1);
+           default:
+             abort();
+           }
   }
-  const char *infilename = argv[1];
-  const char *outfilename= argv[2];
-  printf ("infile='%s', outfile='%s'\n", infilename, outfilename);
-  copy_file (infilename, outfilename);
-  fix_tiff(outfilename);
-  return 0;
+  /* added additional checks */
+  if (flag_substitute_only && flag_check_only) {
+    fprintf (stderr, "The options '-s' and '-c' could not be used in combination, see '%s -h' for details\n", argv[0]);
+    exit (-7);
+  }
+  if (NULL == infilename) {
+    fprintf (stderr, "You need to specify infile with '-i filename', see '%s -h' for details\n", argv[0]);
+    exit (-8);
+  }
+  if (!flag_substitute_only && !flag_check_only) {
+    if (NULL == outfilename) {
+      fprintf (stderr, "You need to specify outfile with '-o outfilename', see '%s -h' for details\n", argv[0]);
+      exit (-9);
+    }
+  }
+  if (flag_be_quiet) printf ("infile='%s', outfile='%s'\n", infilename, outfilename);
+  if (flag_substitute_only) { /* inplace correction */
+    fix_tiff(infilename);
+  } else { /* source target */
+    copy_file (infilename, outfilename);
+    fix_tiff(outfilename);
+  }
+  exit (0);
 }
-
 

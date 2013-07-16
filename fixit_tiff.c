@@ -98,7 +98,7 @@ int rule_default (char * datestring, int * year, int * month, int * day, int * h
   }
 }
 
-/** RULE1: fix: '04.03.2010 09:59:17' => '04:03:2010 09:59:17' */
+/** RULE1: fix: '18.03.2010 09:59:17' => '2010:03:18 09:59:17' */
 int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
   if (FLAGGED == flag_be_verbose) printf ("rule01\n");
   if (6 == sscanf(datestring, "%02d.%02d.%04d%02d:%02d:%02d", day, month, year, hour, min, sec)) {

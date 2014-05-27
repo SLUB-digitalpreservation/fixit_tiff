@@ -12,8 +12,8 @@ strip: all
 	$(CC) $(CFLAGS) $(INC) -c $<
 
 # default executable
-fixit_tiff: fixit_tiff.o
-	$(CC) $(CFLAGS) $(INC) $(LIB) -o $@ $<
+fixit_tiff: cleanup_datetime.o cleanup_baseline.o fixit_tiff.o
+	$(CC) $(CFLAGS) $(INC) $(LIB) -o $@ $^
 
 # doc
 doc: doxygen.conf

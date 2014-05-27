@@ -22,6 +22,21 @@
 #define FIXIT_TIFF_WRITE_PERMISSION_ERROR -21
 #define FIXIT_TIFF_WRITE_ERROR -22
 
+/** 20 comes from TIFF definition 
+ */
+#define TIFFDATETIMELENGTH 20
+
+int check_datetime (const char *);
+int check_baseline (const char *); 
+int cleanup_datetime (const char *);
+int cleanup_baseline (const char *); 
+
 #define FLAGGED 1
 #define UNFLAGGED 0
+
+/** global variables */
+static int flag_be_verbose=FLAGGED;
+static int flag_check_only=UNFLAGGED;
+
+
 #endif _FIXIT_TIFF

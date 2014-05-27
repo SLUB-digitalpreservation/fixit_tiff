@@ -104,7 +104,7 @@ int main (int argc, char * argv[]) {
            case 'h': /* help */
              help();
              exit (0);
-           case 's': /* inplace substitution */
+           case 's': /* inplace file substitution (no new output file is written) */
              flag_substitute_only = FLAGGED;
              break;
            case 'b': /* clean up to be baseline tiff conform */

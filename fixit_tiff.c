@@ -19,14 +19,55 @@
 static int flag_be_verbose=FLAGGED;
 static int flag_check_only=UNFLAGGED;
 
+#define count_of_baselinetags 36
+const static uint32 baselinetags[count_of_baselinetags]={
+  TIFFTAG_SUBFILETYPE,
+  TIFFTAG_OSUBFILETYPE,
+  TIFFTAG_IMAGEWIDTH,
+  TIFFTAG_IMAGELENGTH,
+  TIFFTAG_BITSPERSAMPLE,
+  TIFFTAG_COMPRESSION,
+  TIFFTAG_PHOTOMETRIC,
+  TIFFTAG_THRESHHOLDING,
+  TIFFTAG_CELLWIDTH,
+  TIFFTAG_CELLLENGTH,
+  TIFFTAG_FILLORDER,
+  TIFFTAG_IMAGEDESCRIPTION,
+  TIFFTAG_MAKE,
+  TIFFTAG_MODEL,
+  TIFFTAG_STRIPOFFSETS,
+  TIFFTAG_ORIENTATION,
+  TIFFTAG_SAMPLESPERPIXEL,
+  TIFFTAG_ROWSPERSTRIP,
+  TIFFTAG_STRIPBYTECOUNTS,
+  TIFFTAG_MINSAMPLEVALUE,
+  TIFFTAG_MAXSAMPLEVALUE,
+  TIFFTAG_XRESOLUTION,
+  TIFFTAG_YRESOLUTION,
+  TIFFTAG_PLANARCONFIG,
+  TIFFTAG_FREEOFFSETS,
+  TIFFTAG_FREEBYTECOUNTS,
+  TIFFTAG_GRAYRESPONSEUNIT,
+  TIFFTAG_GRAYRESPONSECURVE,
+  TIFFTAG_RESOLUTIONUNIT,
+  TIFFTAG_SOFTWARE,
+  TIFFTAG_DATETIME,
+  TIFFTAG_ARTIST,
+  TIFFTAG_HOSTCOMPUTER,
+  TIFFTAG_COLORMAP,
+  TIFFTAG_EXTRASAMPLES,
+  TIFFTAG_COPYRIGHT
+};
+
 /** help function */
 void help () {
   printf ("fixit_tiff\n");
   printf ("call it with:\n");
-  printf ("\tfixit_tiff [-h|-c|-s] -i <infile> [-o <outfile>]\n");
+  printf ("\tfixit_tiff [-h|-c|-s|-b] -i <infile> [-o <outfile>]\n");
   printf ("\nwhere <infile> is the possibly broken file\n");
   printf ("and <outfile> is the name of the corrected file\n");
 }
+
 
 /** copy infile to outfile 
  * @param inf string with infile name 
@@ -108,6 +149,16 @@ int rule_ddmmyyhhmmss_01 (char * datestring, int * year, int * month, int * day,
   }
 }
 
+/** RULE2: fix: '2010-03-18 09:59:17' => '2010:03:18 09:59:17' */
+int rule_ddmmyyhhmmss_02 (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
+  if (FLAGGED == flag_be_verbose) printf ("rule01\n");
+  if (6 == sscanf(datestring, "%04d-%02d-%02d%02d:%02d:%02d", year, month, day , hour, min, sec)) {
+    return test_plausibility(year, month, day, hour, min, sec);
+  } else {
+    return -2;
+  }
+}
+
 /** RULENOFIX: dummy rule if no other rule matches, calls only exit */
 int rule_nofix (char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
   fprintf(stderr, "rule nofix, there is no applyable rule left, aborted without fixing problem\n");
@@ -115,11 +166,12 @@ int rule_nofix (char * datestring, int * year, int * month, int * day, int * hou
 }
 
 /** used for array of rules */
-#define COUNT_OF_RULES 3
+#define COUNT_OF_RULES 4
 /** Array of rules */
 int (*rules_ptr[COUNT_OF_RULES])(char *, int *, int *, int *, int *, int *, int *) = {
   rule_default,
   rule_ddmmyyhhmmss_01,
+  rule_ddmmyyhhmmss_02,
   rule_nofix
 };
 
@@ -165,7 +217,7 @@ char * correct_datestring (char * broken_datetime) {
 /** loads a tiff, fix it if needed, stores tiff
  * @param filename filename which should be processed, repaired
  */
-void fix_tiff(const char * filename) {
+void fix_tiff(const char * filename ) {
   /* load file */
   TIFF* tif = TIFFOpen(filename, "r+");
   if (NULL == tif) {
@@ -200,11 +252,64 @@ void fix_tiff(const char * filename) {
       }
     } else { /* no, should not be touched, check only */
       if (FLAGGED == flag_be_verbose) printf ("no correction needed\n");
-      exit(FIXIT_TIFF_IS_VALID);
+      //exit(FIXIT_TIFF_IS_VALID);
     }
   } else if (0 == found) {
     if (FLAGGED == flag_be_verbose) printf ("no datetime found!\n");
     exit(FIXIT_TIFF_IS_VALID);
+  }
+  TIFFClose(tif);
+}
+
+/** loads a tiff, cleanup it if needed, stores tiff
+ * @param filename filename which should be processed, repaired
+ */
+void cleanup_as_baselinetiff(const char * filename ) {
+  /* load file */
+  TIFF* tif = TIFFOpen(filename, "r+");
+  if (NULL == tif) {
+    fprintf( stderr, "file '%s' could not be opened\n", filename);
+    exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
+  };
+  uint32 tag_counter=TIFFGetTagListCount(tif);
+  uint32 tagidx;
+  uint32 tags[tag_counter];
+  /*tags = malloc( size_of(uint32) * tag_counter); 
+  if (NULL == tags) {
+    perror ("could not allocate memory for tags");
+  }
+  */
+  for (tagidx=0; tagidx < tag_counter; tagidx++) {
+    tags[tagidx] = TIFFGetTagListEntry( tif, tagidx );
+  }
+  /* iterate through all tiff-tags in tiff file
+   * delete all tags not in baselinetags
+   */
+  for (tagidx=0; tagidx < tag_counter; tagidx++) {
+    printf ("found tag %i [0x%x] (%i)\n", tags[tagidx],tags[tagidx], tagidx);
+    int found = 0;
+    int baseline_index=0;
+    for (baseline_index = 0; baseline_index < count_of_baselinetags; baseline_index++) {
+      if (tags[tagidx] == baselinetags[baseline_index]) { 
+        /* printf ("DEBUG tag=%i base=%i idx=%i\n", tags[tagidx], baselinetags[baseline_index], baseline_index); */
+        found = 1; 
+        break;
+      }
+    }
+    if (found == 0 ) {
+      if (FLAGGED == flag_be_verbose) printf("removed tag %i\n", tags[tagidx]);
+      TIFFUnsetField(tif, tags[tagidx]);
+    }
+  }
+  /* free( tags );
+  tags=NULL; */
+  if (FLAGGED == flag_be_verbose) printf("After  correction\n-----------------\n");
+  if (FLAGGED == flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
+  /* write data back, only if no flag_check_only is set */
+  int written = TIFFRewriteDirectory(tif);
+  if (1 != written) {
+    fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
+    exit (FIXIT_TIFF_WRITE_ERROR);
   }
   TIFFClose(tif);
 }
@@ -216,7 +321,8 @@ int main (int argc, char * argv[]) {
   //opterr = 0;
   int c;
   int flag_substitute_only=UNFLAGGED;
-  while ((c = getopt (argc, argv, "s::cq::hi:o:")) != -1) {
+  int flag_baseline_cleanup=UNFLAGGED;
+  while ((c = getopt (argc, argv, "s::cbq::hi:o:")) != -1) {
       switch (c)
            {
            case 'h': /* help */
@@ -224,6 +330,9 @@ int main (int argc, char * argv[]) {
              exit (0);
            case 's': /* inplace substitution */
              flag_substitute_only = FLAGGED;
+             break;
+           case 'b': /* clean up to be baseline tiff conform */
+             flag_baseline_cleanup=FLAGGED;
              break;
            case 'c': /* reports only if repair needed */
              flag_check_only = FLAGGED; 
@@ -274,6 +383,10 @@ int main (int argc, char * argv[]) {
   } else { /* source target */
     copy_file (infilename, outfilename);
     fix_tiff(outfilename);
+  }
+  if (FLAGGED == flag_baseline_cleanup) { /* baseline tiff cleanup */
+    if (FLAGGED == flag_be_verbose) printf ("baseline cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
+    cleanup_as_baselinetiff(outfilename);
   }
   exit (FIXIT_TIFF_IS_CORRECTED);
 }

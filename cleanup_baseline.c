@@ -85,7 +85,7 @@ int check_baseline(const char * filename ) {
   return FIXIT_TIFF_IS_VALID;
 }
 
-/** loads a tiff, cleanup it if needed, stores tiff
+/** load a tiff, clean it up if needed, store tiff
  * @param filename filename which should be processed, repaired
  */
 int cleanup_baseline(const char * filename ) {

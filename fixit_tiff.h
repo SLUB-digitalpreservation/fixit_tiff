@@ -28,6 +28,7 @@
 
 int check_datetime (const char *);
 int check_baseline (const char *); 
+int check_required (const char *); 
 int cleanup_datetime (const char *);
 int cleanup_baseline (const char *); 
 

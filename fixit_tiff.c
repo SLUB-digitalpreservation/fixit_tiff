@@ -10,46 +10,6 @@
 
 #include "fixit_tiff.h"
 
-#define count_of_baselinetags 36
-const static uint32 baselinetags[count_of_baselinetags]={
-  TIFFTAG_SUBFILETYPE,
-  TIFFTAG_OSUBFILETYPE,
-  TIFFTAG_IMAGEWIDTH,
-  TIFFTAG_IMAGELENGTH,
-  TIFFTAG_BITSPERSAMPLE,
-  TIFFTAG_COMPRESSION,
-  TIFFTAG_PHOTOMETRIC,
-  TIFFTAG_THRESHHOLDING,
-  TIFFTAG_CELLWIDTH,
-  TIFFTAG_CELLLENGTH,
-  TIFFTAG_FILLORDER,
-  TIFFTAG_IMAGEDESCRIPTION,
-  TIFFTAG_MAKE,
-  TIFFTAG_MODEL,
-  TIFFTAG_STRIPOFFSETS,
-  TIFFTAG_ORIENTATION,
-  TIFFTAG_SAMPLESPERPIXEL,
-  TIFFTAG_ROWSPERSTRIP,
-  TIFFTAG_STRIPBYTECOUNTS,
-  TIFFTAG_MINSAMPLEVALUE,
-  TIFFTAG_MAXSAMPLEVALUE,
-  TIFFTAG_XRESOLUTION,
-  TIFFTAG_YRESOLUTION,
-  TIFFTAG_PLANARCONFIG,
-  TIFFTAG_FREEOFFSETS,
-  TIFFTAG_FREEBYTECOUNTS,
-  TIFFTAG_GRAYRESPONSEUNIT,
-  TIFFTAG_GRAYRESPONSECURVE,
-  TIFFTAG_RESOLUTIONUNIT,
-  TIFFTAG_SOFTWARE,
-  TIFFTAG_DATETIME,
-  TIFFTAG_ARTIST,
-  TIFFTAG_HOSTCOMPUTER,
-  TIFFTAG_COLORMAP,
-  TIFFTAG_EXTRASAMPLES,
-  TIFFTAG_COPYRIGHT
-};
-
 /** help function */
 void help () {
   printf ("fixit_tiff\n");
@@ -153,7 +113,17 @@ int main (int argc, char * argv[]) {
   if (FLAGGED == flag_be_verbose) printf ("infile='%s', outfile='%s'\n", infilename, outfilename);
   /* check only if file is valid */
   if (FLAGGED == flag_check_only) {
-    exit (check_datetime(infilename) || check_baseline(infilename));
+    /*
+     exit (
+        check_required(infilename));
+        */
+    
+    exit (
+        check_required(infilename) ||
+        check_baseline(infilename) || 
+        check_datetime(infilename) 
+        );
+    
   } 
   /* inplace correction */
   if (FLAGGED == flag_substitute_only) { /* inplace correction */

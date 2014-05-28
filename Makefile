@@ -1,5 +1,5 @@
 LIB+=-ltiff
-CFLAGS=-Os -Wall
+CFLAGS=-O2 -g -Wall
 
 # default target
 all: fixit_tiff

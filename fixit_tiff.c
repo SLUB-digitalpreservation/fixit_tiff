@@ -13,10 +13,16 @@
 /** help function */
 void help () {
   printf ("fixit_tiff\n");
+  printf ("uses libtiff version %s\n", TIFFGetVersion());
   printf ("call it with:\n");
   printf ("\tfixit_tiff [-h|-c|-s|-b] -i <infile> [-o <outfile>]\n");
   printf ("\nwhere <infile> is the possibly broken file\n");
   printf ("and <outfile> is the name of the corrected file\n");
+  printf ("\t-c checks file only\n");
+  printf ("\t-s inplace file substitution (only -i needed)\n");
+  printf ("\t-b clean up (eliminates tags to be baseline tiff conform)\n");
+  printf ("\t-q disables describing messages\n");
+  printf ("\tHint: 'fixit_tiff -i <infile> -o <outfile>' repairs date only\n");
 }
 
 

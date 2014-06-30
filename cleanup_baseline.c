@@ -132,7 +132,7 @@ void print_required_tags (TIFF * tif) {
   int tag_counter=TIFFGetAllTagListCount(tif);
   int tagidx;
   uint32 tags[tag_counter];
-  printf ("[*] means: tag already exists\n", tag_counter);
+  printf ("[*] means: tag already exists\n");
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
     tags[tagidx] = TIFFGetAllTagListEntry( tif, tagidx );
   } 
@@ -251,22 +251,22 @@ int cleanup_baseline(const char * filename ) {
       fprintf( stderr, "file '%s' could not be opened\n", filename);
       exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
     };
-    uint32 tag_counter=TIFFGetTagListCount(tif);
+    uint32 tag_counter=TIFFGetAllTagListCount(tif);
     uint32 tagidx;
     uint32 tags[tag_counter];
     for (tagidx=0; tagidx < tag_counter; tagidx++) {
-      tags[tagidx] = TIFFGetTagListEntry( tif, tagidx );
+      tags[tagidx] = TIFFGetAllTagListEntry( tif, tagidx );
     }
     /* iterate through all tiff-tags in tiff file
      * delete all tags not in baselinetags
      */
-    for (tagidx=0; tagidx < tag_counter; tagidx++) {
-      /* printf ("found tag %i [0x%x] (%i)\n", tags[tagidx],tags[tagidx], tagidx); */
+    for (tagidx=0; tagidx < tag_counter; tagidx++) { 
+      printf ("found tag %i [0x%x] (%i)\n", tags[tagidx],tags[tagidx], tagidx); 
       int found = 0;
       int baseline_index=0;
       for (baseline_index = 0; baseline_index < count_of_baselinetags; baseline_index++) {
         if (tags[tagidx] == baselinetags[baseline_index]) { 
-          /* printf ("DEBUG tag=%i base=%i idx=%i\n", tags[tagidx], baselinetags[baseline_index], baseline_index); */
+          printf ("DEBUG tag=%i base=%i idx=%i\n", tags[tagidx], baselinetags[baseline_index], baseline_index); 
           found = 1; 
           break;
         }

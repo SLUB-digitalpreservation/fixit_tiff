@@ -9,6 +9,7 @@
 
 
 #include "fixit_tiff.h"
+#include <tiffio.h>
 
 #define count_of_baselinetags 36
 const static uint32 baselinetags[count_of_baselinetags]={
@@ -66,40 +67,47 @@ const static uint32 required_baselinetags[count_of_required_baselinetags]={
   TIFFTAG_BITSPERSAMPLE
 };
 
-int TIFFGetAllTagListCount (TIFF * tif) {
-  int tagcounter=0;
-  uint32 i;
-  uint32 dummycount;
-  void * dummydata;
-  for (i=0; i< 65536; i++) {
-    if (i != TIFFTAG_OSUBFILETYPE) {
-      int found=0;
-      found=TIFFGetField( tif, i, &dummycount, &dummydata);
-      if (1 == found) { /* found*/
-        tagcounter++;
-      }
-    }
-  }
-  return tagcounter;
+/* scans first IDF and returns count of tags */
+int TIFFGetRawTagListCount (TIFF * tif) {
+  int fd = TIFFFileno( tif);
+  /* seek the image file directory (bytes 4-7) */
+  lseek(fd, (off_t) 4, SEEK_SET);
+  uint32 offset;
+  if (read(fd, &offset, 4) != 4)
+    perror ("TIFF Header read error");
+  if (TIFFIsByteSwapped(tif))
+    TIFFSwabLong(&offset);
+  // printf("diroffset to %i (0x%04lx)\n", offset, offset);
+  //printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
+  /* read and seek to IFD address */
+  lseek(fd, (off_t) offset, SEEK_SET);
+  uint16 count;
+  if (read(fd, &count, 2) != 2)
+    perror ("TIFF Header read error2");
+  if (TIFFIsByteSwapped(tif))
+    TIFFSwabShort(&count);
+  return count;
 }
 
-uint32 TIFFGetAllTagListEntry( TIFF  * tif, int tagidx ) {
-  int tagcounter=0;
-  uint32 i;
-  uint32 dummycount;
-  void * dummydata;
-  for (i=0; i< 65536; i++) {
-    if (i != TIFFTAG_OSUBFILETYPE) {
-      int found=0;
-      found=TIFFGetField( tif, i, &dummycount, &dummydata);
-      if (1 == found) { /* found*/
-        if (tagidx == tagcounter) {
-          return i;
-        }
-        tagcounter++;
-      }
-    }
+/* scans first IDF and returns the n-th tag */
+uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
+  int count = TIFFGetRawTagListCount( tif);
+  int fd = TIFFFileno( tif);
+    //printf("count %i\n", count);
+  /* read count of tags (2 Bytes) */
+  int i;
+
+  for (i = 0; i<count; i++) {
+    uint16 tagid;
+    if (read(fd, &tagid, 2) != 2)
+      perror ("TIFF IFD read error");
+    if (TIFFIsByteSwapped(tif))
+      TIFFSwabShort(&tagid);
+    if (i == tagidx) return tagid;
+    //printf("tag idx=%i, tag=%i (0x%lx)\n", i, tagid, tagid);
+    lseek(fd, (off_t) 10, SEEK_CUR);
   }
+  /* loop each tag until end or given tag found */
   return -1;
 }
 
@@ -107,12 +115,12 @@ void print_baseline_tags (TIFF * tif) {
   int i;
   TIFFReadDirectory( tif);
   TIFFReadDirectory( tif);
-  int tag_counter=TIFFGetAllTagListCount(tif);
+  int tag_counter=TIFFGetRawTagListCount(tif);
   int tagidx;
   uint32 tags[tag_counter];
   printf ("tag count=%i, [*] means: tag is a baseline tag\n", tag_counter);
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
-    tags[tagidx] = TIFFGetAllTagListEntry( tif, tagidx );
+    tags[tagidx] = TIFFGetRawTagListEntry( tif, tagidx );
   } 
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
     int found = 0;
@@ -129,12 +137,12 @@ void print_baseline_tags (TIFF * tif) {
 
 void print_required_tags (TIFF * tif) {
   int i;
-  int tag_counter=TIFFGetAllTagListCount(tif);
+  int tag_counter=TIFFGetRawTagListCount(tif);
   int tagidx;
   uint32 tags[tag_counter];
   printf ("[*] means: tag already exists\n");
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
-    tags[tagidx] = TIFFGetAllTagListEntry( tif, tagidx );
+    tags[tagidx] = TIFFGetRawTagListEntry( tif, tagidx );
   } 
   for (i=0; i<count_of_required_baselinetags; i++) {
     int found = 0;
@@ -161,11 +169,11 @@ int check_required (const char * filename ) {
   };
   printf("these tags are required:\n");
   print_required_tags(tif);
-  int tag_counter=TIFFGetAllTagListCount(tif);
+  int tag_counter=TIFFGetRawTagListCount(tif);
   int tagidx;
   uint32 tags[tag_counter];
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
-    tags[tagidx] = TIFFGetAllTagListEntry( tif, tagidx );
+    tags[tagidx] = TIFFGetRawTagListEntry( tif, tagidx );
   }
   /* check if only baselinetags are exists,
    * iterate through all tiff-tags in tiff file
@@ -204,11 +212,11 @@ int check_baseline(const char * filename ) {
     fprintf( stderr, "file '%s' could not be opened\n", filename);
     exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
   };
-  uint32 tag_counter=TIFFGetAllTagListCount(tif);
+  uint32 tag_counter=TIFFGetRawTagListCount(tif);
   uint32 tagidx;
   uint32 tags[tag_counter];
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
-    tags[tagidx] = TIFFGetAllTagListEntry( tif, tagidx );
+    tags[tagidx] = TIFFGetRawTagListEntry( tif, tagidx );
   }
   /* check if only baselinetags are exists,
    * iterate through all tiff-tags in tiff file
@@ -251,11 +259,11 @@ int cleanup_baseline(const char * filename ) {
       fprintf( stderr, "file '%s' could not be opened\n", filename);
       exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
     };
-    uint32 tag_counter=TIFFGetAllTagListCount(tif);
+    uint32 tag_counter=TIFFGetRawTagListCount(tif);
     uint32 tagidx;
     uint32 tags[tag_counter];
     for (tagidx=0; tagidx < tag_counter; tagidx++) {
-      tags[tagidx] = TIFFGetAllTagListEntry( tif, tagidx );
+      tags[tagidx] = TIFFGetRawTagListEntry( tif, tagidx );
     }
     /* iterate through all tiff-tags in tiff file
      * delete all tags not in baselinetags

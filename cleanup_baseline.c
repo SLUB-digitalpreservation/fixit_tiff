@@ -113,8 +113,6 @@ uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
 
 void print_baseline_tags (TIFF * tif) {
   int i;
-  TIFFReadDirectory( tif);
-  TIFFReadDirectory( tif);
   int tag_counter=TIFFGetRawTagListCount(tif);
   int tagidx;
   uint32 tags[tag_counter];

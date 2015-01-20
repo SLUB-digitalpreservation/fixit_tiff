@@ -64,13 +64,52 @@ static int rule_ddmmyyhhmmss_01 (const char * datestring, int * year, int * mont
 
 /** RULE2: fix: '2010-03-18 09:59:17' => '2010:03:18 09:59:17' */
 static int rule_ddmmyyhhmmss_02 (const char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  if (FLAGGED == flag_be_verbose) printf ("rule01\n");
+  if (FLAGGED == flag_be_verbose) printf ("rule02\n");
   if (6 == sscanf(datestring, "%04d-%02d-%02d%02d:%02d:%02d", year, month, day , hour, min, sec)) {
     return test_plausibility(year, month, day, hour, min, sec);
   } else {
     return -2;
   }
 }
+
+/** RULE3: fix 'Tue Dec 19 09:18:54 2006%0A' => '2006:12:19 09:18:45' */
+static int rule_ddmmyyhhmmss_03 (const char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
+  if (FLAGGED == flag_be_verbose) printf ("rule03\n");
+  char dow[4] = "\0\0\0\0";
+  char monthstring[4] = "\0\0\0\0";
+  int i;
+  static char* months[] = {
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  };
+  fprintf (stderr, "Datestring '%s'\n", datestring);
+  int ret = 0;
+  ret = sscanf(datestring, "%3s%3s%02d%02d:%02d:%02d%04d", &dow, &monthstring, day, hour, min, sec, year);
+  if (7 == ret ) {
+    *month=-1;
+    for ( i = 0; i<= 11; i++) {
+      if (strncmp (months[i], monthstring, 3) == 0) {
+        *month=i+1;
+        break;
+      }
+    }
+    return test_plausibility(year, month, day, hour, min, sec);
+  } else {
+    return -2;
+  }
+}
+
+
 
 /** RULENOFIX: dummy rule if no other rule matches, calls only exit */
 static int rule_nofix (const char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
@@ -79,12 +118,13 @@ static int rule_nofix (const char * datestring, int * year, int * month, int * d
 }
 
 /** used for array of rules */
-#define COUNT_OF_RULES 4
+#define COUNT_OF_RULES 5
 /** Array of rules */
 int (*rules_ptr[COUNT_OF_RULES])(const char *, int *, int *, int *, int *, int *, int *) = {
   rule_default,
   rule_ddmmyyhhmmss_01,
   rule_ddmmyyhhmmss_02,
+  rule_ddmmyyhhmmss_03,
   rule_nofix
 };
 

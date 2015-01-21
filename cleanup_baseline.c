@@ -1,6 +1,6 @@
 /* fixes broken TIFF Files
  * 
- * fixes invalid DateTime-field in Baseline-TIFFs,
+ * fixes unused tags in Baseline-TIFFs,
  * based on http://www.awaresystems.be/imaging/tiff/tifftags/baseline.html
  *
  * author: Andreas Romeyke, 2013

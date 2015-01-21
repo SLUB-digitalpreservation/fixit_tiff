@@ -31,6 +31,7 @@ int check_baseline (const char *);
 int check_required (const char *); 
 int cleanup_datetime (const char *);
 int cleanup_baseline (const char *); 
+int cleanup_tagorder (const char *); 
 
 #define FLAGGED 1
 #define UNFLAGGED 0

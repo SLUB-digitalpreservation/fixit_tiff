@@ -19,9 +19,10 @@ void help () {
   printf ("\nwhere <infile> is the possibly broken file\n");
   printf ("and <outfile> is the name of the corrected file\n");
   printf ("\t-c checks file only\n");
-  printf ("\t-s inplace file substitution (only -i needed)\n");
+  printf ("\t-s inplace file substitution (only -i needed, dangerous)\n");
   printf ("\t-b clean up (eliminates tags to be baseline tiff conform)\n");
   printf ("\t-q disables describing messages\n");
+  printf ("\t-t try to fix tagorder (dangerous)\n");
   printf ("\tHint: 'fixit_tiff -i <infile> -o <outfile>' repairs date only\n");
 }
 
@@ -64,7 +65,8 @@ int main (int argc, char * argv[]) {
   int c;
   int flag_substitute_only=UNFLAGGED;
   int flag_baseline_cleanup=UNFLAGGED;
-  while ((c = getopt (argc, argv, "s::cbq::hi:o:")) != -1) {
+  int flag_tagorder=UNFLAGGED;
+  while ((c = getopt (argc, argv, "s::cbqt::hi:o:")) != -1) {
       switch (c)
            {
            case 'h': /* help */
@@ -75,6 +77,9 @@ int main (int argc, char * argv[]) {
              break;
            case 'b': /* clean up to be baseline tiff conform */
              flag_baseline_cleanup=FLAGGED;
+             break;
+           case 't': /* try to fix tagorder */
+             flag_tagorder=FLAGGED;
              break;
            case 'c': /* reports only if repair needed */
              flag_check_only = FLAGGED; 
@@ -130,7 +135,13 @@ int main (int argc, char * argv[]) {
         check_datetime(infilename) 
         );
     
-  } 
+  }
+  /* try to fix tag order */
+  if (FLAGGED == flag_tagorder) {
+        copy_file (infilename, outfilename);
+        cleanup_tagorder(outfilename);
+        exit (FIXIT_TIFF_IS_CORRECTED);
+  }
   /* inplace correction */
   if (FLAGGED == flag_substitute_only) { /* inplace correction */
     cleanup_datetime(infilename);

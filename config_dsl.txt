@@ -1,0 +1,20 @@
+# tag; required; values
+#
+# works as whitelist
+# * tag: any tag number in TIFF
+# * required: mandatory | optional | optional:depends( $tag.$value )
+# * values: range($start, $end) | logical_or( $a, …) | regex( $regex ) | any
+
+### Samples Per Pixel
+
+277; mandatory; logical_or( 1, 3);
+
+### Gray Response Curve
+
+291; optional:depends(277.1); any;
+
+### DateTime
+
+306; optional; regex("\d{4}:\d\d:\d\d \d\d:\d\d:\d\d");
+
+

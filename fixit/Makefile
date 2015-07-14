@@ -16,8 +16,8 @@ fixit_tiff: cleanup_datetime.o cleanup_baseline.o cleanup_order.o fixit_tiff.o
 	$(CC) $(CFLAGS) $(INC) $(LIB) -o $@ $^
 
 # doc
-doc: doxygen.conf
-	@doxygen doxygen.conf
+doc: ../common/doxygen.conf
+	@doxygen ../common/doxygen.conf
 
 # clean workdir
 clean:

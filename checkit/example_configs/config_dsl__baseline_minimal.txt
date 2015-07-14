@@ -2,8 +2,8 @@
 #
 # works as whitelist
 # * tag: any tag number in TIFF
-# * required: mandatory | optional | depends( $tag.$value ) | only
-# * values: range($start, $end) | logical_or( $a, …) | regex( $regex ) | any
+# * required: mandatory | optional | depends( $tag.$value ) 
+# * values: range($start, $end) | logical_or( $a, …) | only($a) |any
 
 # This defines a sample config for baseline tiffs
 # Remember, because it works as whitelist for each required tag we need an

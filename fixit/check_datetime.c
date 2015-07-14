@@ -8,6 +8,7 @@
  */
 
 #include "fixit_tiff.h"
+#include "check_datetime.h"
 
 /** check if date / time values are within correct ranges 
  * @param year year

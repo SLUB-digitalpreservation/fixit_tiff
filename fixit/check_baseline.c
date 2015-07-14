@@ -9,6 +9,8 @@
 
 
 #include "fixit_tiff.h"
+#include "tiff_helper.h"
+#include "check_baseline.h"
 #include <tiffio.h>
 
 

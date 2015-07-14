@@ -9,6 +9,8 @@
 
 
 #include "fixit_tiff.h"
+#include "check_baseline.h"
+#include "tiff_helper.h"
 #include <tiffio.h>
 
 /** load a tiff, clean it up if needed, store tiff

@@ -9,7 +9,7 @@
 
 
 #include "fixit_tiff.h"
-
+#include "check_datetime.h"
 
 
 /** RULE0: default rule (string is correct) */
@@ -78,8 +78,6 @@ static int rule_ddmmyyhhmmss_03 (const char * datestring, int * year, int * mont
     return -2;
   }
 }
-
-
 
 /** RULENOFIX: dummy rule if no other rule matches, calls only exit */
 static int rule_nofix (const char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {

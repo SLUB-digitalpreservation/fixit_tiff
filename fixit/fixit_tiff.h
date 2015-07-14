@@ -26,17 +26,9 @@
  */
 #define TIFFDATETIMELENGTH 20
 
-int check_datetime (const char *);
-int check_baseline (const char *); 
-int check_required (const char *); 
 int cleanup_datetime (const char *);
 int cleanup_baseline (const char *); 
 int cleanup_tagorder (const char *);
-int TIFFGetRawTagListCount (TIFF * tif);
-uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx );
-void print_baseline_tags (TIFF * tif);
-void print_required_tags (TIFF * tif);
-int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec);
 
 #define FLAGGED 1
 #define UNFLAGGED 0

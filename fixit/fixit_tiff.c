@@ -9,6 +9,8 @@
 
 
 #include "fixit_tiff.h"
+#include "check_baseline.h"
+#include "check_datetime.h"
 
 /** help function */
 void help () {

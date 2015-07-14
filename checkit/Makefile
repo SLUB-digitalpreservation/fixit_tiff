@@ -1,10 +1,10 @@
 LIB+=-ltiff
 CFLAGS=-O2 -g -Wall
 GRAMMAR=config_dsl.grammar.c
+OBJS=../fixit/tiff_helper.o checkit_tiff.o
 
 # default target
-#all: checkit_tiff test
-all: test
+all: checkit_tiff test
 
 # remove debugging symbols (smaller size)
 #strip: all
@@ -18,8 +18,8 @@ all: test
 	peg $< > $@
 
 # default executable
-#checkit_tiff: cleanup_datetime.o cleanup_baseline.o cleanup_order.o checkit_tiff.o
-#	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB) 
+checkit_tiff: $(OBJS)
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB) 
 
 test.c: $(GRAMMAR)
 

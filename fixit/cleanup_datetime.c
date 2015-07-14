@@ -64,7 +64,7 @@ static int rule_ddmmyyhhmmss_03 (const char * datestring, int * year, int * mont
   };
   fprintf (stderr, "Datestring '%s'\n", datestring);
   int ret = 0;
-  ret = sscanf(datestring, "%3s%3s%02d%02d:%02d:%02d%04d", &dow, &monthstring, day, hour, min, sec, year);
+  ret = sscanf(datestring, "%3s%3s%02d%02d:%02d:%02d%04d", dow, monthstring, day, hour, min, sec, year);
   if (7 == ret ) {
     *month=-1;
     for ( i = 0; i<= 11; i++) {

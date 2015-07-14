@@ -30,7 +30,7 @@ int rule_tagorder_in_dsl( int tag ) {
 void tagline() {  printf("tagline\n");}
 void commentline() {  printf("commentline\n");}
 void rule_should_not_occure(char c) {
-  printf("no parser rule matched at line %i (prev tag was %i), '%c'\n", getlineno(), gettag(), c);
+  printf("no parser rule matched after line %i (prev tag was %i), '%c'\n", getlineno(), gettag(), c);
 }
 void rule_addtag_config() {printf( "try to match tagline at line %i\n", getlineno());
 }

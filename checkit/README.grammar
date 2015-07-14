@@ -1,0 +1,22 @@
+Developers
+==========
+to configure the grammar you could use the PEG-extension for gvim from https://github.com/gf3/peg.vim
+
+Users
+=====
+to define your own config-file to check TIFFs, please use this simplified
+syntax:
+
+* each line is either a tagline, a comment or empty
+* a comment starts with # first
+* a tagline is built via "TAG ; REQUIREMENTS ; VALUES", where
+* a TAG is a increasing number similar to TIFF-Tag numbers (see TIFF
+definition)
+* REQUIREMENTS could be "mandatory", "optional" or "depends(TAGREFERENCE.VALUE)"
+** TAGREFERENCE points to a tag number which must be exists, 
+** VALUE could be 'any' or a decimal value or a string enclosed in '"'
+* VALUES could be one of these:
+** "range(START, END)" where START and END are decimal values
+** "logical_or( VALUELIST)" where VALUELIST are comma-separated decimale values
+** "any" which means any match
+* each tagline or comment must be closed with a new line

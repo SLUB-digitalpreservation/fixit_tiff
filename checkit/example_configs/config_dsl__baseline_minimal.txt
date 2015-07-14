@@ -10,28 +10,45 @@
 # entry here
 
 # Required Baseline Tags
+
 # 256	0100	ImageWidth	The number of columns in the image, i.e., the number of pixels per row.
 256; mandatory; any
+
 # 257	0101	ImageLength	The number of rows of pixels in the image.
 257; mandatory; any
+
 # 258	0102	BitsPerSample	Number of bits per component.
 258; mandatory; logical_or(8,16)
-# 259	0103	Compression	Compression scheme used on the image data.
-259; mandatory; only("none")
+
+# 259	0103	Compression	Compression scheme used on the image data 
+### (1 means no compression)
+259; mandatory; only(1)
+
 # 262	0106	PhotometricInterpretation	The color space of the image data.
-262; mandatory; only("rgb")
+### 2 means RGB, 0 and 1 means bilevel or grayscale, 0 is unusual 
+262; mandatory; logical_or(2,1)
+
 # 273	0111	StripOffsets	For each strip, the byte offset of that strip.
 273; mandatory; any
+
 # 277	0115	SamplesPerPixel	The number of components per pixel.
-277; mandatory; logical_or(3)
+### if RGB then 3 else 1
+277; depends(262.2); only(3)
+277; depends(262.0); only(1)
+
 # 278	0116	RowsPerStrip	The number of rows per strip.
 278; mandatory; any
+
 # 279	0117	StripByteCounts	For each strip, the number of bytes in the strip after compression.
 279; mandatory; any
+
 # 282	011A	XResolution	The number of pixels per ResolutionUnit in the ImageWidth direction.
 282; mandatory; range(300, 1200)
+
 # 283	011B	YResolution	The number of pixels per ResolutionUnit in the ImageLength direction.
 283; mandatory; range(300, 1200)
+
 # 296	0128	ResolutionUnit	The unit of measurement for XResolution and YResolution.
-296; mandatory; only("dpi")
+### (2 means inch)
+296; mandatory; only(2)
 

@@ -45,14 +45,13 @@ int cleanup_tagorder (const char * filename) {
     /* printf( "tag_counter=%i\n", count); */
     /* read the old ifd entries */
     uint8 buffer[ count * 12];
-    int i;
     if (read(fd, buffer, count * 12) != (count *12))
       perror ("TIFF IFD read error");
     /* ok, now sort buffer */
     qsort(buffer, count, sizeof(uint8) * 12, tagcmpfunc);
     /* print tags */
     /*
-    for (i=0; i < count; i++) {
+    for (int i=0; i < count; i++) {
         uint8 * base=buffer+12*i;
         uint16 tag = (* (base+1) << 8) + *base;
         printf ("i:%i tag=%i\n", i, tag); 

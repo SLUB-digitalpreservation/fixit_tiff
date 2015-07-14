@@ -11,36 +11,6 @@
 #include "fixit_tiff.h"
 
 
-/** check if date / time values are within correct ranges 
- * @param year year
- * @param month month
- * @param day day
- * @param hour hour
- * @param min min
- * @param sec sec
- * @return 0 if success, otherwise -1
- */
-int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  if (FLAGGED == flag_be_verbose) printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
-  if (
-      1500 < *year && 
-      2100 > *year &&
-      0 < *month &&
-      13 > *month &&
-      0 < *day &&
-      32 > *day &&
-      0 <= *hour &&
-      24 > *hour &&
-      0 <= *min &&
-      60 > *min &&
-      0 <= *sec &&
-      60 > *sec
-     ) {
-    return 0;
-  } else {
-    return -1;
-  }
-}
 
 /** RULE0: default rule (string is correct) */
 static int rule_default (const char * datestring, int * year, int * month, int * day, int * hour, int * min, int * sec) {
@@ -167,35 +137,6 @@ char * correct_datestring (const char * broken_datetime) {
   return fixed_date;
 }
 
-/** loads a tiff, fix it if needed, stores tiff
- * @param filename filename which should be processed, repaired
- */
-int check_datetime(const char * filename ) {
-  /* load file */
-  TIFF* tif = TIFFOpen(filename, "r+");
-  if (NULL == tif) {
-    fprintf( stderr, "file '%s' could not be opened\n", filename);
-    exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
-  };
-  /* find date-tag and fix it */
-  char *datetime=NULL;
-  uint32 count=0;
-  int found=TIFFGetField(tif, TIFFTAG_DATETIME, &datetime, &count);
-  if (1==found) { /* there exists a datetime field */
-    /* should be corrected? */
-    char * new_datetime = correct_datestring( datetime );
-    if (0 != strncmp(datetime, new_datetime, TIFFDATETIMELENGTH)) {
-      /* yes, correct TIFF DateTime is needed */
-      return FIXIT_TIFF_IS_CHECKED;
-    } else { /* no, should not be touched, check only */
-      return FIXIT_TIFF_IS_VALID;
-    }
-  } else if (0 == found) {
-    if (FLAGGED == flag_be_verbose) printf ("no datetime found!\n");
-  }
-  TIFFClose(tif);
-  return FIXIT_TIFF_IS_VALID;
-}
 
 /** loads a tiff, fix it if needed, stores tiff
  * @param filename filename which should be processed, repaired

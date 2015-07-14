@@ -31,14 +31,75 @@ int check_baseline (const char *);
 int check_required (const char *); 
 int cleanup_datetime (const char *);
 int cleanup_baseline (const char *); 
-int cleanup_tagorder (const char *); 
+int cleanup_tagorder (const char *);
+int TIFFGetRawTagListCount (TIFF * tif);
+uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx );
+void print_baseline_tags (TIFF * tif);
+void print_required_tags (TIFF * tif);
+int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec);
 
 #define FLAGGED 1
 #define UNFLAGGED 0
 
-/** global variables */
-static int flag_be_verbose=FLAGGED;
-static int flag_check_only=UNFLAGGED;
+static int flag_be_verbose;
+
+#define count_of_baselinetags 36
+const static uint32 baselinetags[count_of_baselinetags]={
+  TIFFTAG_SUBFILETYPE,
+  TIFFTAG_OSUBFILETYPE,
+  TIFFTAG_IMAGEWIDTH,
+  TIFFTAG_IMAGELENGTH,
+  TIFFTAG_BITSPERSAMPLE,
+  TIFFTAG_COMPRESSION,
+  TIFFTAG_PHOTOMETRIC,
+  TIFFTAG_THRESHHOLDING,
+  TIFFTAG_CELLWIDTH,
+  TIFFTAG_CELLLENGTH,
+  TIFFTAG_FILLORDER,
+  TIFFTAG_IMAGEDESCRIPTION,
+  TIFFTAG_MAKE,
+  TIFFTAG_MODEL,
+  TIFFTAG_STRIPOFFSETS,
+  TIFFTAG_ORIENTATION,
+  TIFFTAG_SAMPLESPERPIXEL,
+  TIFFTAG_ROWSPERSTRIP,
+  TIFFTAG_STRIPBYTECOUNTS,
+  TIFFTAG_MINSAMPLEVALUE,
+  TIFFTAG_MAXSAMPLEVALUE,
+  TIFFTAG_XRESOLUTION,
+  TIFFTAG_YRESOLUTION,
+  TIFFTAG_PLANARCONFIG,
+  TIFFTAG_FREEOFFSETS,
+  TIFFTAG_FREEBYTECOUNTS,
+  TIFFTAG_GRAYRESPONSEUNIT,
+  TIFFTAG_GRAYRESPONSECURVE,
+  TIFFTAG_RESOLUTIONUNIT,
+  TIFFTAG_SOFTWARE,
+  TIFFTAG_DATETIME,
+  TIFFTAG_ARTIST,
+  TIFFTAG_HOSTCOMPUTER,
+  TIFFTAG_COLORMAP,
+  TIFFTAG_EXTRASAMPLES,
+  TIFFTAG_COPYRIGHT
+};
+
+#define count_of_required_baselinetags 12
+const static uint32 required_baselinetags[count_of_required_baselinetags]={
+  TIFFTAG_IMAGEWIDTH,
+  TIFFTAG_IMAGELENGTH,
+  TIFFTAG_COMPRESSION,
+  TIFFTAG_PHOTOMETRIC,
+  TIFFTAG_STRIPOFFSETS,
+  TIFFTAG_SAMPLESPERPIXEL,
+  TIFFTAG_ROWSPERSTRIP,
+  TIFFTAG_STRIPBYTECOUNTS,
+  TIFFTAG_XRESOLUTION,
+  TIFFTAG_YRESOLUTION,
+  TIFFTAG_RESOLUTIONUNIT,
+  TIFFTAG_BITSPERSAMPLE
+};
 
 
-#endif _FIXIT_TIFF
+
+#endif 
+/* _FIXIT_TIFF */

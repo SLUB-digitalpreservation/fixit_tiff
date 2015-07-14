@@ -66,6 +66,7 @@ int main (int argc, char * argv[]) {
   int flag_substitute_only=UNFLAGGED;
   int flag_baseline_cleanup=UNFLAGGED;
   int flag_tagorder=UNFLAGGED;
+  int flag_check_only=UNFLAGGED;
   while ((c = getopt (argc, argv, "s::cbqt::hi:o:")) != -1) {
       switch (c)
            {

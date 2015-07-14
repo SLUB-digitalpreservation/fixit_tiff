@@ -1,0 +1,36 @@
+start           <- ( Line )+ EndOfFile
+Line            <- Tagline   { incrlineno(); printf("tagline\n"); }
+                / Comment  { incrlineno(); }
+                / SpaceLine    { incrlineno(); }
+                / < . > { printf("no parser rule matched at line %i (prev tag was %i), '%c'\n", getlineno(), gettag(), yytext[0]); }
+Comment         <- '#' ( !EndOfLine . )* EndOfLine { printf( "comment at line %i\n", getlineno()+1); }
+Tagline         <- Tag Semicolon Requirements Semicolon Values EndOfLine { printf( "try to match tagline at line %i\n", getlineno()); }
+Tag             <- < Number > { 
+                        int tag = atoi(yytext);
+                        rule_tagorder_in_dsl( tag );
+                        settag( tag );
+                } 
+TagReference    <- < Number >        
+Semicolon       <- ';' ( Space )* { printf(" ; found\n"); }
+Requirements    <- 'mandatory' { printf("tag '%i' is mandatory\n", gettag()); }
+                / OptionalDepends
+                / 'optional' {printf("tag '%i' is optional\n", gettag()); } 
+OptionalDepends <- 'depends(' TagReference '.' Value ')'
+Values          <- Range
+                / LogicalOr
+                / Any
+                / RegEx 
+Range           <- 'range(' Number Colon Number ')' {printf ("range found\n"); }
+Number          <- ( Digit )+ {printf ("number found\n"); }
+Colon           <- ',' (Space )* { printf ("colon found\n"); }
+LogicalOr       <- 'logical_or(' ValueList ')'
+ValueList       <- Value (Colon Value)*
+Value           <- Number { printf ("value found\n"); }
+RegEx           <- 'regex(' ( . )+  { printf ("Regex not supported yet\n"); }
+SpaceLine       <- Space? EndOfLine
+Space           <- ' ' / '\t' { printf ("space found \n"); }
+Any             <- 'any' { printf ("any found\n"); }
+Digit           <- [0-9]
+EndOfLine       <- '\r\n' / '\n' / '\r' { printf ("EOL found\n"); }
+EndOfFile       <- !.
+

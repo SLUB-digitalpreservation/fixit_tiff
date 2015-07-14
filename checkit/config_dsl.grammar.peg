@@ -1,20 +1,20 @@
 start           <- ( Line )+ EndOfFile
-Line            <- Tagline   { incrlineno(); printf("tagline\n"); }
-                / Comment  { incrlineno(); }
+Line            <- Tagline   { incrlineno(); tagline(); }
+                / Comment  { incrlineno(); commentline(); }
                 / SpaceLine    { incrlineno(); }
-                / < . > { printf("no parser rule matched at line %i (prev tag was %i), '%c'\n", getlineno(), gettag(), yytext[0]); }
-Comment         <- '#' ( !EndOfLine . )* EndOfLine { printf( "comment at line %i\n", getlineno()+1); }
-Tagline         <- Tag Semicolon Requirements Semicolon Values EndOfLine { printf( "try to match tagline at line %i\n", getlineno()); }
+                / < . > { rule_should_not_occure(yytext[0]); }
+Comment         <- '#' ( !EndOfLine . )* EndOfLine
+Tagline         <- Tag Semicolon Requirements Semicolon Values EndOfLine { rule_addtag_config(); }
 Tag             <- < Number > { 
                         int tag = atoi(yytext);
                         rule_tagorder_in_dsl( tag );
                         settag( tag );
                 } 
 TagReference    <- < Number >        
-Semicolon       <- ';' ( Space )* { printf(" ; found\n"); }
-Requirements    <- 'mandatory' { printf("tag '%i' is mandatory\n", gettag()); }
-                / OptionalDepends
-                / 'optional' {printf("tag '%i' is optional\n", gettag()); } 
+Semicolon       <- ';' ( Space )*
+Requirements    <- 'mandatory' { rule_set_mandatory(); }
+                / OptionalDepends {rule_set_ifdepends(); }
+                / 'optional' { rule_set_optional(); } 
 OptionalDepends <- 'depends(' TagReference '.' Value ')'
 Values          <- Range
                 / LogicalOr

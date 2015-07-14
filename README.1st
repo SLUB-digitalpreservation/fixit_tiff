@@ -1,3 +1,4 @@
 - fixes a TIFF file with wrong metadata
+- needs a Linux or an AIX system with installed libtiff4
 - compile it with: make clean; make all; make strip
 - help comes with option "fixit_tiff -h"

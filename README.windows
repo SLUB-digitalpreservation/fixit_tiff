@@ -1,0 +1,13 @@
+Crosscompiling to Windows
+=========================
+
+* Install mingw-C-Compiler under Linux
+* download the libtiff Source package
+* crosscompile libtiff for windows
+** cd to unzipped source package
+** ./configure --host=i686-w64-mingw32
+** make -j 2
+* now compile fixit-tool
+** cd to fixit-tool directory
+** CC="i686-w64-mingw32-gcc" INC="-I ../tiff-4.0.4beta/libtiff/ -L ../tiff-4.0.4beta/libtiff/.libs/ --static" make
+

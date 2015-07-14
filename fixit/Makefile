@@ -13,7 +13,7 @@ strip: all
 
 # default executable
 fixit_tiff: cleanup_datetime.o cleanup_baseline.o cleanup_order.o fixit_tiff.o
-	$(CC) $(CFLAGS) $(INC) $(LIB) -o $@ $^
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB) 
 
 # doc
 doc: ../common/doxygen.conf

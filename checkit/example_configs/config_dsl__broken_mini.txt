@@ -18,4 +18,4 @@
 # 306; optional; regex("\d{4}:\d\d:\d\d \d\d:\d\d:\d\d")
 306; optional; any
 
-278; mandatory; range(1, 20)
+278; mandatory; range(1,20)

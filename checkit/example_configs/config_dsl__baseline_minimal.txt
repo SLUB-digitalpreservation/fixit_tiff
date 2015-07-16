@@ -34,7 +34,7 @@
 # 277	0115	SamplesPerPixel	The number of components per pixel.
 ### if RGB then 3 else 1
 277; depends(262.2); only(3)
-277; depends(262.0); only(1)
+277; depends(262.1); only(1)
 
 # 278	0116	RowsPerStrip	The number of rows per strip.
 278; mandatory; any

@@ -7,13 +7,13 @@ Comment         <- '#' ( !EndOfLine . )* EndOfLine
 Tagline         <- Tag Semicolon Requirements Semicolon Values EndOfLine { rule_addtag_config(); }
 Tag             <- < Number > { 
                         int tag = atoi(yytext);
-                        rule_tagorder_in_dsl( tag );
+                        /* rule_tagorder_in_dsl( tag ); */
                         settag( tag );
                 } 
-TagReference    <- < Number >        
+TagReference    <- Number       
 Semicolon       <- ';' ( Space )*
 Requirements    <- 'mandatory'           { set_mandatory(); }
-                / OptionalDepends        {set_ifdepends(); }
+                / OptionalDepends        { set_ifdepends(); }
                 / 'optional'             { set_optional(); } 
 OptionalDepends <- 'depends(' TagReference '.' Value ')'
 Values          <- Range
@@ -22,7 +22,7 @@ Values          <- Range
                 / Only
 #                / RegEx 
 Range           <- 'range(' Number Colon Number ')' { set_range();}
-Number          <- < ( Digit )+ >        {i_push(atoi(yytext) );}
+Number          <- < ( Digit )+ >        {i_push(atoi(yytext) ); incr_numbers();}
 Colon           <- ',' (Space )* 
 LogicalOr       <- 'logical_or(' ValueList ')'      { set_logical_or(); } 
 ValueList       <- Value (Colon Value)*

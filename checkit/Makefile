@@ -19,7 +19,7 @@ all: checkit_tiff test
 
 # default executable
 checkit_tiff: $(OBJS)
-	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB) 
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 test.c: $(GRAMMAR)
 
@@ -35,6 +35,7 @@ clean:
 # mrproper clean
 distclean: clean
 	@rm -f *~
+	@rm -f core
 	@rm -Rf doc/
 
 .PHONY: all clean distclean strip

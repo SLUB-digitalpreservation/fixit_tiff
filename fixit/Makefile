@@ -14,7 +14,7 @@ strip: all
 
 # default executable
 fixit_tiff: $(OBJS)
-	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB) 
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 # doc
 doc: ../common/doxygen.conf
@@ -28,6 +28,7 @@ clean:
 # mrproper clean
 distclean: clean
 	@rm -f *~
+	@rm -f core
 	@rm -Rf doc/
 
 .PHONY: all clean distclean strip

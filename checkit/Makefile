@@ -1,7 +1,7 @@
 LIB+=-ltiff
 CFLAGS=-O2 -g -Wall
 GRAMMAR=config_dsl.grammar.c
-OBJS=../fixit/tiff_helper.o checkit_tiff.o
+OBJS=../fixit/tiff_helper.o check_tag.o check_tag_has_value.o check_tag_has_value_in_range.o
 
 # default target
 all: checkit_tiff test
@@ -18,7 +18,10 @@ all: checkit_tiff test
 	peg $< > $@
 
 # default executable
-checkit_tiff: $(OBJS)
+checkit_tiff: $(OBJS) checkit_tiff.o
+	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
+
+test: $(OBJS) test.o
 	$(CC) $(CFLAGS) $(INC) -o $@ $^ $(LIB)
 
 test.c: $(GRAMMAR)

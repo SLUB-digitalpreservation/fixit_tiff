@@ -1,0 +1,120 @@
+# tag; required; values
+#
+# works as whitelist
+# * tag: any tag number in TIFF
+# * required: mandatory | optional | depends( $tag.$value ) 
+# * values: range($start, $end) | logical_or( $a, …) | only($a) |any
+
+# This defines a sample config for baseline tiffs
+# Remember, because it works as whitelist for each required tag we need an
+# entry here
+
+#####
+# Required Baseline Tags
+#####
+
+# 256	0100	ImageWidth	The number of columns in the image, i.e., the number of pixels per row.
+256; mandatory; any
+
+# 257	0101	ImageLength	The number of rows of pixels in the image.
+257; mandatory; any
+
+# 258	0102	BitsPerSample	Number of bits per component.
+##########################258; mandatory; logical_or(8,16)
+258; depends(262.0); logical_or(4,8)
+258; depends(262.1); logical_or(4,8)
+258; depends(262.2); only(8)
+
+# 259	0103	Compression	Compression scheme used on the image data 
+### (1 means no compression)
+259; mandatory; only(1)
+
+# 262	0106	PhotometricInterpretation	The color space of the image data.
+### 2 means RGB, 0 and 1 means bilevel or grayscale, 0 is unusual, 3 is Palette Color (FORBIDDEN)
+262; mandatory; range(0,2)
+
+# 273	0111	StripOffsets	For each strip, the byte offset of that strip.
+273; mandatory; any
+
+# 277	0115	SamplesPerPixel	The number of components per pixel.
+### if RGB then 3 else 1
+### Even though Baseline TIFF allows for SamplesPerPixel>3, we do NOT allow this for long term archival.
+277; depends(262.2); only(3)
+277; depends(262.0); only(1)
+
+# 278	0116	RowsPerStrip	The number of rows per strip.
+278; mandatory; any
+
+# 279	0117	StripByteCounts	For each strip, the number of bytes in the strip after compression.
+279; mandatory; any
+
+# 282	011A	XResolution	The number of pixels per ResolutionUnit in the ImageWidth direction.
+282; mandatory; range(300, 1200)
+
+# 283	011B	YResolution	The number of pixels per ResolutionUnit in the ImageLength direction.
+283; mandatory; range(300, 1200)
+
+# 296	0128	ResolutionUnit	The unit of measurement for XResolution and YResolution.
+### (2 means inch)
+296; mandatory; only(2)
+
+#####
+# optional fields
+#####
+
+# 263	107.H	Threshholding	For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels.
+263; optional; range(1, 3)
+
+# 264	108.H	CellWidth	The width of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file.
+264; depends(263.2); any
+
+# 265	109.H	CellLength	The length of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file. This field should only be present if Threshholding = 2.
+265; depends(263.2); any
+
+# 306	132.H	DateTime	Date and time of image creation in the format "YYYY:MM:DD HH:MM:SS".
+306; optional; any
+
+# 315	13B.H	Person who created the image. Some older TIFF files used this tag for storing Copyright information.
+315; optional; any
+
+# DO NOT UNCOMMENT! COLOR MAP TIFFS ARE NOT LEGAL FOR LONG TERM ARCHIVAL!
+# 320	140.H	ColorMap	This field defines a Red-Green-Blue color map (often called a lookup table) for palette color images.
+#320; optional; any
+
+# DO NOT UNCOMMENT! EXTRA SAMPLES TIFFS ARE NOT LEGAL FOR LONG TERM ARCHIVAL BECAUSE THEIR MEANING CANNOT BE DOCUMENTED!
+# 338	152.H	ExtraSamples	Description of extra components.
+#338; optional; range(0-2)
+
+# 33432	8298.H	Copyright	Complete copyright notice of the person or organization that claims the copyright to the image.
+33432; optional, any
+
+
+#####
+# unanswered questions
+#####
+
+# - max. Größe einer TIFF-Datei: 2^32 Bytes
+# - Image File Header (IFH)
+	# - Bytes 0-1: "II" (little-endian) oder "MM" (big-endian)
+		# => darf keine anderen Werte enthalten
+	# - Bytes 2-3: 42 (magic number)
+		# => darf keine anderen Werte enthalten
+	# - Bytes 4-7: offset in Bytes vom Dateianfang bis zum ersten IDF
+		# => muss das ausgewertet werden???
+# - Image File Directory (IFD)
+		# => genau 1 IFD muss vorhanden sein
+			# (einerseits min. 1. gefordert, andererseits muss ein Baseline-Tiff-Reader max. 1 lesen)
+		# => min. 1 IFD-Eintrag muss pro IFD vorhanden sein
+		# => Einträge müssen aufsteigend geordnet sein
+	# - Bytes 0-1: Anzahl der IFD-Einträge
+		# => muss mit der tatsächlichen Anzahl übereinstimmen
+	# - n-Mal je 12 Bytes: IFD-Einträge
+		# => n * 12 muss tatsächliche Länge der IFD-Einträge sein
+	# - 4 Bytes: Offset zum nächsten IFD (oder "0000" falls kein IFD mehr kommt)
+		# => Eintrag muss "0000" sein
+# - Tag 262 PhotometricInterpretation
+	# - 0 ist auch gültiges Baseline TIFF und sollte mit aufgenommen werden
+# - Tag 258 BitsPerSample ist NICHT mandatory für Bilevel Images!!!
+	# - 
+# Multiple subfiles. TIFF readers must be prepared for multiple images (subfiles) per TIFF file, although they are not required to do anything with images after the first one. TIFF writers are required to write a long word of 0 after the last IFD (to signal that this is the last IFD), as described earlier in this specification.
+# 

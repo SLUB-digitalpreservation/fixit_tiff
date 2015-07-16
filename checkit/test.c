@@ -13,83 +13,11 @@
 #include <string.h>
 #include <assert.h>
 #include "../fixit/fixit_tiff.h"
-int lineno=0;
-int count_of_numbers=0;
+#include "config_parser.h"
+#include "check.h"
 
-// struct to hold parsing configuration
-typedef struct funcu * funcp;
-typedef struct {
-        funcp fu_p;
-        char * name;
-        void * next;
-        int result;
-} executionentry_t;
-
-typedef struct {
-        executionentry_t * start;
-        executionentry_t * last; 
-} executionplan_t;
-
-typedef enum { mandatory, ifdepends, optional } requirements_t;
-typedef enum { range, logical_or, any, only } values_t;
-
-/* Definiton der Funktionszeiger auf die Checkfunktionen */
-
-
-typedef struct f_s {
-  int (*functionp)(TIFF *);
-} f_t;
-
-typedef struct f_int_s {
-  int a;
-  int (*functionp)(TIFF *, int a);
-} f_int_t;
-
-typedef struct f_intint_s {
-  int a;
-  int b;
-  int (*functionp)(TIFF*, int a, int b);
-} f_intint_t;
-
-typedef struct f_intintint_s {
-  int a;
-  int b;
-  int c;
-  int (*functionp)(TIFF*, int a, int b, int c);
-} f_intintint_t;
-
-typedef enum { f_dummy, f_void, f_int, f_intint, f_intintint } ftype_t;
-
-struct funcu {
-  ftype_t ftype;
-  funcp pred;
-  union  {
-    struct f_s * fvoidt;
-    struct f_int_s * fintt;
-    struct f_intint_s * fintintt;
-    struct f_intintint_s * fintintintt;
-  } fu;
-};
-
-int check_range(TIFF* tif, int tag, int a, int b) {
-  printf("check_range of tag %i : a=%i, b=%i\n", tag, a, b);
-  return 0;
-}
-
-int check_has_tag_value(TIFF* tif, int tag, int value) {
-  printf("check_has_tag_value: tag=%i, value=%i\n", tag, value);
-  return 0;
-}
-
-int check_only(TIFF* tif, int tag, int a) {
-  printf("check_only of tag %i: a=%i\n", tag, a);
-  return 0;
-}
-
-int check_any(TIFF* tif, int tag) {
-  printf("check_only of tag %i\n", tag);
-  return 0;
-}
+/* global vars */
+parser_state_t parser_state;
 
 /* type specific calls of function pointers */
 int call_fp(TIFF* tif, funcp fp) {
@@ -222,45 +150,22 @@ int append_function_to_plan ( executionplan_t * plan, void * fp, const char * na
 }
 
 /* stack functions for parser */
-char * s_stack[40];
-int s_stackp = 0;
-void s_push (char * s) {
-  if (s_stackp >= 40) {
-    fprintf(stderr, "stackoverflow in s_stack\n");
-    exit(EXIT_FAILURE);
-  }
-  s_stack[s_stackp++] = s;
-}
-char * s_pop () {
-  if (s_stackp <= 0) {
-    fprintf(stderr, "stackunderflow in s_stack\n");
-    exit(EXIT_FAILURE);
-  }
-  return s_stack[--s_stackp];
-}
-void s_clear() {
-  s_stackp = 0;
-}
-
-int i_stack[40];
-int i_stackp = 0;
 void i_push (int i) {
- if (i_stackp >= 40) {
+ if (parser_state.i_stackp >= 40) {
     fprintf(stderr, "stackoverflow in i_stack\n");
     exit(EXIT_FAILURE);
   }
-
-  i_stack[i_stackp++] = i;
+  parser_state.i_stack[parser_state.i_stackp++] = i;
 }
 int i_pop () {
- if (i_stackp <= 0) {
+ if (parser_state.i_stackp <= 0) {
     fprintf(stderr, "stackunderflow in i_stack\n");
     exit(EXIT_FAILURE);
   }
-  return i_stack[--i_stackp];
+  return parser_state.i_stack[--parser_state.i_stackp];
 }
 void i_clear() {
-  i_stackp = 0;
+  parser_state.i_stackp = 0;
 }
 
 /* function to clean an execution plan */
@@ -280,13 +185,14 @@ int clean_plan ( executionplan_t * plan) {
 
 executionplan_t plan;
 
-int lasttag = -1;
-requirements_t lastreq = 0;
-values_t lastval = 0;
-int settag( int tag) { lasttag=tag; return tag; }
-int gettag( ) { return lasttag;}
-int incrlineno() {lineno++; printf("##lineno=%i\n", lineno); return lineno; }
-int getlineno() { return lineno;}
+int settag( int tag) { parser_state.tag=tag; return tag; }
+int gettag( ) { return parser_state.tag;}
+int incrlineno() {
+  parser_state.lineno++; 
+  printf("##lineno=%i\n", parser_state.lineno);
+  return parser_state.lineno; 
+}
+int getlineno() { return parser_state.lineno;}
 int rule_tagorder_in_dsl( int tag ) {
   int prevtag = gettag();
   printf ("tag '%i' found (prev tag was: '%i')\n", tag, prevtag);
@@ -300,24 +206,23 @@ void commentline() {  printf("commentline\n");}
 void rule_should_not_occure(char c) {
   printf("no parser rule matched after line %i (prev tag was %i), '%c'\n", getlineno(), gettag(), c);
 }
-void set_mandatory() { printf("tag '%i' is mandatory\n", gettag()); lastreq=mandatory; }
-void set_optional() { printf("tag '%i' is optional\n", gettag()); lastreq=optional; }
-void set_ifdepends() { printf("tag '%i' is set if depends\n", gettag()); lastreq=ifdepends; }
-void set_range() { lastval = range;}
-void set_logical_or() { lastval = logical_or; i_push(count_of_numbers);}
-void set_only() { lastval = only;}
-void set_any() { lastval = any;}
-void reset() {
-  count_of_numbers = 0;
+void set_mandatory() { printf("tag '%i' is mandatory\n", gettag()); parser_state.req=mandatory; }
+void set_optional() { printf("tag '%i' is optional\n", gettag()); parser_state.req=optional; }
+void set_ifdepends() { printf("tag '%i' is set if depends\n", gettag()); parser_state.req=ifdepends; }
+void set_range() { parser_state.val = range;}
+void set_logical_or() { parser_state.val = logical_or;}
+void set_only() { parser_state.val = only;}
+void set_any() { parser_state.val = any;}
+void reset_logical_or() {
+  parser_state.logical_or = 0;
 }
 void incr_values () {
-  count_of_numbers++;
+  parser_state.logical_or++;
 }
 
 /* this adds the config of a tagline to execution plan */
 /* HINT: order of calling arguments from stacks is IMPORTANT! */
 void rule_addtag_config() {
-        
         printf( "try to match tagline at line %i\n", getlineno());
         char fname[30];
         funcp f = NULL;
@@ -328,12 +233,12 @@ void rule_addtag_config() {
         };
      
         /* HINT: order of evaluating last val and last req is IMPORTANT! */
-        switch ( lastval ) {
+        switch ( parser_state.val ) {
           case range: {
                         int r = i_pop();
                         int l = i_pop();
-                        int tag = gettag();
-                        snprintf(fname, 29, "tst_tag%i_%i_%s_%i_%i", tag, lastreq, "range", l, r);
+                        int tag = parser_state.tag;
+                        snprintf(fname, 29, "tst_tag%i_%i_%s_%i_%i", tag, parser_state.req, "range", l, r);
                         /* create datastruct for fp */
                         struct f_intintint_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_intint_s ));
@@ -344,13 +249,13 @@ void rule_addtag_config() {
                         fsp->a = tag;
                         fsp->b = l;
                         fsp->c = r;
-                        fsp->functionp = &check_range;
+                        fsp->functionp = &check_tag_has_value_in_range;
                         f->ftype = f_intintint;
                         f->fu.fintintintt = fsp;
                         break;
                         }
           case logical_or: {
-                        int count_of_values = i_pop();
+                        int count_of_values = parser_state.logical_or;
                         printf("count of values = %i\n", count_of_values);
                         /* TODO */
                         int i;
@@ -358,13 +263,13 @@ void rule_addtag_config() {
                           i_pop();
                         }
                         f->ftype = f_dummy;
-                        snprintf(fname, 29, "tst_tag%i_%i_%s_%i", gettag(), lastreq, "logical_or", count_of_values); 
+                        snprintf(fname, 29, "tst_tag%i_%i_%s_%i", parser_state.tag, parser_state.req, "logical_or", count_of_values); 
                         break;
                         }
           case only: {
                         int v = i_pop();
                         int tag = gettag();
-                        snprintf(fname, 29, "tst_tag%i_%i_%s_%i", tag, lastreq, "only", v);
+                        snprintf(fname, 29, "tst_tag%i_%i_%s_%i", tag, parser_state.req, "only", v);
                         /* create datastruct for fp */
                         struct f_intint_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_intint_s ));
@@ -374,7 +279,7 @@ void rule_addtag_config() {
                         };
                         fsp->a = tag;
                         fsp->b = v;
-                        fsp->functionp = &check_only;
+                        fsp->functionp = &check_tag_has_value;
                         f->ftype = f_intint;
                         f->fu.fintintt = fsp;
 
@@ -382,7 +287,7 @@ void rule_addtag_config() {
                         }
           case any: {
                         int tag = gettag();
-                        snprintf(fname, 29, "tst_tag%i_%i_%s", tag, lastreq, "any");
+                        snprintf(fname, 29, "tst_tag%i_%i_%s", tag, parser_state.req, "any");
 /* create datastruct for fp */
                         struct f_int_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_int_s ));
@@ -391,7 +296,7 @@ void rule_addtag_config() {
                           exit(EXIT_FAILURE);
                         };
                         fsp->a = tag;
-                        fsp->functionp = &check_any;
+                        fsp->functionp = &check_tag;
                         f->ftype = f_int;
                         f->fu.fintt = fsp;
                         break;
@@ -400,7 +305,7 @@ void rule_addtag_config() {
         /* set predicate if and only if lastreq = depends */
         /* HINT: order of evaluating last val and last req is IMPORTANT! */
         /* HINT: order of calling arguments from stacks is IMPORTANT! */
-        switch ( lastreq ) {
+        switch ( parser_state.req ) {
           case ifdepends: {
                         int valreference = i_pop();
                         int tagreference = i_pop();
@@ -420,7 +325,7 @@ void rule_addtag_config() {
                         };
                         fsp->a = tagreference;
                         fsp->b = valreference;
-                        fsp->functionp = &check_has_tag_value;
+                        fsp->functionp = &check_tag_has_value;
                         predicate->ftype = f_intint;
                         predicate->fu.fintintt = fsp;
                         f->pred=predicate;
@@ -431,13 +336,22 @@ void rule_addtag_config() {
 
         printf("fname='%s'\n", fname);
         append_function_to_plan( &plan, f, fname);
-        reset();
+        reset_logical_or();
 }
 
+void reset_parser_state() {
+  parser_state.lineno=0;
+  parser_state.logical_or=0;
+  parser_state.tag=-1;
+  parser_state.req=0;
+  parser_state.val=0;
+  parser_state.i_stackp=0;
+}
 
 #include "config_dsl.grammar.c"   /* yyparse() */
 
 /* *********** main ************* */
+
 
 int main()
 {
@@ -445,6 +359,9 @@ int main()
   printf("((( print empty plan )))\n");
   print_plan( &plan );
   printf("((( parse config file )))\n");
+  
+  reset_parser_state();
+
   while (yyparse())     /* repeat until EOF */
     ;
   printf("((( print execution plan )))\n");

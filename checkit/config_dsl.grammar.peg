@@ -1,8 +1,8 @@
 start           <- ( Line )+ EndOfFile
-Line            <- Tagline   { incrlineno(); tagline(); }
-                / Comment  { incrlineno(); commentline(); }
-                / SpaceLine    { incrlineno(); }
-                / < . > { rule_should_not_occure(yytext[0]); }
+Line            <- Tagline               { incrlineno(); tagline(); }
+                / Comment                { incrlineno(); commentline(); }
+                / SpaceLine              { incrlineno(); }
+                / < . >                  { rule_should_not_occure(yytext[0]); }
 Comment         <- '#' ( !EndOfLine . )* EndOfLine
 Tagline         <- Tag Semicolon Requirements Semicolon Values EndOfLine { rule_addtag_config(); }
 Tag             <- < Number > { 
@@ -12,29 +12,29 @@ Tag             <- < Number > {
                 } 
 TagReference    <- < Number >        
 Semicolon       <- ';' ( Space )*
-Requirements    <- 'mandatory' { rule_set_mandatory(); }
-                / OptionalDepends {rule_set_ifdepends(); }
-                / 'optional' { rule_set_optional(); } 
+Requirements    <- 'mandatory'           { set_mandatory(); }
+                / OptionalDepends        {set_ifdepends(); }
+                / 'optional'             { set_optional(); } 
 OptionalDepends <- 'depends(' TagReference '.' Value ')'
 Values          <- Range
                 / LogicalOr
                 / Any
                 / Only
-                / RegEx 
-Range           <- 'range(' Number Colon Number ')' {printf ("range found\n"); }
-Number          <- ( Digit )+ {printf ("number found\n"); }
-Colon           <- ',' (Space )* { printf ("colon found\n"); }
-LogicalOr       <- 'logical_or(' ValueList ')'
+#                / RegEx 
+Range           <- 'range(' Number Colon Number ')' { set_range();}
+Number          <- < ( Digit )+ >        {i_push(atoi(yytext) );}
+Colon           <- ',' (Space )* 
+LogicalOr       <- 'logical_or(' ValueList ')'      { set_logical_or(); } 
 ValueList       <- Value (Colon Value)*
-Value           <- Number { printf ("value found\n"); }
-                / String
-Only            <- 'only(' Value ')'
-RegEx           <- 'regex(' ( . )+  { printf ("Regex not supported yet\n"); }
+Value           <- Number 
+#                / String 
+Only            <- 'only(' Value ')'                { set_only(); }
+#RegEx           <- 'regex(' ( . )+                 { printf ("Regex not supported yet\n"); }
 SpaceLine       <- Space? EndOfLine
-Space           <- ' ' / '\t' { printf ("space found \n"); }
-Any             <- 'any' { printf ("any found\n"); }
+Space           <- ' ' / '\t' 
+Any             <- 'any'                            { set_any(); }
 Digit           <- [0-9]
-String          <- '"' < ( [A-Za-z0-9- :] )* > '"'
-EndOfLine       <- '\r\n' / '\n' / '\r' { printf ("EOL found\n"); }
+#String          <- '"' < ( [A-Za-z0-9- :] )* > '"'  { s_push ( yytext ); }
+EndOfLine       <- '\r\n' / '\n' / '\r'             { printf ("EOL found\n"); }
 EndOfFile       <- !.
 

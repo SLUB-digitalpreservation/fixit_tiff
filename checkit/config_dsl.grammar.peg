@@ -15,18 +15,19 @@ Semicolon       <- ';' ( Space )*
 Requirements    <- 'mandatory'           { set_mandatory(); }
                 / OptionalDepends        { set_ifdepends(); }
                 / 'optional'             { set_optional(); } 
-OptionalDepends <- 'depends(' TagReference '.' Value ')'
+OptionalDepends <- 'depends(' TagReference '.' ValueReference ')'
 Values          <- Range
                 / LogicalOr
                 / Any
                 / Only
 #                / RegEx 
 Range           <- 'range(' Number Colon Number ')' { set_range();}
-Number          <- < ( Digit )+ >        {i_push(atoi(yytext) ); incr_numbers();}
+Number          <- < ( Digit )+ >        {i_push(atoi(yytext) );}
 Colon           <- ',' (Space )* 
 LogicalOr       <- 'logical_or(' ValueList ')'      { set_logical_or(); } 
 ValueList       <- Value (Colon Value)*
-Value           <- Number 
+Value           <- Number { incr_values(); }
+ValueReference  <- Number
 #                / String 
 Only            <- 'only(' Value ')'                { set_only(); }
 #RegEx           <- 'regex(' ( . )+                 { printf ("Regex not supported yet\n"); }

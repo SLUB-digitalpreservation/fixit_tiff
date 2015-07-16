@@ -310,7 +310,7 @@ void set_any() { lastval = any;}
 void reset() {
   count_of_numbers = 0;
 }
-void incr_numbers () {
+void incr_values () {
   count_of_numbers++;
 }
 
@@ -351,6 +351,7 @@ void rule_addtag_config() {
                         }
           case logical_or: {
                         int count_of_values = i_pop();
+                        printf("count of values = %i\n", count_of_values);
                         /* TODO */
                         int i;
                         for (i=0; i<count_of_values; i++) {

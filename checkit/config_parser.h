@@ -76,6 +76,7 @@ typedef struct parser_state_s {
   int i_stack[40];
   int i_stackp;
   int called_tags[MAXTAGS];
+  FILE * stream;
 } parser_state_t;
 
 
@@ -83,6 +84,7 @@ int execute_plan (TIFF * tif) ;
 void print_plan ();
 void clean_plan ();
 void parse_plan ();
+void parse_plan_via_stream (FILE * stream);
 
 #endif
 /* _FIXIT_TIFF_CONFIG_PARSER */

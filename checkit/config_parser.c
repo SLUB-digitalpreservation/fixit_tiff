@@ -20,9 +20,19 @@
 #define DEBUG
 */
 
+
 /* global vars */
 parser_state_t parser_state;
 executionplan_t plan;
+
+
+#define YY_INPUT(buf, result, max_size)		\
+  {							\
+    int yyc= fgetc(parser_state.stream);		\
+    result= (EOF == yyc) ? 0 : (*(buf)= yyc, 1);	\
+    yyprintf((stderr, "<%c>", yyc));			\
+  }                                                     
+
 
 /* type specific calls of function pointers */
 int call_fp(TIFF* tif, funcp fp) {
@@ -135,7 +145,7 @@ int execute_plan (TIFF * tif) {
     if (0 == parser_state.called_tags[i]) { /* only unchecked tags */
       if (0 != check_notag( tif, i)) { /* check if tag is not part of tif */
         /* tag does not exist */
-        printf("tag %i should not part of this TIF\n", i);
+        tif_fails("tag %i should not part of this TIF\n", i);
         is_valid++;
       }
     }
@@ -462,6 +472,15 @@ void reset_parser_state() {
 void parse_plan () {
  clean_plan();
  reset_parser_state();
+ parser_state.stream=stdin;
+  while (yyparse())     /* repeat until EOF */
+    ;
+}
+
+void parse_plan_via_stream( FILE * file ) {
+  clean_plan();
+  reset_parser_state();
+  parser_state.stream=file;
   while (yyparse())     /* repeat until EOF */
     ;
 }

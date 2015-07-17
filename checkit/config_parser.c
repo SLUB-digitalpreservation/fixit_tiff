@@ -99,6 +99,7 @@ int call_fp(TIFF* tif, funcp fp) {
                     exit(EXIT_FAILURE);
     }
   }
+  assert( ret >= 0);
   return ret;
 }
 
@@ -140,12 +141,13 @@ int execute_plan (TIFF * tif) {
   }
   /* now we know which tags are already checked, we need add a rule to
    * forbidden all other tags */
+  printf("check if forbidden tags are still existing\n");
   int i;
   for (i=0; i<MAXTAGS; i++) {
     if (0 == parser_state.called_tags[i]) { /* only unchecked tags */
       if (0 != check_notag( tif, i)) { /* check if tag is not part of tif */
         /* tag does not exist */
-        tif_fails("tag %i should not part of this TIF\n", i);
+        tif_fails("tag %i should not be part of this TIF\n", i);
         is_valid++;
       }
     }
@@ -444,7 +446,35 @@ void rule_addtag_config() {
                       f->pred=predicate;
                       break;
                     }
-    default: f->pred = NULL;
+    case mandatory: {
+                      f->pred = NULL;
+                      break;
+                    }
+    case optional: {
+                      funcp predicate = NULL;
+                      predicate=malloc( sizeof( funcp ) );
+                      if (NULL == predicate) {
+                        fprintf (stderr, "could not alloc mem for pred\n");
+                        exit(EXIT_FAILURE);
+                      };
+                      predicate->pred=NULL;
+                      struct f_int_s * fsp = NULL;
+                      fsp = malloc( sizeof( struct f_int_s ));
+                      if (NULL == fsp) {
+                        fprintf (stderr, "could not alloc mem for pred fsp\n");
+                        exit(EXIT_FAILURE);
+                      };
+                      fsp->a = tag;
+                      fsp->functionp = &check_tag;
+                      predicate->ftype = f_int;
+                      predicate->fu.fintt = fsp;
+                      f->pred=predicate;
+                      break;
+                   }
+
+    default:
+      printf("unknown parserstate.req, should not occure\n");
+      exit(EXIT_FAILURE);
   }
 
 #ifdef DEBUG

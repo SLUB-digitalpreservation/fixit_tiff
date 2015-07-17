@@ -28,17 +28,15 @@ int main (int argc, char * argv[]) {
     fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
     exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
   };
-  uint32 tag_counter=TIFFGetRawTagListCount(tif);
-  uint32 tagidx;
-  uint32 tags[tag_counter];
-  for (tagidx=0; tagidx < tag_counter; tagidx++) {
-    tags[tagidx] = TIFFGetRawTagListEntry( tif, tagidx );
-  }
-  /* TODO: load parser
-   * call check_functions
-   */
-  parse_plan();
+
+  FILE * cfg = fopen(cfg_file, "r");
+  if (NULL == cfg) {
+    fprintf( stderr, "file '%s' could not be opened\n", cfg_file);
+    exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
+  };
+  parse_plan_via_stream( cfg );
   execute_plan(tif);
   TIFFClose(tif);
+  fclose(cfg);
   exit(0);
   }

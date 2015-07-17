@@ -1,3 +1,13 @@
+About general function
+======================
+
+The checkit-tool validates a TIFF-file against a set of rules (see below). The
+set of rules works as a whitelist. This means that if a tag in the TIFF file is
+not explicitely checked by rules (independently if successfully or not) the tag
+is not allowed. In cases where a rule is executed only if a predicate is set,
+the tag is only allowed if the predicate succeeded.
+
+
 Developers
 ==========
 to configure the grammar you could use the PEG-extension for gvim from https://github.com/gf3/peg.vim
@@ -23,3 +33,5 @@ definition)
 * each tagline or comment must be closed with a new line
 
 If multiple rules defined per tag, they will be combined alternatively.
+
+

@@ -10,6 +10,7 @@
 
 #include "../fixit/fixit_tiff.h"
 #include "../fixit/tiff_helper.h"
+#include "config_parser.h"
 
 /** main */
 int main (int argc, char * argv[]) {
@@ -36,6 +37,8 @@ int main (int argc, char * argv[]) {
   /* TODO: load parser
    * call check_functions
    */
+  parse_plan();
+  execute_plan(tif);
   TIFFClose(tif);
   exit(0);
   }

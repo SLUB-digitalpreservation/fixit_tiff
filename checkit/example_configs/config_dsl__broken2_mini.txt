@@ -1,0 +1,18 @@
+
+ tag; required; values
+#
+# works as whitelist
+# * tag: any tag number in TIFF
+# * required: mandatory | optional | depends( $tag.$value )
+# * values: range($start, $end) | logical_or( $a, …) | regex( $regex ) | any
+
+# BitsPerSample
+
+# 258   0102    BitsPerSample   Number of bits per component.
+##########################
+# b/w allows missing BitsPerSample, but if used, only value 4,8
+258; depends(262.0); logical_or(4,8)
+258; depends(262.1); logical_or(4,8)
+258; depends(262.2); only(8)
+
+

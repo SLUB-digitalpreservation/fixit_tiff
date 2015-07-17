@@ -16,6 +16,9 @@
 #include "config_parser.h"
 #include "check.h"
 
+/* TODO: handle stuff like BITS PER SAMPLE with multiple values */
+/* TODO: handle stuff like DATETIME or COPYRIGHT */
+
 /*
 #define DEBUG
 */

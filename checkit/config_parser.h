@@ -42,19 +42,29 @@ typedef struct f_intintint_s {
   int (*functionp)(TIFF*, int a, int b, int c);
 } f_intintint_t;
 
-typedef enum { f_dummy, f_void, f_int, f_intint, f_intintint } ftype_t;
+typedef struct f_intintintp_s {
+  int a;
+  int b;
+  int * c;
+  int (*functionp)(TIFF*, int a, int b, int * c);
+} f_intintintp_t;
+
+typedef enum { f_dummy, f_void, f_int, f_intint, f_intintint, f_intintintp } ftype_t;
 
 struct funcu {
   ftype_t ftype;
   funcp pred;
+  int tag;
   union  {
     struct f_s * fvoidt;
     struct f_int_s * fintt;
     struct f_intint_s * fintintt;
     struct f_intintint_s * fintintintt;
+    struct f_intintintp_s * fintintintpt;
   } fu;
 };
 
+#define MAXTAGS 65536
 typedef struct parser_state_s {
   int lineno;
   int logical_or;
@@ -63,6 +73,7 @@ typedef struct parser_state_s {
   requirements_t req;
   int i_stack[40];
   int i_stackp;
+  int called_tags[MAXTAGS];
 } parser_state_t;
 
 #endif

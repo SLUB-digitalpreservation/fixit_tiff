@@ -61,83 +61,99 @@
 # optional fields
 #####
 
-# 254	FE.H	NewSubfileType	A general indication of the kind of data contained in this subfile. These values are defined as bit flags because they are independent of each other. Default is 0.
+# 254	00FE	NewSubfileType	A general indication of the kind of data contained in this subfile. These values are defined as bit flags because they are independent of each other. Default is 0.
 254; optional; range(0, 7)
 
-# 255	FF.H	SubfileType		A general indication of the kind of data contained in this subfile. This field is deprecated. The NewSubfileType field should be used instead.
+# 255	00FF	SubfileType		A general indication of the kind of data contained in this subfile. This field is deprecated. The NewSubfileType field should be used instead.
 255; optional; range(1, 3)
 
-# 263	107.H	Threshholding	For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels. Default is 1.
+# 263	0107	Threshholding	For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels. Default is 1.
 263; optional; range(1, 3)
 
-# 264	108.H	CellWidth	The width of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file.
+# 264	0108	CellWidth	The width of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file.
 264; depends(263.2); any
 
-# 265	109.H	CellLength	The length of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file. This field should only be present if Threshholding = 2.
+# 265	0109	CellLength	The length of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file. This field should only be present if Threshholding = 2.
 265; depends(263.2); any
 
-# 266	10A.H	FillOrder	The logical order of bits within a byte.
+# 266	010A	FillOrder	The logical order of bits within a byte.
 ### Support for FillOrder=2 is not required in a Baseline TIFF compliant reader. Default is 1.
 266; optional; only(1)
 
-# 270	10E.H	ImageDescription	A string that describes the subject of the image.
+# 270	010E	ImageDescription	A string that describes the subject of the image.
 270; optional; any
 
-# 271	10F.H	Make	The scanner manufacturer.
+# 271	010F	Make	The scanner manufacturer.
 271; optional; any
 
-# 272	110.H	Model	The scanner model name or number.
+# 272	0110	Model	The scanner model name or number.
 272; optional, any
 
-# 274	112.H	Orientation		The orientation of the image with respect to the rows and columns. Default is 1. 
+# 274	0112	Orientation		The orientation of the image with respect to the rows and columns. Default is 1. 
 # 274; optional; range(1, 8)	# THIS IS NOT BASELINE TIFF!!! DO NOT UNCOMMENT!!!
 274; optional; only(1)		# THIS _IS_ BASELINE TIFF!!!
 
-# 280	118.H	MinSampleValue	The minimum component value used. Default is 0.
+# 280	0118	MinSampleValue	The minimum component value used. Default is 0.
 280; optional; any
 
-# 281	119.H	MaxSampleValue	The maximum component value used; only for statistical purposes. Default is 2**(BitsPerSample) - 1.
+# 281	0119	MaxSampleValue	The maximum component value used; only for statistical purposes. Default is 2**(BitsPerSample) - 1.
 281; optional; any
 
-# 284	11C.H	PlanarConfiguration		How the components of each pixel are stored. 1 = Chunky format. 2 = Planar format (Baseline TIFF readers are not required to support it.). Default: 1.
+# 284	011C	PlanarConfiguration		How the components of each pixel are stored. 1 = Chunky format. 2 = Planar format (Baseline TIFF readers are not required to support it.). Default: 1.
 284; optional; only(1)
 
-# DO NOT UNCOMMENT! FREE OFFSETS ARE NOT LEGAL FOR LONG TERM ARCHIVAL!
-# 288	120.H	FreeOffsets	For each string of contiguous unused bytes in a TIFF file, the byte offset of the string. Not recommended for general interchange.
+# DO NOT UNCOMMENT! FREE OFFSETS ARE NOT SUITABLE FOR LONG TERM ARCHIVAL!
+# 288	0120	FreeOffsets	For each string of contiguous unused bytes in a TIFF file, the byte offset of the string. Not recommended for general interchange.
 #288; optional; any
 
-# DO NOT UNCOMMENT! FREE BYTE COUNTS ARE NOT LEGAL FOR LONG TERM ARCHIVAL!
-# 289	121.H	FreeByteCounts	For each string of contiguous unused bytes in a TIFF file, the number of bytes in the string. Not recommended for general interchange.
+# DO NOT UNCOMMENT! FREE BYTE COUNTS ARE NOT SUITABLE FOR LONG TERM ARCHIVAL!
+# 289	0121	FreeByteCounts	For each string of contiguous unused bytes in a TIFF file, the number of bytes in the string. Not recommended for general interchange.
 #289; optional; any
 
-# 290	122.H	GrayResponseUnit	The precision of the information contained in the GrayResponseCurve. Default: 2; Recommended: 3
+# 290	0122	GrayResponseUnit	The precision of the information contained in the GrayResponseCurve. Default: 2; Recommended: 3
 290; optional; range(1, 5)
 
-# 291	123.H	GrayResponseCurve	For grayscale data, the optical density of each possible pixel value.
+# 291	0123	GrayResponseCurve	For grayscale data, the optical density of each possible pixel value.
 291; optional; any
 
-# 305	131.H	Software	Name and version number of the software package(s) used to create the image.
+# 305	0131	Software	Name and version number of the software package(s) used to create the image.
 305; optional; any
 
-# 306	132.H	DateTime	Date and time of image creation in the format "YYYY:MM:DD HH:MM:SS".
+# 306	0132	DateTime	Date and time of image creation in the format "YYYY:MM:DD HH:MM:SS".
 306; optional; any
 
-# 315	13B.H	Person who created the image. Some older TIFF files used this tag for storing Copyright information.
+# 315	013B	Person who created the image. Some older TIFF files used this tag for storing Copyright information.
 315; optional; any
 
-# 316	13C.H	HostComputer	The computer and/or operating system in use at the time of image creation.
+# 316	013C	HostComputer	The computer and/or operating system in use at the time of image creation.
 316; optional; any
 
-# DO NOT UNCOMMENT! COLOR MAP TIFFS ARE NOT LEGAL FOR LONG TERM ARCHIVAL!
-# 320	140.H	ColorMap	This field defines a Red-Green-Blue color map (often called a lookup table) for palette color images.
+# DO NOT UNCOMMENT! COLOR MAP TIFFS ARE NOT SUITABLE FOR LONG TERM ARCHIVAL!
+# 320	0140	ColorMap	This field defines a Red-Green-Blue color map (often called a lookup table) for palette color images.
 #320; optional; any
 
-# DO NOT UNCOMMENT! EXTRA SAMPLES TIFFS ARE NOT LEGAL FOR LONG TERM ARCHIVAL BECAUSE THEIR MEANING CANNOT BE DOCUMENTED!
-# 338	152.H	ExtraSamples	Description of extra components.
+# DO NOT UNCOMMENT! EXTRA SAMPLES TIFFS ARE NOT SUITABLE FOR LONG TERM ARCHIVAL BECAUSE THEIR MEANING CANNOT BE DOCUMENTED!
+# 338	0152	ExtraSamples	Description of extra components.
 #338; optional; range(0-2)
 
-# 33432	8298.H	Copyright	Complete copyright notice of the person or organization that claims the copyright to the image.
-33432; optional, any
+# 700	02BC	XMP		XML packet containing XMP metadata.
+700; optional; any
+
+# 33432	8298	Copyright	Complete copyright notice of the person or organization that claims the copyright to the image.
+33432; optional; any
+
+# 33723 83BB	IPTC	IPTC (International Press Telecommunications Council) metadata. 
+33723; optional; any
+
+# DO NOT UNCOMMENT! PHOTOSHOP METADATA ARE PROPRIETARY AND HENCE NOT SUITABLE FOR LONG TERM ARCHIVAL!
+# 34377	8649	Photoshop	Collection of Photoshop 'Image Resource Blocks'.
+#34377; optional; any
+
+# 34665	8769	Exif IFD	 A pointer to the Exif IFD. Exif IFD is a set of tags for recording Exif-specific attribute information. It is pointed to by the offset from the TIFF header (Value Offset) indicated by an Exif private tag value. An Exif IFD has the same structure as that of the IFD specified in TIFF. Ordinarily, however, it does not contain image data as in the case of TIFF. 
+34665; optional; any
+
+# 34675	8773	ICC Profile		ICC Profile data
+34675; optional; any
 
 
 #####

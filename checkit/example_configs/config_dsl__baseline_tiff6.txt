@@ -67,14 +67,17 @@
 # 255	00FF	SubfileType		A general indication of the kind of data contained in this subfile. This field is deprecated. The NewSubfileType field should be used instead.
 255; optional; range(1, 3)
 
+# DO NOT UNCOMMENT! THRESSHOLDING IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 263	0107	Threshholding	For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels. Default is 1.
-263; optional; range(1, 3)
+#263; optional; range(1, 3)
 
+# DO NOT UNCOMMENT! CELL WIDTH IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 264	0108	CellWidth	The width of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file.
-264; depends(263.2); any
+#264; depends(263.2); any
 
+# DO NOT UNCOMMENT! CELL LENGTH IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 265	0109	CellLength	The length of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file. This field should only be present if Threshholding = 2.
-265; depends(263.2); any
+#265; depends(263.2); any
 
 # 266	010A	FillOrder	The logical order of bits within a byte.
 ### Support for FillOrder=2 is not required in a Baseline TIFF compliant reader. Default is 1.

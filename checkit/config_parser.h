@@ -1,5 +1,7 @@
 #ifndef _FIXIT_TIFF_CONFIG_PARSER
 #define _FIXIT_TIFF_CONFIG_PARSER
+#include "../fixit/fixit_tiff.h"
+
 
 /* struct to hold parsing configuration */
 typedef struct funcu * funcp;
@@ -75,6 +77,12 @@ typedef struct parser_state_s {
   int i_stackp;
   int called_tags[MAXTAGS];
 } parser_state_t;
+
+
+int execute_plan (TIFF * tif) ;
+void print_plan ();
+void clean_plan ();
+void parse_plan ();
 
 #endif
 /* _FIXIT_TIFF_CONFIG_PARSER */

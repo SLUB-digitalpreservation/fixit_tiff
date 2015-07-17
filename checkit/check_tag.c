@@ -20,7 +20,6 @@ int check_tag(TIFF* tif, int tag) {
   return 1;
 }
 
-
 /* checks if TIF does not have a specified tag,
  * needed only for checks to ensure whitelist */
 int check_notag(TIFF* tif, int tag) {

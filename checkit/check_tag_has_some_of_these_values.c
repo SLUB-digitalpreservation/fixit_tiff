@@ -1,14 +1,16 @@
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
 #include "../fixit/tiff_helper.h"
+/*
+#define DEBUG
+*/
 
-
-int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, int * values) {
+int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, unsigned int * values) {
   printf("check if tag %i (%s) has some of these %i-values", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), count);
   int i;
-  int * p = values;
+  unsigned int * p = values;
   for (i=0; i< count; i++) {
-    printf (", %i", *p);
+    printf (", %u", *p);
     p++;
   }
   printf("\n");
@@ -16,7 +18,9 @@ int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, int * valu
   void * data;
   int found=TIFFGetField(tif, tag, &val, &data);
   if (1==found) { /* check va-list */
-    printf("### found: value=%i data=%p \n",val, data);
+#ifdef DEBUG
+    printf("### found: value=%u data=%p \n",val, data);
+#endif
     /* we check only count, because we evaluate only int-values */
     p = values;
     for (i=0; i< count; i++) {

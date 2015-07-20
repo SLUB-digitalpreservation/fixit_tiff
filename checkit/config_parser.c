@@ -68,7 +68,7 @@ int call_fp(TIFF* tif, funcp fp) {
                       assert(NULL != function);
                       assert(NULL != function->functionp);
 #ifdef DEBUG
-                      printf("debug: found a=%i b=%i\n", function->a, function->b);
+                      printf("debug: found a=%i b=%u\n", function->a, function->b);
 #endif
                       ret = (function->functionp)(tif, function->a, function->b); 
                       break;
@@ -80,7 +80,7 @@ int call_fp(TIFF* tif, funcp fp) {
                       assert(NULL != function);
                       assert(NULL != function->functionp);
 #ifdef DEBUG
-                      printf("debug: found a=%i b=%i c=%i\n", function->a, function->b, function->c);
+                      printf("debug: found a=%i b=%u c=%u\n", function->a, function->b, function->c);
 #endif
                       ret = (function->functionp)(tif, function->a, function->b, function->c); 
                       break;
@@ -123,12 +123,18 @@ int execute_plan (TIFF * tif) {
 #endif
       if (NULL != fp->pred) { /* we have a predicate function, call it and
                                  decide if we continue or not */
+#ifdef DEBUG
         printf("execute: we have a predicate... ");
+#endif
         if (0 != call_fp(tif, fp->pred)) {
+#ifdef DEBUG
           printf("execute: predicate was not successfull\n");
+#endif
           /* the predicate was not successfull, skip check */
         } else { /* predicate was successful */
+#ifdef DEBUG
           printf("execute: predicate was successfull\n");
+#endif
           parser_state.called_tags[fp->tag]++;
           is_valid+= call_fp (tif, fp );
         }
@@ -225,14 +231,14 @@ int append_function_to_plan (void * fp, const char * name ) {
 }
 
 /* stack functions for parser */
-void i_push (int i) {
+void i_push (unsigned int i) {
   if (parser_state.i_stackp >= 40) {
     fprintf(stderr, "stackoverflow in i_stack\n");
     exit(EXIT_FAILURE);
   }
   parser_state.i_stack[parser_state.i_stackp++] = i;
 }
-int i_pop () {
+unsigned int i_pop () {
   if (parser_state.i_stackp <= 0) {
     fprintf(stderr, "stackunderflow in i_stack\n");
     exit(EXIT_FAILURE);
@@ -245,7 +251,7 @@ void i_clear() {
 
 /* function to clean an execution plan */
 void clean_plan () {
-  executionentry_t * last = plan.last;
+  /*executionentry_t * last = plan.last; */
   executionentry_t * entry = plan.start;
   if (NULL != entry) {
     while (entry->next) {
@@ -356,9 +362,9 @@ void rule_addtag_config() {
   /* HINT: order of evaluating last val and last req is IMPORTANT! */
   switch ( parser_state.val ) {
     case range: {
-                  int r = i_pop();
-                  int l = i_pop();
-                  snprintf(fname, 29, "tst_tag%i_%i_%s_%i_%i", parser_state.tag, parser_state.req, "range", l, r);
+                  unsigned int r = i_pop();
+                  unsigned int l = i_pop();
+                  snprintf(fname, 29, "tst_tag%i_%i_%s_%u_%u", parser_state.tag, parser_state.req, "range", l, r);
                   /* create datastruct for fp */
                   struct f_intintint_s * fsp = NULL;
                   fsp = malloc( sizeof( struct f_intintint_s ));
@@ -385,14 +391,14 @@ void rule_addtag_config() {
                          fprintf (stderr, "could not alloc mem for fsp\n");
                          exit(EXIT_FAILURE);
                        };
-                       int * rp = NULL;
+                       unsigned int * rp = NULL;
                        rp = malloc ( count_of_values * sizeof( int ) );
                        if (NULL == rp) {
                          fprintf (stderr, "could not alloc mem for rp\n");
                          exit(EXIT_FAILURE);
                        };
                        int i;
-                       int * rnp=rp;
+                       unsigned int * rnp=rp;
                        for (i=0; i<count_of_values; i++) {
                          *(rnp) = i_pop();
                          rnp++;
@@ -408,8 +414,8 @@ void rule_addtag_config() {
     case only: {
                  int count_of_values = parser_state.valuelist;
                  if (1 == count_of_values) {
-                   int v = i_pop();
-                   snprintf(fname, 29, "tst_tag%i_%i_%s_%i", parser_state.tag, parser_state.req, "only", v);
+                   unsigned int v = i_pop();
+                   snprintf(fname, 29, "tst_tag%i_%i_%s_%u", parser_state.tag, parser_state.req, "only", v);
                    /* create datastruct for fp */
                    struct f_intint_s * fsp = NULL;
                    fsp = malloc( sizeof( struct f_intint_s ));
@@ -432,14 +438,14 @@ void rule_addtag_config() {
                      fprintf (stderr, "could not alloc mem for fsp\n");
                      exit(EXIT_FAILURE);
                    };
-                   int * rp = NULL;
+                   unsigned int * rp = NULL;
                    rp = malloc ( count_of_values * sizeof( int ) );
                    if (NULL == rp) {
                      fprintf (stderr, "could not alloc mem for rp\n");
                      exit(EXIT_FAILURE);
                    };
                    int i;
-                   int * rnp=rp;
+                   unsigned int * rnp=rp;
                    for (i=0; i<count_of_values; i++) {
                      *(rnp) = i_pop();
                      rnp++;
@@ -482,9 +488,9 @@ void rule_addtag_config() {
                       };
                       predicate->pred=NULL;
                       if (parser_state.any_reference == 0) {
-                        int valreference = i_pop();
-                        int tagreference = i_pop();
-                        printf("ifdepends references to %i.%i\n", tagreference, valreference);
+                        unsigned int valreference = i_pop();
+                        unsigned int tagreference = i_pop();
+                        printf("ifdepends references to %u.%u\n", tagreference, valreference);
                         struct f_intint_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_intint_s ));
                         if (NULL == fsp) {
@@ -497,8 +503,8 @@ void rule_addtag_config() {
                         predicate->ftype = f_intint;
                         predicate->fu.fintintt = fsp;
                       } else { /* point to any reference */
-                        int tagreference = i_pop();
-                        printf("ifdepends references to %i.any\n", tagreference);
+                        unsigned int tagreference = i_pop();
+                        printf("ifdepends references to %u.any\n", tagreference);
                         struct f_int_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_int_s ));
                         if (NULL == fsp) {

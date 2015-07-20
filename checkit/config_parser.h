@@ -33,22 +33,22 @@ typedef struct f_int_s {
 
 typedef struct f_intint_s {
   int a;
-  int b;
-  int (*functionp)(TIFF*, int a, int b);
+  unsigned int b;
+  int (*functionp)(TIFF*, int a, unsigned int b);
 } f_intint_t;
 
 typedef struct f_intintint_s {
   int a;
-  int b;
-  int c;
-  int (*functionp)(TIFF*, int a, int b, int c);
+  unsigned int b;
+  unsigned int c;
+  int (*functionp)(TIFF*, int a, unsigned int b, unsigned int c);
 } f_intintint_t;
 
 typedef struct f_intintintp_s {
   int a;
   int b;
-  int * c;
-  int (*functionp)(TIFF*, int a, int b, int * c);
+  unsigned int * c;
+  int (*functionp)(TIFF*, int a, int b, unsigned int * c);
 } f_intintintp_t;
 
 typedef enum { f_dummy, f_void, f_int, f_intint, f_intintint, f_intintintp } ftype_t;
@@ -73,7 +73,7 @@ typedef struct parser_state_s {
   int tag;
   values_t val;
   requirements_t req;
-  int i_stack[40];
+  unsigned int i_stack[40];
   int i_stackp;
   int called_tags[MAXTAGS];
   FILE * stream;

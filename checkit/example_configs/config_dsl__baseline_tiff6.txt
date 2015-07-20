@@ -14,16 +14,16 @@
 #####
 
 # 256	0100	ImageWidth	The number of columns in the image, i.e., the number of pixels per row.
-256; mandatory; any
+256; mandatory; range(1, 4294967295)
 
 # 257	0101	ImageLength	The number of rows of pixels in the image.
-257; mandatory; any
+257; mandatory; range(1, 4294967295)
 
 # 258	0102	BitsPerSample	Number of bits per component.
 ##########################258; mandatory; logical_or(8,16)
-258; depends(262.0); logical_or(4,8)
-258; depends(262.1); logical_or(4,8)
-258; depends(262.2); only(8)
+# Bitonal is optional, grey & RGB is mandatory. If 262 AND 258 exist, then the values need to be in the specified range.
+258; depends(262.2); only(8,8,8)
+258; depends(258.any); logical_or(4, 8)
 
 # 259	0103	Compression	Compression scheme used on the image data 
 ### (1 means no compression)
@@ -40,13 +40,14 @@
 ### if RGB then 3 else 1
 ### Even though Baseline TIFF allows for SamplesPerPixel>3, we do NOT allow this for long term archival.
 277; depends(262.2); only(3)
+277; depends(262.1); only(1)
 277; depends(262.0); only(1)
 
 # 278	0116	RowsPerStrip	The number of rows per strip.
-278; mandatory; any
+278; mandatory; range(1, 4294967295)
 
 # 279	0117	StripByteCounts	For each strip, the number of bytes in the strip after compression.
-279; mandatory; any
+279; mandatory; range(1, 4294967295)
 
 # 282	011A	XResolution	The number of pixels per ResolutionUnit in the ImageWidth direction.
 282; mandatory; range(300, 1200)
@@ -61,11 +62,13 @@
 # optional fields
 #####
 
+# NO OTHER VALUES FROM THE RANGE (0 - 7) ARE ALLOWED. ONLY "0" IS SUITABLE FOR LONG TERM ARCHIVAL.
 # 254	00FE	NewSubfileType	A general indication of the kind of data contained in this subfile. These values are defined as bit flags because they are independent of each other. Default is 0.
-254; optional; range(0, 7)
+254; optional; only(0)
 
+# DO NOT UNCOMMENT! THIS TAG IS DEPRECATED! USE NEW SUBFILE TYPE INSTEAD!
 # 255	00FF	SubfileType		A general indication of the kind of data contained in this subfile. This field is deprecated. The NewSubfileType field should be used instead.
-255; optional; range(1, 3)
+#255; optional; range(1, 3)
 
 # DO NOT UNCOMMENT! THRESSHOLDING IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 263	0107	Threshholding	For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels. Default is 1.
@@ -79,8 +82,8 @@
 # 265	0109	CellLength	The length of the dithering or halftoning matrix used to create a dithered or halftoned bilevel file. This field should only be present if Threshholding = 2.
 #265; depends(263.2); any
 
-# 266	010A	FillOrder	The logical order of bits within a byte.
 ### Support for FillOrder=2 is not required in a Baseline TIFF compliant reader. Default is 1.
+# 266	010A	FillOrder	The logical order of bits within a byte.
 266; optional; only(1)
 
 # 270	010E	ImageDescription	A string that describes the subject of the image.
@@ -92,17 +95,19 @@
 # 272	0110	Model	The scanner model name or number.
 272; optional, any
 
-# 274	0112	Orientation		The orientation of the image with respect to the rows and columns. Default is 1. 
+# 274	0112	Orientation		The orientation of the image with respect to the rows and columns. Default is 1, and only this value is Baseline TIFF conform. 
 # 274; optional; range(1, 8)	# THIS IS NOT BASELINE TIFF!!! DO NOT UNCOMMENT!!!
-274; optional; only(1)		# THIS _IS_ BASELINE TIFF!!!
+274; optional; only(1)
 
+# DO NOT UNCOMMENT! MIN SAMPLE VALUE IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 280	0118	MinSampleValue	The minimum component value used. Default is 0.
-280; optional; any
+#280; optional; any
 
+# DO NOT UNCOMMENT! MAX SAMPLE VALUE IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 281	0119	MaxSampleValue	The maximum component value used; only for statistical purposes. Default is 2**(BitsPerSample) - 1.
-281; optional; any
+#281; optional; any
 
-# 284	011C	PlanarConfiguration		How the components of each pixel are stored. 1 = Chunky format. 2 = Planar format (Baseline TIFF readers are not required to support it.). Default: 1.
+# 284	011C	PlanarConfiguration		How the components of each pixel are stored. 1 = Chunky format. 2 = Planar format and Baseline TIFF readers are not required to support it. Default: 1.
 284; optional; only(1)
 
 # DO NOT UNCOMMENT! FREE OFFSETS ARE NOT SUITABLE FOR LONG TERM ARCHIVAL!
@@ -114,10 +119,12 @@
 #289; optional; any
 
 # 290	0122	GrayResponseUnit	The precision of the information contained in the GrayResponseCurve. Default: 2; Recommended: 3
-290; optional; range(1, 5)
+290; depends(262.0); range(1, 5)
+290; depends(262.1); range(1, 5)
 
 # 291	0123	GrayResponseCurve	For grayscale data, the optical density of each possible pixel value.
-291; optional; any
+291; depends(262.0); any
+291; depends(262.1); any
 
 # 305	0131	Software	Name and version number of the software package(s) used to create the image.
 305; optional; any
@@ -125,11 +132,13 @@
 # 306	0132	DateTime	Date and time of image creation in the format "YYYY:MM:DD HH:MM:SS".
 306; optional; any
 
-# 315	013B	Person who created the image. Some older TIFF files used this tag for storing Copyright information.
-315; optional; any
+# DO NOT UNCOMMENT! ARTIST IS NOT SUITABLE FOR LONG TERM ARCHIVAL BECAUSE OF PRIVACY CONCERNS!
+# 315	013B	Artist		Person who created the image. Some older TIFF files used this tag for storing Copyright information.
+#315; optional; any
 
+# DO NOT UNCOMMENT! HOST COMPUTER INFORMATION IS NOT SUITABLE AND IRRELEVANT FOR LONG TERM ARCHIVAL!
 # 316	013C	HostComputer	The computer and/or operating system in use at the time of image creation.
-316; optional; any
+#316; optional; any
 
 # DO NOT UNCOMMENT! COLOR MAP TIFFS ARE NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 320	0140	ColorMap	This field defines a Red-Green-Blue color map (often called a lookup table) for palette color images.
@@ -145,8 +154,9 @@
 # 33432	8298	Copyright	Complete copyright notice of the person or organization that claims the copyright to the image.
 33432; optional; any
 
+# DO NOT UNCOMMENT! IPTC METADATA ARE NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 33723 83BB	IPTC	IPTC (International Press Telecommunications Council) metadata. 
-33723; optional; any
+#33723; optional; any
 
 # DO NOT UNCOMMENT! PHOTOSHOP METADATA ARE PROPRIETARY AND HENCE NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 34377	8649	Photoshop	Collection of Photoshop 'Image Resource Blocks'.
@@ -163,28 +173,11 @@
 # unanswered questions
 #####
 
-# - max. Größe einer TIFF-Datei: 2^32 Bytes
-# - Image File Header (IFH)
-	# - Bytes 0-1: "II" (little-endian) oder "MM" (big-endian)
-		# => darf keine anderen Werte enthalten
-	# - Bytes 2-3: 42 (magic number)
-		# => darf keine anderen Werte enthalten
-	# - Bytes 4-7: offset in Bytes vom Dateianfang bis zum ersten IDF
-		# => muss das ausgewertet werden???
 # - Image File Directory (IFD)
 		# => genau 1 IFD muss vorhanden sein
 			# (einerseits min. 1. gefordert, andererseits muss ein Baseline-Tiff-Reader max. 1 lesen)
-		# => min. 1 IFD-Eintrag muss pro IFD vorhanden sein
 		# => Einträge müssen aufsteigend geordnet sein
 	# - Bytes 0-1: Anzahl der IFD-Einträge
 		# => muss mit der tatsächlichen Anzahl übereinstimmen
-	# - n-Mal je 12 Bytes: IFD-Einträge
-		# => n * 12 muss tatsächliche Länge der IFD-Einträge sein
 	# - 4 Bytes: Offset zum nächsten IFD (oder "0000" falls kein IFD mehr kommt)
 		# => Eintrag muss "0000" sein
-# - Tag 262 PhotometricInterpretation
-	# - 0 ist auch gültiges Baseline TIFF und sollte mit aufgenommen werden
-# - Tag 258 BitsPerSample ist NICHT mandatory für Bilevel Images!!!
-	# - 
-# Multiple subfiles. TIFF readers must be prepared for multiple images (subfiles) per TIFF file, although they are not required to do anything with images after the first one. TIFF writers are required to write a long word of 0 after the last IFD (to signal that this is the last IFD), as described earlier in this specification.
-# 

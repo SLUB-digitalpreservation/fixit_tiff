@@ -24,11 +24,11 @@ int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, unsigned i
     /* we check only count, because we evaluate only int-values */
     p = values;
     for (i=0; i< count; i++) {
-      if ((val == *p) && (NULL == data)) { 
+      if ((val == *p)) { 
         return 0;
       }
     }
-    tif_fails("tag %i should have some of the values, but have count/value=%i data=%p\n", tag, val, data);
+    tif_fails("tag %i should have some of the values, but have count/value=%i\n", tag, val);
     return 1;
   } else { /* tag not defined */ 
     tif_fails("tag %i should exist, because defined\n", tag);

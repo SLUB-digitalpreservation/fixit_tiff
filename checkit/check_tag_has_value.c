@@ -19,10 +19,10 @@ int check_tag_has_value(TIFF* tif, int tag, unsigned int value) {
     printf("### found: value=%i data=%p \n",val, data);
 #endif
     /* we check only count, because we evaluate only int-values */
-    if ((val == value) && (NULL == data)) { 
+    if ((val == value)) { 
       return 0;
     } else {
-      tif_fails("tag %i should have value %i, but have count/value=%u data=%p\n", tag, value, val, data);
+      tif_fails("tag %i should have value %i, but have count/value=%u\n", tag, value, val);
       return 1;
     }
   } else { /* tag not defined */ 
@@ -55,7 +55,7 @@ int check_tag_has_valuelist(TIFF* tif, int tag, int count, unsigned int * values
 #ifdef DEBUG
       printf("### value = %u", *p);
 #endif
-      if ((val == *p) && (NULL == data)) {
+      if ((val == *p)) {
 
       } else {
 #ifdef DEBUG
@@ -67,7 +67,7 @@ int check_tag_has_valuelist(TIFF* tif, int tag, int count, unsigned int * values
       p++;
     }
     if (has_error > 0) {
-      tif_fails("tag %i should have values, but have count/value=%i(%x) data=%p\n", tag, val, val, data);
+      tif_fails("tag %i should have values, but have count/value=%i(%x)\n", tag, val, val);
       return 1;
     } else { /* no error */
       return 0;

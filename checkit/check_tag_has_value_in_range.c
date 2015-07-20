@@ -24,10 +24,10 @@ int check_tag_has_value_in_range(TIFF* tif, int tag, unsigned int a, unsigned in
     printf("### found: value=%u data=%p \n",val, data);
 #endif
     /* we check only count, because we evaluate only int-values */
-    if ((val >= a || val <= b ) && (NULL == data)) { 
+    if ((val >= a && val <= b )) { 
       return 0;
     } else {
-      tif_fails("tag %i should have value in range %u - %u, but have count/value=%i data=%p\n", tag, a, b, val, data);
+      tif_fails("tag %i should have value in range %u - %u, but have count/value=%i\n", tag, a, b, val);
       return 1;
     }
   } else { /* tag not defined */ 

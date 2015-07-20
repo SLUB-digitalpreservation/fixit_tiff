@@ -16,7 +16,7 @@
 int main (int argc, char * argv[]) {
   if (argc != 3) {
         fprintf( stderr, "%s needs two arguments, first should be the tiff-filename, second the config-file\n", argv[0]);
-        exit (-1);
+        exit (EXIT_FAILURE);
   }
   const char *tiff_file=argv[1];
   const char *cfg_file=argv[2];
@@ -39,5 +39,5 @@ int main (int argc, char * argv[]) {
   clean_plan();
   TIFFClose(tif);
   fclose(cfg);
-  exit(0);
+  exit(EXIT_SUCCESS);
   }

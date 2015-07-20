@@ -28,8 +28,9 @@ LogicalOr       <- 'logical_or(' ValueList ')'      { set_logical_or(); }
 ValueList       <- Value (Colon Value)*
 Value           <- Number { incr_values(); }
 ValueReference  <- Number
-#                / String 
-Only            <- 'only(' Value ')'                { set_only(); }
+                 / 'any'                            { set_any_reference(); } 
+#                / String
+Only            <- 'only(' ValueList ')'                { set_only(); }
 #RegEx           <- 'regex(' ( . )+                 { printf ("Regex not supported yet\n"); }
 SpaceLine       <- Space? EndOfLine
 Space           <- ' ' / '\t' 

@@ -22,9 +22,9 @@ syntax:
 * a tagline is built via "TAG ; REQUIREMENTS ; VALUES", where
 * a TAG is a increasing number similar to TIFF-Tag numbers (see TIFF
 definition)
-* REQUIREMENTS could be "mandatory", "optional" or "depends(TAGREFERENCE.VALUE)"
-** TAGREFERENCE points to a tag number which must be exists, 
-** VALUE could be 'any' or a decimal value or a string enclosed in '"'
+* REQUIREMENTS could be "mandatory", "optional" or "depends(TAGREFERENCE.VALUEREFERENCE)"
+** TAGREFERENCE points to a tag number which must be exists,
+** VALUEREFERENCE could be 'any' or a decimal value or a string enclosed in '"'
 * VALUES could be one of these:
 ** "range(START, END)" where START and END are decimal values
 ** "logical_or( VALUELIST)" where VALUELIST are comma-separated decimale values
@@ -34,4 +34,8 @@ definition)
 
 If multiple rules defined per tag, they will be combined alternatively.
 
+Values
+======
 
+At the moment, the parser only supports a limited type of values. To make
+handling easier, it uses only the value/offset part of an IFD entry

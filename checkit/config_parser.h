@@ -69,7 +69,7 @@ struct funcu {
 #define MAXTAGS 65536
 typedef struct parser_state_s {
   int lineno;
-  int logical_or;
+  int valuelist;
   int tag;
   values_t val;
   requirements_t req;
@@ -77,6 +77,7 @@ typedef struct parser_state_s {
   int i_stackp;
   int called_tags[MAXTAGS];
   FILE * stream;
+  int any_reference;
 } parser_state_t;
 
 

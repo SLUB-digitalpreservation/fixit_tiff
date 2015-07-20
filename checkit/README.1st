@@ -4,5 +4,107 @@ HINT:
 * Remember, it is in alpha-state and needs additional rules to validate tiff
 files completely. At the moment, only simple tag-conditions are checked.
 
+Compile:
 
+$> make
+
+Run:
+
+$> ./checkit_tiff ../examples/invalid_date.tiff example_configs/config_dsl__baseline_tiff6.txt
+
+tiff file=../examples/invalid_date.tiff
+cfg_file=example_configs/config_dsl__baseline_tiff6.txt
+TIFFFetchNormalTag: Warning, Incorrect value for "Photoshop"; tag ignored.
+count of values = 3
+ifdepends references to 262.2
+count of values = 2
+ifdepends references to 258.any
+ifdepends references to 262.2
+ifdepends references to 262.1
+ifdepends references to 262.0
+ifdepends references to 262.0
+ifdepends references to 262.1
+ifdepends references to 262.0
+ifdepends references to 262.1
+check if tag 256 (ImageWidth) has value in range 1 - 4294967295
+check if tag 257 (ImageLength) has value in range 1 - 4294967295
+check if tag 262 (PhotometricInterpretation) has value 2
+check if tag 258 (BitsPerSample) has these 3-values, 8, 8, 8
+check if tag 258 (BitsPerSample) exists
+check if tag 258 (BitsPerSample) has some of these 2-values, 8, 4
+check if tag 259 (Compression) has value 1
+check if tag 262 (PhotometricInterpretation) has value in range 0 - 2
+check if tag 273 (StripOffsets) exists
+check if tag 262 (PhotometricInterpretation) has value 2
+check if tag 277 (SamplesPerPixel) has value 3
+check if tag 262 (PhotometricInterpretation) has value 1
+	tag 262 should have value 1, but have count/value=2
+check if tag 262 (PhotometricInterpretation) has value 0
+	tag 262 should have value 0, but have count/value=2
+check if tag 278 (RowsPerStrip) has value in range 1 - 4294967295
+check if tag 279 (StripByteCounts) has value in range 1 - 4294967295
+check if tag 282 (XResolution) has value in range 300 - 1200
+	tag 282 should have value in range 300 - 1200, but have count/value=0
+check if tag 283 (YResolution) has value in range 300 - 1200
+	tag 283 should have value in range 300 - 1200, but have count/value=0
+check if tag 296 (ResolutionUnit) has value 2
+check if tag 254 (SubfileType) exists
+check if tag 254 (SubfileType) has value 0
+check if tag 266 (FillOrder) exists
+check if tag 266 (FillOrder) has value 1
+check if tag 270 (ImageDescription) exists
+	tag 270 should exist, because defined
+check if tag 271 (Make) exists
+	tag 271 should exist, because defined
+check if tag 274 (Orientation) exists
+check if tag 274 (Orientation) has value 1
+check if tag 284 (PlanarConfiguration) exists
+check if tag 284 (PlanarConfiguration) has value 1
+check if tag 262 (PhotometricInterpretation) has value 0
+	tag 262 should have value 0, but have count/value=2
+check if tag 262 (PhotometricInterpretation) has value 1
+	tag 262 should have value 1, but have count/value=2
+check if tag 262 (PhotometricInterpretation) has value 0
+	tag 262 should have value 0, but have count/value=2
+check if tag 262 (PhotometricInterpretation) has value 1
+	tag 262 should have value 1, but have count/value=2
+check if tag 305 (Software) exists
+check if tag 305 (Software) exists
+check if tag 306 (DateTime) exists
+check if tag 306 (DateTime) exists
+check if tag 700 (XMLPacket) exists
+	tag 700 should exist, because defined
+check if tag 33432 (Copyright) exists
+	tag 33432 should exist, because defined
+check if tag 34665 (EXIFIFDOffset) exists
+	tag 34665 should exist, because defined
+check if tag 34675 (ICC Profile) exists
+	tag 34675 should exist, because defined
+check if forbidden tags are still existing
+check if tag 254 (SubfileType) has valid type
+check if tag 256 (ImageWidth) has valid type
+check if tag 257 (ImageLength) has valid type
+check if tag 258 (BitsPerSample) has valid type
+check if tag 259 (Compression) has valid type
+check if tag 262 (PhotometricInterpretation) has valid type
+check if tag 266 (FillOrder) has valid type
+	tag 269 should not be part of this TIF
+check if tag 273 (StripOffsets) has valid type
+	tag 273 has incorrect type: 16
+check if tag 274 (Orientation) has valid type
+check if tag 277 (SamplesPerPixel) has valid type
+check if tag 278 (RowsPerStrip) has valid type
+check if tag 279 (StripByteCounts) has valid type
+	tag 279 has incorrect type: 16
+check if tag 282 (XResolution) has valid type
+check if tag 283 (YResolution) has valid type
+check if tag 284 (PlanarConfiguration) has valid type
+check if tag 296 (ResolutionUnit) has valid type
+	tag 297 should not be part of this TIF
+check if tag 305 (Software) has valid type
+check if tag 306 (DateTime) has valid type
+	datetime should be "yyyy:MM:DD hh:mm:ss", but was "04.03.2010 09:59:17"
+	tag 315 should not be part of this TIF
+	tag 34377 should not be part of this TIF
+found 9 errors
 

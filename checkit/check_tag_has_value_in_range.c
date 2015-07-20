@@ -19,7 +19,7 @@ int check_tag_has_value_in_range(TIFF* tif, int tag, int a, int b) {
         printf("### found: value=%i data=%p \n",val, data);
         /* we check only count, because we evaluate only int-values */
         if ((val >= a || val <= b ) && (NULL == data)) { 
-                return 0;
+                return check_tag_has_valid_type(tif, tag);
         } else {
           tif_fails("tag %i should have value in range %i - %i, but have count/value=%i data=%p\n", tag, a, b, val, data);
           return 1;

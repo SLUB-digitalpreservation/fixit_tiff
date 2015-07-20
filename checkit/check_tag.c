@@ -14,7 +14,9 @@ int check_tag(TIFF* tif, int tag) {
   uint32 tag_counter=TIFFGetRawTagListCount(tif);
   uint32 tagidx;
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
-    if (tag == TIFFGetRawTagListEntry( tif, tagidx )) return 0;
+    if (tag == TIFFGetRawTagListEntry( tif, tagidx )) {
+        return check_tag_has_valid_type(tif, tag);
+    };
   }
   tif_fails("tag %i should exist, because defined\n", tag);
   return 1;

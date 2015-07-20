@@ -11,8 +11,8 @@
 # 258   0102    BitsPerSample   Number of bits per component.
 ##########################
 # b/w allows missing BitsPerSample, but if used, only value 4,8
-258; depends(262.0); logical_or(4,8)
-258; depends(262.1); logical_or(4,8)
-258; depends(262.2); only(8)
-
+#258; depends(262.0); logical_or(4,8)
+#258; depends(262.1); logical_or(4,8)
+#258; depends(262.2); only(8,8,8)
+258; mandatory; only(32)
 

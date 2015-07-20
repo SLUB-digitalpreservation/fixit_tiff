@@ -3,7 +3,7 @@
 #include "../fixit/tiff_helper.h"
 
 int check_tag_has_value_in_range(TIFF* tif, int tag, int a, int b) {
-  printf("check if tag %i has value in range %i - %i\n", tag, a, b);
+  printf("check if tag %i (%s) has value in range %i - %i\n", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), a, b);
    if (NULL == tif) {
     fprintf( stderr, "TIFF pointer is empty\n");
     tif_fails("TIFF pointer is empty\n");

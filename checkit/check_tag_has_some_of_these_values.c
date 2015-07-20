@@ -4,7 +4,7 @@
 
 
 int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, int * values) {
-  printf("check if tag %i has some of these %i-values", tag, count);
+  printf("check if tag %i (%s) has some of these %i-values", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), count);
   int i;
   int * p = values;
   for (i=0; i< count; i++) {

@@ -5,7 +5,7 @@
 
 /* checks if TIF has a specified tag */
 int check_tag(TIFF* tif, int tag) {
-  printf("check if tag %i exists\n", tag);
+  printf("check if tag %i (%s) exists\n", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)));
   if (NULL == tif) {
     fprintf( stderr, "TIFF pointer is empty\n");
     tif_fails("TIFF pointer is empty\n");

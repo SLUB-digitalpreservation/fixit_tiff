@@ -14,7 +14,7 @@ int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, int * valu
   printf("\n");
   uint16 val;
   void * data;
-  int found=TIFFGetField(tif, tag, &val, data);
+  int found=TIFFGetField(tif, tag, &val, &data);
   if (1==found) { /* check va-list */
     printf("### found: value=%i data=%p \n",val, data);
     /* we check only count, because we evaluate only int-values */

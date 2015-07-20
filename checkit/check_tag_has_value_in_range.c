@@ -14,7 +14,7 @@ int check_tag_has_value_in_range(TIFF* tif, int tag, int a, int b) {
   
   if (a > b) { int c=a; a=b; b=c; }
 
-  int found=TIFFGetField(tif, tag, &val, data);
+  int found=TIFFGetField(tif, tag, &val, &data);
   if (1==found) { /* check va-list */
         printf("### found: value=%i data=%p \n",val, data);
         /* we check only count, because we evaluate only int-values */

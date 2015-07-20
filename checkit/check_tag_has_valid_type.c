@@ -14,7 +14,7 @@ int check_tag_has_valid_type(TIFF* tif, int tag) {
   };
   uint16 val;
   void * data;
-  int found=TIFFGetField(tif, tag, &val, data);
+  int found=TIFFGetField(tif, tag, &val, &data);
   if (1==found) { /* check va-list */
         TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
         printf("### found: value=%i data=%p \n",val, data);

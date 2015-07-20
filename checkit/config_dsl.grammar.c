@@ -382,7 +382,7 @@ YY_ACTION(void) yy_1_Number(yycontext *yy, char *yytext, int yyleng)
 #define yythunkpos yy->__thunkpos
   yyprintf((stderr, "do yy_1_Number\n"));
   {
-  i_push(atoi(yytext) );;
+  i_push(atol(yytext) );;
   }
 #undef yythunkpos
 #undef yypos

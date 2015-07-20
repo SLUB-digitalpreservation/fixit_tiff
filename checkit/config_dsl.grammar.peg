@@ -22,7 +22,7 @@ Values          <- Range
                 / Only
 #                / RegEx 
 Range           <- 'range(' Number Colon Number ')' { set_range();}
-Number          <- < ( Digit )+ >        {i_push(atoi(yytext) );}
+Number          <- < ( Digit )+ >        {i_push(atol(yytext) );}
 Colon           <- ',' (Space )* 
 LogicalOr       <- 'logical_or(' ValueList ')'      { set_logical_or(); } 
 ValueList       <- Value (Colon Value)*

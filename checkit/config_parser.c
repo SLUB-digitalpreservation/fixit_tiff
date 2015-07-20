@@ -302,25 +302,38 @@ void set_mandatory() {
 #ifdef DEBUG
   printf("tag '%i' is mandatory\n", gettag());
 #endif
-  parser_state.req=mandatory; }
-  void set_optional() {
+  parser_state.req=mandatory;
+}
+void set_optional() {
 #ifdef DEBUG
-    printf("tag '%i' is optional\n", gettag());
+  printf("tag '%i' is optional\n", gettag());
 #endif
-    parser_state.req=optional; }
-    void set_ifdepends() {
+  parser_state.req=optional; 
+}
+
+void set_ifdepends() {
 #ifdef DEBUG
-      printf("tag '%i' is set if depends\n", gettag());
+  printf("tag '%i' is set if depends\n", gettag());
 #endif
-      parser_state.req=ifdepends; }
-      void set_range() { parser_state.val = range;}
-      void set_logical_or() { parser_state.val = logical_or;}
-      void set_only() { parser_state.val = only;}
-      void set_any() { parser_state.val = any;}
-      void set_any_reference() { parser_state.any_reference = 1;}
-      void reset_valuelist() {
-        parser_state.valuelist = 0;
-      }
+  parser_state.req=ifdepends; 
+}
+
+void set_range() { parser_state.val = range;}
+
+
+void set_logical_or() { parser_state.val = logical_or;}
+
+
+void set_only() { parser_state.val = only;}
+
+void set_any() { parser_state.val = any;}
+
+
+void set_any_reference() { parser_state.any_reference = 1;}
+
+void reset_valuelist() {
+  parser_state.valuelist = 0;
+}
 void incr_values () {
   parser_state.valuelist++;
 }
@@ -505,8 +518,8 @@ void rule_addtag_config() {
                       break;
                     }
     case optional: {
-                      funcp predicate = NULL;
-                      predicate=malloc( sizeof( funcp ) );
+                     funcp predicate = NULL;
+                     predicate=malloc( sizeof( funcp ) );
                       if (NULL == predicate) {
                         fprintf (stderr, "could not alloc mem for pred\n");
                         exit(EXIT_FAILURE);
@@ -536,6 +549,7 @@ void rule_addtag_config() {
 #endif
   append_function_to_plan(f, fname);
   reset_valuelist();
+  parser_state.any_reference = 0;
 }
 
 void reset_parser_state() {

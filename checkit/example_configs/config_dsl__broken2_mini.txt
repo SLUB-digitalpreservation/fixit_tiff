@@ -14,5 +14,5 @@
 #258; depends(262.0); logical_or(4,8)
 #258; depends(262.1); logical_or(4,8)
 #258; depends(262.2); only(8,8,8)
-258; mandatory; only(32)
+258; depends(262.any); only(32)
 

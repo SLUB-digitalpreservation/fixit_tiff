@@ -456,9 +456,6 @@ void rule_addtag_config() {
   /* HINT: order of calling arguments from stacks is IMPORTANT! */
   switch ( parser_state.req ) {
     case ifdepends: {
-                      int valreference = i_pop();
-                      int tagreference = i_pop();
-                      printf("ifdepends references to %i.%i\n", tagreference, valreference);
                       funcp predicate = NULL;
                       predicate=malloc( sizeof( funcp ) );
                       if (NULL == predicate) {
@@ -467,6 +464,9 @@ void rule_addtag_config() {
                       };
                       predicate->pred=NULL;
                       if (parser_state.any_reference == 0) {
+                        int valreference = i_pop();
+                        int tagreference = i_pop();
+                        printf("ifdepends references to %i.%i\n", tagreference, valreference);
                         struct f_intint_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_intint_s ));
                         if (NULL == fsp) {
@@ -479,6 +479,8 @@ void rule_addtag_config() {
                         predicate->ftype = f_intint;
                         predicate->fu.fintintt = fsp;
                       } else { /* point to any reference */
+                        int tagreference = i_pop();
+                        printf("ifdepends references to %i.any\n", tagreference);
                         struct f_int_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_int_s ));
                         if (NULL == fsp) {

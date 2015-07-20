@@ -145,14 +145,19 @@ int execute_plan (TIFF * tif) {
   /* now we know which tags are already checked, we need add a rule to
    * forbidden all other tags */
   printf("check if forbidden tags are still existing\n");
-  int i;
-  for (i=0; i<MAXTAGS; i++) {
-    if (0 == parser_state.called_tags[i]) { /* only unchecked tags */
-      if (0 != check_notag( tif, i)) { /* check if tag is not part of tif */
+  int tag;
+  for (tag=0; tag<MAXTAGS; tag++) {
+    if (0 == parser_state.called_tags[tag]) { /* only unchecked tags */
+      if (0 != check_notag( tif, tag)) { /* check if tag is not part of tif */
         /* tag does not exist */
-        tif_fails("tag %i should not be part of this TIF\n", i);
+        tif_fails("tag %i should not be part of this TIF\n", tag);
         is_valid++;
       }
+    } else { /* additional checks for already checked tags */ 
+        is_valid += check_tag_has_valid_type( tif, tag);
+        switch (tag) {
+                case TIFFTAG_DATETIME: is_valid += check_datetime(tif);
+        }
     }
   }
   if (is_valid > 0) {

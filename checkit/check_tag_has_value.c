@@ -16,7 +16,7 @@ int check_tag_has_value(TIFF* tif, int tag, int value) {
         printf("### found: value=%i data=%p \n",val, data);
         /* we check only count, because we evaluate only int-values */
         if ((val == value) && (NULL == data)) { 
-                return check_tag_has_valid_type( tif, tag);
+                return 0;
         } else {
           tif_fails("tag %i should have value %i, but have count/value=%i data=%p\n", tag, value, val, data);
           return 1;
@@ -48,7 +48,7 @@ int check_tag_has_valuelist(TIFF* tif, int tag, int count, int * values) {
     for (i=0; i< count; i++) {
       printf("### value = %i", *p);
       if ((val == *p) && (NULL == data)) {
-        has_error+= check_tag_has_valid_type(tif, tag);
+       
       } else {
       printf("error\n");
         has_error++; 

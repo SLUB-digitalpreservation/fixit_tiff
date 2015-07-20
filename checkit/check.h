@@ -10,6 +10,7 @@ int check_tag_has_value(TIFF* tif, int tag, int value);
 int check_tag(TIFF* tif, int tag);
 int check_notag(TIFF* tif, int tag);
 int check_tag_has_valid_type();
+int check_datetime(TIFF* tif);
 
 #endif
 /* _FIXIT_TIFF_CHECK */

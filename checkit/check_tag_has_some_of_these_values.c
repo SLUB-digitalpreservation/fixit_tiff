@@ -5,7 +5,7 @@
 #define DEBUG
 */
 
-int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, unsigned int * values) {
+const char * check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, unsigned int * values) {
   printf("check if tag %i (%s) has some of these %i-values", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), count);
   int i;
   unsigned int * p = values;
@@ -25,15 +25,12 @@ int check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, unsigned i
     p = values;
     for (i=0; i< count; i++) {
       if ((val == *p)) { 
-        return 0;
+        return NULL;
       }
     }
     tif_fails("tag %i should have some of the values, but have count/value=%i\n", tag, val);
-    return 1;
   } else { /* tag not defined */ 
     tif_fails("tag %i should exist, because defined\n", tag);
-    return 1;
   }
-  return 1;
 }
 

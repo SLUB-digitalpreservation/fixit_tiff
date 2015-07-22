@@ -5,12 +5,11 @@
 /* #define DEBUG */
 
 /* checks if TIF has a specified tag */
-int check_tag_has_valid_type(TIFF* tif, int tag) {
+const char * check_tag_has_valid_type(TIFF* tif, int tag) {
   printf("check if tag %i (%s) has valid type\n", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)));
   if (NULL == tif) {
     fprintf( stderr, "TIFF pointer is empty\n");
     tif_fails("TIFF pointer is empty\n");
-    return - FIXIT_TIFF_READ_PERMISSION_ERROR;
   };
   uint16 val;
   void * data;
@@ -58,15 +57,12 @@ int check_tag_has_valid_type(TIFF* tif, int tag) {
     }
     if (!res) {
       tif_fails("tag %i has incorrect type: %i\n", tag, datatype);
-      return 1;
     } else {
-      return 0;
+      return NULL;
     }
     /* we check only count, because we evaluate only int-values */
   } else { /* tag not defined */ 
     tif_fails("tag %i should exist, because defined\n", tag);
-    return 1;
   }
-  return 1;
 }
 

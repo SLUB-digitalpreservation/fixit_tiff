@@ -46,11 +46,10 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
 /** loads a tiff, fix it if needed, stores tiff
  * @param filename filename which should be processed, repaired
  */
-int check_datetime(TIFF* tif ) {
+const char * check_datetime(TIFF* tif ) {
   if (NULL == tif) {
     fprintf( stderr, "TIFF pointer is empty\n");
     tif_fails("TIFF pointer is empty\n");
-    return - FIXIT_TIFF_READ_PERMISSION_ERROR;
   };
 /* find date-tag and fix it */
   char *datetime=NULL;
@@ -65,12 +64,15 @@ int check_datetime(TIFF* tif ) {
     int sec=0;
 
     if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
-      return test_plausibility(&year, &month, &day, &hour, &min, &sec);
+      if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {
+        return NULL;
+      } else {
+        tif_fails("datetime not plausible, should be  \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", datetime);
+      }
     } else {
       tif_fails("datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", datetime);
-      return 1;
     }
   } 
-  return 0;
+  return NULL;
 }
 

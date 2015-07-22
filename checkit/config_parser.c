@@ -37,8 +37,8 @@ executionplan_t plan;
 
 
 /* type specific calls of function pointers */
-int call_fp(TIFF* tif, funcp fp) {
-  int ret = 0;
+const char * call_fp(TIFF* tif, funcp fp) {
+  const char * ret = NULL;
   if (NULL != fp) {
     switch (fp->ftype) {
       case f_dummy: break;
@@ -101,7 +101,6 @@ int call_fp(TIFF* tif, funcp fp) {
                     exit(EXIT_FAILURE);
     }
   }
-  assert( ret >= 0);
   return ret;
 }
 
@@ -109,7 +108,7 @@ int call_fp(TIFF* tif, funcp fp) {
  * needed, too. */
 int execute_plan (TIFF * tif) {
   executionentry_t * this_exe_p = plan.start;
-  int is_valid = 0;
+  int is_valid = 0; /* 0 means valid, >0 invalid */
   while (NULL != this_exe_p) {
 #ifdef DEBUG
     printf("execute: %s\n", this_exe_p->name);
@@ -125,7 +124,7 @@ int execute_plan (TIFF * tif) {
 #ifdef DEBUG
         printf("execute: we have a predicate... ");
 #endif
-        if (0 != call_fp(tif, fp->pred)) {
+        if (NULL != call_fp(tif, fp->pred)) {
 #ifdef DEBUG
           printf("execute: predicate was not successfull\n");
 #endif
@@ -135,14 +134,16 @@ int execute_plan (TIFF * tif) {
           printf("execute: predicate was successfull\n");
 #endif
           parser_state.called_tags[fp->tag]++;
-          is_valid+= call_fp (tif, fp );
+          this_exe_p->result= call_fp (tif, fp );
+          if (NULL != this_exe_p->result) { is_valid++; }
         }
       } else { /* no predicate, call function */
 #ifdef DEBUG
         printf("execute: we have no predicate\n");
 #endif
         parser_state.called_tags[fp->tag]++;
-        is_valid+=call_fp (tif, fp );
+          this_exe_p->result= call_fp (tif, fp );
+          if (NULL != this_exe_p->result) { is_valid++; }
       }
     }
     this_exe_p = this_exe_p->next;
@@ -153,15 +154,18 @@ int execute_plan (TIFF * tif) {
   int tag;
   for (tag=0; tag<MAXTAGS; tag++) {
     if (0 == parser_state.called_tags[tag]) { /* only unchecked tags */
-      if (0 != check_notag( tif, tag)) { /* check if tag is not part of tif */
+      if (NULL != check_notag( tif, tag)) { /* check if tag is not part of tif */
         /* tag does not exist */
-        tif_fails("tag %i should not be part of this TIF\n", tag);
         is_valid++;
       }
     } else { /* additional checks for already checked tags */ 
-        is_valid += check_tag_has_valid_type( tif, tag);
+        if (NULL != check_tag_has_valid_type( tif, tag)) { is_valid++; }
         switch (tag) {
-                case TIFFTAG_DATETIME: is_valid += check_datetime(tif);
+          case TIFFTAG_DATETIME: 
+            if (NULL != check_datetime(tif)) {
+              is_valid++; 
+            }; 
+            break;
         }
     }
   }
@@ -183,6 +187,22 @@ void print_plan () {
   }
 }
 
+void print_plan_results() {
+  printf("print plan results:\n");
+  executionentry_t * this_exe_p = plan.start;
+  while (NULL != this_exe_p) {
+    const char * msg;
+    if (NULL == this_exe_p->result) { 
+      msg = "passed"; 
+    } else {
+      msg=this_exe_p->result; 
+    }
+    printf("action was: %s, result=%s\n", this_exe_p->name, msg);
+    this_exe_p = this_exe_p->next;
+  }
+}
+
+
 /* adds a function to an execution plan */
 int append_function_to_plan (void * fp, const char * name ) {
   executionentry_t * entry = NULL;
@@ -194,6 +214,7 @@ int append_function_to_plan (void * fp, const char * name ) {
   }
   entry->next = NULL;
   entry->fu_p = fp;
+  entry->result = 0;
   entry->name = malloc ( 30*sizeof(char) );
   if (NULL == entry->name) {
     fprintf(stderr, "could not alloc memory for execution plan");
@@ -204,7 +225,7 @@ int append_function_to_plan (void * fp, const char * name ) {
 #ifdef DEBUG
   printf("entry has name:%s\n", entry->name);
 #endif
-  entry->result=-1;
+  entry->result=NULL;
   assert(NULL != entry);
   if (NULL == plan.start) {
 #ifdef DEBUG

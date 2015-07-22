@@ -36,6 +36,7 @@ int main (int argc, char * argv[]) {
   };
   parse_plan_via_stream( cfg );
   execute_plan(tif);
+  print_plan_results();
   clean_plan();
   TIFFClose(tif);
   fclose(cfg);

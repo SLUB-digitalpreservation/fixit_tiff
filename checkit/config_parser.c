@@ -19,9 +19,8 @@
 /* TODO: handle stuff like BITS PER SAMPLE with multiple values */
 /* TODO: handle stuff like DATETIME or COPYRIGHT */
 
-/*
 #define DEBUG
-*/
+
 
 
 /* global vars */
@@ -299,9 +298,9 @@ void commentline() {
   printf("commentline\n");
 #endif
 }
-void rule_should_not_occure(char c) {
+void rule_should_not_occure(char* s) {
 #ifdef DEBUG
-  printf("no parser rule matched after line %i (prev tag was %i), '%c'\n", getlineno(), gettag(), c);
+  printf("no parser rule matched after line %i (prev tag was %i): '%s'\n", getlineno(), gettag(), s);
 #endif
 }
 void set_mandatory() { 
@@ -559,7 +558,7 @@ void rule_addtag_config() {
 }
 
 void reset_parser_state() {
-  parser_state.lineno=0;
+  parser_state.lineno=1;
   parser_state.valuelist=0;
   parser_state.tag=-1;
   parser_state.req=0;
@@ -590,3 +589,7 @@ void parse_plan_via_stream( FILE * file ) {
     ;
 }
 
+void set_parse_error(char * msg, char * yytext) {
+  fprintf(stderr, "%s at line %i (error at '%s')\n", msg, parser_state.lineno, yytext);
+  exit(EXIT_FAILURE);
+}

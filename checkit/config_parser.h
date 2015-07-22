@@ -78,9 +78,10 @@ typedef struct parser_state_s {
   int called_tags[MAXTAGS];
   FILE * stream;
   int any_reference;
+
 } parser_state_t;
 
-
+void set_parse_error(char * msg, char * yytext);
 int execute_plan (TIFF * tif) ;
 void print_plan ();
 void clean_plan ();

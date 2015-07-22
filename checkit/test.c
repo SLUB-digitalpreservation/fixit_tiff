@@ -13,7 +13,7 @@ int main()
    printf("((( print execution plan )))\n");
   print_plan();
   printf("((( execute execution plan )))\n");
-  execute_plan(tif);
+//  execute_plan(tif);
   printf("((( clean execution plan )))\n");
   clean_plan();
   printf("((( print empty plan)))\n");

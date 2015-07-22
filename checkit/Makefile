@@ -12,6 +12,10 @@ all: checkit_tiff test
 #strip: all
 #	strip --strip-all checkit_tiff
 
+config_parser.c: config_dsl.grammar.c
+
+config_dsl.grammar.c: config_dsl.grammar.peg
+
 %.o: %.c
 	$(CC) $(CFLAGS) $(INC) -c $<
 

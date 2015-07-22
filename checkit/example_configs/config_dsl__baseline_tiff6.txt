@@ -93,7 +93,7 @@
 271; optional; any
 
 # 272	0110	Model	The scanner model name or number.
-272; optional, any
+272; optional; any
 
 # 274	0112	Orientation		The orientation of the image with respect to the rows and columns. Default is 1, and only this value is Baseline TIFF conform. 
 # 274; optional; range(1, 8)	# THIS IS NOT BASELINE TIFF!!! DO NOT UNCOMMENT!!!
@@ -174,10 +174,10 @@
 #####
 
 # - Image File Directory (IFD)
-		# => genau 1 IFD muss vorhanden sein
-			# (einerseits min. 1. gefordert, andererseits muss ein Baseline-Tiff-Reader max. 1 lesen)
-		# => Einträge müssen aufsteigend geordnet sein
-	# - Bytes 0-1: Anzahl der IFD-Einträge
-		# => muss mit der tatsächlichen Anzahl übereinstimmen
-	# - 4 Bytes: Offset zum nächsten IFD (oder "0000" falls kein IFD mehr kommt)
-		# => Eintrag muss "0000" sein
+# => genau 1 IFD muss vorhanden sein
+# (einerseits min. 1. gefordert, andererseits muss ein Baseline-Tiff-Reader max. 1 lesen)
+# => Einträge müssen aufsteigend geordnet sein
+# - Bytes 0-1: Anzahl der IFD-Einträge
+# => muss mit der tatsächlichen Anzahl übereinstimmen
+# - 4 Bytes: Offset zum nächsten IFD (oder "0000" falls kein IFD mehr kommt)
+# => Eintrag muss "0000" sein

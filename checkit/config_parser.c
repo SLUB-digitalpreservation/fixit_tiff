@@ -37,8 +37,10 @@ executionplan_t plan;
 
 
 /* type specific calls of function pointers */
-const char * call_fp(TIFF* tif, funcp fp) {
-  const char * ret = NULL;
+ret_t call_fp(TIFF* tif, funcp fp) {
+  ret_t ret;
+  ret.returncode=1;
+  ret.returnmsg=NULL; /*@null@*/
   if (NULL != fp) {
     switch (fp->ftype) {
       case f_dummy: break;
@@ -124,7 +126,8 @@ int execute_plan (TIFF * tif) {
 #ifdef DEBUG
         printf("execute: we have a predicate... ");
 #endif
-        if (NULL != call_fp(tif, fp->pred)) {
+        ret_t res =  call_fp(tif, fp->pred);
+        if (0 != res.returncode ) {
 #ifdef DEBUG
           printf("execute: predicate was not successfull\n");
 #endif
@@ -135,7 +138,7 @@ int execute_plan (TIFF * tif) {
 #endif
           parser_state.called_tags[fp->tag]++;
           this_exe_p->result= call_fp (tif, fp );
-          if (NULL != this_exe_p->result) { is_valid++; }
+          if (0 != this_exe_p->result.returncode) { is_valid++; }
         }
       } else { /* no predicate, call function */
 #ifdef DEBUG
@@ -143,7 +146,7 @@ int execute_plan (TIFF * tif) {
 #endif
         parser_state.called_tags[fp->tag]++;
           this_exe_p->result= call_fp (tif, fp );
-          if (NULL != this_exe_p->result) { is_valid++; }
+          if (0 != this_exe_p->result.returncode) { is_valid++; }
       }
     }
     this_exe_p = this_exe_p->next;
@@ -154,19 +157,11 @@ int execute_plan (TIFF * tif) {
   int tag;
   for (tag=0; tag<MAXTAGS; tag++) {
     if (0 == parser_state.called_tags[tag]) { /* only unchecked tags */
-      if (NULL != check_notag( tif, tag)) { /* check if tag is not part of tif */
+      ret_t res = check_notag( tif, tag);
+      if (0 != res.returncode) { /* check if tag is not part of tif */
         /* tag does not exist */
         is_valid++;
       }
-    } else { /* additional checks for already checked tags */ 
-        if (NULL != check_tag_has_valid_type( tif, tag)) { is_valid++; }
-        switch (tag) {
-          case TIFFTAG_DATETIME: 
-            if (NULL != check_datetime(tif)) {
-              is_valid++; 
-            }; 
-            break;
-        }
     }
   }
   if (is_valid > 0) {
@@ -192,15 +187,16 @@ void print_plan_results() {
   executionentry_t * this_exe_p = plan.start;
   while (NULL != this_exe_p) {
     const char * msg;
-    if (NULL == this_exe_p->result) { 
+    if (0 == this_exe_p->result.returncode) { 
       msg = "passed"; 
     } else {
-      msg=this_exe_p->result; 
+      msg=this_exe_p->result.returnmsg; 
     }
     printf("action was: %s, result=%s\n", this_exe_p->name, msg);
     this_exe_p = this_exe_p->next;
   }
 }
+
 
 
 /* adds a function to an execution plan */
@@ -214,7 +210,8 @@ int append_function_to_plan (void * fp, const char * name ) {
   }
   entry->next = NULL;
   entry->fu_p = fp;
-  entry->result = 0;
+  entry->result.returncode = 0;
+  entry->result.returnmsg = NULL;
   entry->name = malloc ( 30*sizeof(char) );
   if (NULL == entry->name) {
     fprintf(stderr, "could not alloc memory for execution plan");
@@ -225,7 +222,9 @@ int append_function_to_plan (void * fp, const char * name ) {
 #ifdef DEBUG
   printf("entry has name:%s\n", entry->name);
 #endif
-  entry->result=NULL;
+ entry->result.returncode = 0;
+  entry->result.returnmsg = NULL;
+
   assert(NULL != entry);
   if (NULL == plan.start) {
 #ifdef DEBUG
@@ -248,6 +247,51 @@ int append_function_to_plan (void * fp, const char * name ) {
     plan.last = entry;
   }
   return 0;
+}
+void add_default_rules_to_plan() {
+  /* add special datetime check */
+  printf("added default rules\n");
+  char fname[30];
+  funcp f = NULL;
+  f=malloc( sizeof( funcp ) );
+  if (NULL == f) {
+    fprintf (stderr, "could not alloc mem for f\n");
+    exit(EXIT_FAILURE);
+  };
+  int tag = TIFFTAG_DATETIME;
+  f->tag=tag;
+  /* - */
+  snprintf(fname, 29, "tst_tag%i_datetime", tag);
+  /* create datastruct for fp */
+  struct f_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->functionp = &check_datetime;
+  f->ftype = f_void;
+  f->fu.fvoidt = fsp;
+  funcp predicate = NULL;
+  predicate=malloc( sizeof( funcp ) );
+  if (NULL == predicate) {
+    fprintf (stderr, "could not alloc mem for pred\n");
+    exit(EXIT_FAILURE);
+  };
+  predicate->pred=NULL;
+  struct f_int_s * fsp2 = NULL;
+  fsp2 = malloc( sizeof( struct f_int_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for pred fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp2->a = tag;
+  fsp2->functionp = &check_tag;
+  predicate->ftype = f_int;
+  predicate->fu.fintt = fsp2;
+  f->pred=predicate;
+  append_function_to_plan(f, fname);
+  /* end special datetime check */
 }
 
 /* stack functions for parser */
@@ -600,6 +644,7 @@ void parse_plan () {
  parser_state.stream=stdin;
   while (yyparse())     /* repeat until EOF */
     ;
+  add_default_rules_to_plan();
 }
 
 void parse_plan_via_stream( FILE * file ) {
@@ -608,6 +653,7 @@ void parse_plan_via_stream( FILE * file ) {
   parser_state.stream=file;
   while (yyparse())     /* repeat until EOF */
     ;
+  add_default_rules_to_plan();
 }
 
 void set_parse_error(char * msg, char * yytext) {

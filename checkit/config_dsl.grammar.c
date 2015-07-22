@@ -789,7 +789,7 @@ YY_ACTION(void) yy_1_Tag(yycontext *yy, char *yytext, int yyleng)
 #define yythunkpos yy->__thunkpos
   yyprintf((stderr, "do yy_1_Tag\n"));
   {
-   
+  
                         int tag = atoi(yytext);
                         /* rule_tagorder_in_dsl( tag ); */
                         settag( tag );

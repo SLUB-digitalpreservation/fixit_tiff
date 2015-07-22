@@ -4,7 +4,7 @@
 /* #define DEBUG */
 
 
-const char * check_tag_has_value(TIFF* tif, int tag, unsigned int value) {
+ret_t check_tag_has_value(TIFF* tif, int tag, unsigned int value) {
   printf("check if tag %i (%s) has value %u\n", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), value);
   if (NULL == tif) {
     fprintf( stderr, "TIFF pointer is empty\n");
@@ -18,8 +18,11 @@ const char * check_tag_has_value(TIFF* tif, int tag, unsigned int value) {
     printf("### found: value=%i data=%p \n",val, data);
 #endif
     /* we check only count, because we evaluate only int-values */
-    if ((val == value)) { 
-      return NULL;
+    if ((val == value)) {
+      ret_t res;
+      res.returnmsg=NULL;
+      res.returncode=0;
+      return res;
     } else {
       tif_fails("tag %i should have value %i, but have count/value=%u\n", tag, value, val);
     }
@@ -28,7 +31,7 @@ const char * check_tag_has_value(TIFF* tif, int tag, unsigned int value) {
   }
 }
 
-const char * check_tag_has_valuelist(TIFF* tif, int tag, int count, unsigned int * values) {
+ret_t check_tag_has_valuelist(TIFF* tif, int tag, int count, unsigned int * values) {
   printf("check if tag %i (%s) has these %i-values", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), count);
   int i;
   unsigned int * p = values;
@@ -65,7 +68,10 @@ const char * check_tag_has_valuelist(TIFF* tif, int tag, int count, unsigned int
     if (has_error > 0) {
       tif_fails("tag %i should have values, but have count/value=%i(%x)\n", tag, val, val);
     } else { /* no error */
-      return NULL;
+      ret_t res;
+      res.returnmsg=NULL;
+      res.returncode=0;
+      return res;
     }
   } else { /* tag not defined */ 
     tif_fails("tag %i should exist, because defined\n", tag);

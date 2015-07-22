@@ -6,7 +6,7 @@
 #define DEBUG
 */
 
-const char * check_tag_has_value_in_range(TIFF* tif, int tag, unsigned int a, unsigned int b) {
+ret_t check_tag_has_value_in_range(TIFF* tif, int tag, unsigned int a, unsigned int b) {
   printf("check if tag %i (%s) has value in range %u - %u\n", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), a, b);
    if (NULL == tif) {
     fprintf( stderr, "TIFF pointer is empty\n");
@@ -24,7 +24,11 @@ const char * check_tag_has_value_in_range(TIFF* tif, int tag, unsigned int a, un
 #endif
     /* we check only count, because we evaluate only int-values */
     if ((val >= a && val <= b )) { 
-      return NULL;
+      ret_t res;
+      res.returnmsg=NULL;
+      res.returncode=0;
+      return res;
+
     } else {
       tif_fails("tag %i should have value in range %u - %u, but have count/value=%i\n", tag, a, b, val);
     }

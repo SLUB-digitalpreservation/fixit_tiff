@@ -35,6 +35,7 @@ int main (int argc, char * argv[]) {
     exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
   };
   parse_plan_via_stream( cfg );
+  print_plan();
   execute_plan(tif);
   print_plan_results();
   clean_plan();

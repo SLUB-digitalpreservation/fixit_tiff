@@ -4,7 +4,7 @@
 #define DEBUG
 
 /* checks if TIF has a specified tag */
-const char * check_tag(TIFF* tif, int tag) {
+ret_t check_tag(TIFF* tif, int tag) {
   printf("check if tag %i (%s) exists\n", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)));
   if (NULL == tif) {
     tif_fails("TIFF pointer is empty\n");
@@ -13,7 +13,10 @@ const char * check_tag(TIFF* tif, int tag) {
   uint32 tagidx;
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
     if (tag == TIFFGetRawTagListEntry( tif, tagidx )) {
-        return NULL;
+        ret_t res;
+        res.returnmsg=NULL;
+        res.returncode=0;
+        return res;
     };
   }
   tif_fails("tag %i should exist, because defined\n", tag);
@@ -22,7 +25,7 @@ const char * check_tag(TIFF* tif, int tag) {
 
 /* checks if TIF does not have a specified tag,
  * needed only for checks to ensure whitelist */
-const char * check_notag(TIFF* tif, int tag) {
+ret_t check_notag(TIFF* tif, int tag) {
   if (NULL == tif) {
     tif_fails("TIFF pointer is empty\n");
   };
@@ -31,6 +34,9 @@ const char * check_notag(TIFF* tif, int tag) {
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
     if (tag == TIFFGetRawTagListEntry( tif, tagidx )) tif_fails("found tag %i which is not whitelisted\n", tag);
   }
-  return NULL;
+  ret_t res;
+        res.returnmsg=NULL;
+        res.returncode=0;
+        return res;
 }
 

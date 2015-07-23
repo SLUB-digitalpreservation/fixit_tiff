@@ -34,6 +34,8 @@ int main (int argc, char * argv[]) {
     fprintf( stderr, "file '%s' could not be opened\n", cfg_file);
     exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
   };
+  clean_plan();
+  add_default_rules_to_plan( tif);
   parse_plan_via_stream( cfg );
   print_plan();
   execute_plan(tif);
@@ -42,4 +44,4 @@ int main (int argc, char * argv[]) {
   TIFFClose(tif);
   fclose(cfg);
   exit(EXIT_SUCCESS);
-  }
+}

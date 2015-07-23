@@ -22,13 +22,14 @@
 #define DEBUG
 
 
+#define YY_CTX_LOCAL
 
 /* global vars */
 parser_state_t parser_state;
 executionplan_t plan;
 
 
-#define YY_INPUT(buf, result, max_size)		\
+#define YY_INPUT(yyctx, buf, result, max_size)		\
   {							\
     int yyc= fgetc(parser_state.stream);		\
     result= (EOF == yyc) ? 0 : (*(buf)= yyc, 1);	\
@@ -201,8 +202,9 @@ void print_plan_results() {
 
 /* adds a function to an execution plan */
 int append_function_to_plan (void * fp, const char * name ) {
+  assert(NULL != fp);
+  assert(NULL != name);
   executionentry_t * entry = NULL;
-  executionentry_t * last = NULL;
   entry = malloc ( sizeof(executionentry_t) );
   if (NULL == entry) {
     fprintf(stderr, "could not alloc memory for execution plan");
@@ -240,6 +242,7 @@ int append_function_to_plan (void * fp, const char * name ) {
 #endif
     assert(NULL != plan.last);
     assert(NULL == plan.last->next);
+    executionentry_t * last = NULL;
     last = plan.last;
     assert(NULL != last);
     assert(NULL == last->next);
@@ -253,12 +256,12 @@ void add_default_rules_to_plan() {
   printf("added default rules\n");
   char fname[30];
   funcp f = NULL;
-  f=malloc( sizeof( funcp ) );
+  f=malloc( sizeof( struct funcu ) );
   if (NULL == f) {
     fprintf (stderr, "could not alloc mem for f\n");
     exit(EXIT_FAILURE);
   };
-  int tag = TIFFTAG_DATETIME;
+  tag_t tag = TIFFTAG_DATETIME;
   f->tag=tag;
   /* - */
   snprintf(fname, 29, "tst_tag%i_datetime", tag);
@@ -273,7 +276,7 @@ void add_default_rules_to_plan() {
   f->ftype = f_void;
   f->fu.fvoidt = fsp;
   funcp predicate = NULL;
-  predicate=malloc( sizeof( funcp ) );
+  predicate=malloc( sizeof( struct funcu ) );
   if (NULL == predicate) {
     fprintf (stderr, "could not alloc mem for pred\n");
     exit(EXIT_FAILURE);
@@ -309,9 +312,6 @@ unsigned int i_pop () {
   }
   return parser_state.i_stack[--parser_state.i_stackp];
 }
-void i_clear() {
-  parser_state.i_stackp = 0;
-}
 
 /* function to clean an execution plan */
 void clean_plan () {
@@ -331,8 +331,8 @@ void clean_plan () {
 
 
 
-int settag( int tag) { parser_state.tag=tag; return tag; }
-int gettag( ) { return parser_state.tag;}
+tag_t settag( tag_t tag) { parser_state.tag=tag; return tag; }
+tag_t gettag( ) { return parser_state.tag;}
 int incrlineno() {
   parser_state.lineno++; 
 #ifdef DEBUG
@@ -416,19 +416,19 @@ void rule_addtag_config() {
 #endif
   char fname[30];
   funcp f = NULL;
-  f=malloc( sizeof( funcp ) );
+  f=malloc( sizeof( struct funcu ) );
   if (NULL == f) {
     fprintf (stderr, "could not alloc mem for f\n");
     exit(EXIT_FAILURE);
   };
-  int tag = parser_state.tag;
+  tag_t tag = parser_state.tag;
   f->tag=tag;
   /* HINT: order of evaluating last val and last req is IMPORTANT! */
   switch ( parser_state.val ) {
     case range: {
                   unsigned int r = i_pop();
                   unsigned int l = i_pop();
-                  snprintf(fname, 29, "tst_tag%i_%i_%s_%u_%u", parser_state.tag, parser_state.req, "range", l, r);
+                  snprintf(fname, 29, "tst_tag%u_%i_%s_%u_%u", parser_state.tag, parser_state.req, "range", l, r);
                   /* create datastruct for fp */
                   struct f_intintint_s * fsp = NULL;
                   fsp = malloc( sizeof( struct f_intintint_s ));
@@ -446,7 +446,7 @@ void rule_addtag_config() {
                 }
     case logical_or: {
                        int count_of_values = parser_state.valuelist;
-                       snprintf(fname, 29, "tst_tag%i_%i_%s_%i", parser_state.tag, parser_state.req, "logical_or", count_of_values); 
+                       snprintf(fname, 29, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "logical_or", count_of_values); 
                        /* create datastruct for fp */
                        printf("count of values = %i\n", count_of_values);
                        struct f_intintintp_s * fsp = NULL;
@@ -479,7 +479,7 @@ void rule_addtag_config() {
                  int count_of_values = parser_state.valuelist;
                  if (1 == count_of_values) {
                    unsigned int v = i_pop();
-                   snprintf(fname, 29, "tst_tag%i_%i_%s_%u", parser_state.tag, parser_state.req, "only", v);
+                   snprintf(fname, 29, "tst_tag%u_%i_%s_%u", parser_state.tag, parser_state.req, "only", v);
                    /* create datastruct for fp */
                    struct f_intint_s * fsp = NULL;
                    fsp = malloc( sizeof( struct f_intint_s ));
@@ -493,7 +493,7 @@ void rule_addtag_config() {
                    f->ftype = f_intint;
                    f->fu.fintintt = fsp;
                  } else { /* valuelist, pE. BitsPerSample */
-                   snprintf(fname, 29, "tst_tag%i_%i_%s_%i", parser_state.tag, parser_state.req, "onlym", count_of_values); 
+                   snprintf(fname, 29, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "onlym", count_of_values); 
                    /* create datastruct for fp */
                    printf("count of values = %i\n", count_of_values);
                    struct f_intintintp_s * fsp = NULL;
@@ -524,7 +524,7 @@ void rule_addtag_config() {
                  break;
                }
     case any: {
-                snprintf(fname, 29, "tst_tag%i_%i_%s", parser_state.tag, parser_state.req, "any");
+                snprintf(fname, 29, "tst_tag%u_%i_%s", parser_state.tag, parser_state.req, "any");
                 /* create datastruct for fp */
                 struct f_int_s * fsp = NULL;
                 fsp = malloc( sizeof( struct f_int_s ));
@@ -545,7 +545,7 @@ void rule_addtag_config() {
   switch ( parser_state.req ) {
     case ifdepends: {
                       funcp predicate = NULL;
-                      predicate=malloc( sizeof( funcp ) );
+                      predicate=malloc( sizeof( struct funcu ) );
                       if (NULL == predicate) {
                         fprintf (stderr, "could not alloc mem for pred\n");
                         exit(EXIT_FAILURE);
@@ -553,7 +553,7 @@ void rule_addtag_config() {
                       predicate->pred=NULL;
                       if (parser_state.any_reference == 0) {
                         unsigned int valreference = i_pop();
-                        unsigned int tagreference = i_pop();
+                        tag_t tagreference = i_pop();
                         printf("ifdepends references to %u.%u\n", tagreference, valreference);
                         struct f_intint_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_intint_s ));
@@ -567,7 +567,7 @@ void rule_addtag_config() {
                         predicate->ftype = f_intint;
                         predicate->fu.fintintt = fsp;
                       } else { /* point to any reference */
-                        unsigned int tagreference = i_pop();
+                        tag_t tagreference = i_pop();
                         printf("ifdepends references to %u.any\n", tagreference);
                         struct f_int_s * fsp = NULL;
                         fsp = malloc( sizeof( struct f_int_s ));
@@ -589,7 +589,7 @@ void rule_addtag_config() {
                     }
     case optional: {
                      funcp predicate = NULL;
-                     predicate=malloc( sizeof( funcp ) );
+                     predicate=malloc( sizeof( struct funcu ) );
                       if (NULL == predicate) {
                         fprintf (stderr, "could not alloc mem for pred\n");
                         exit(EXIT_FAILURE);
@@ -625,7 +625,7 @@ void rule_addtag_config() {
 void reset_parser_state() {
   parser_state.lineno=1;
   parser_state.valuelist=0;
-  parser_state.tag=-1;
+  parser_state.tag=0;
   parser_state.req=0;
   parser_state.val=0;
   parser_state.i_stackp=0;
@@ -639,21 +639,32 @@ void reset_parser_state() {
 #include "config_dsl.grammar.c"   /* yyparse() */
 
 void parse_plan () {
- clean_plan();
- reset_parser_state();
- parser_state.stream=stdin;
-  while (yyparse())     /* repeat until EOF */
-    ;
+  clean_plan();
+  reset_parser_state();
   add_default_rules_to_plan();
+  add_default_rules_to_plan();
+  add_default_rules_to_plan();
+  yycontext ctx;
+  memset(&ctx, 0, sizeof(yycontext));
+
+  parser_state.stream=stdin;
+  while (yyparse(&ctx))     /* repeat until EOF */
+    ;
+  yyrelease(&ctx);
 }
 
 void parse_plan_via_stream( FILE * file ) {
   clean_plan();
   reset_parser_state();
-  parser_state.stream=file;
-  while (yyparse())     /* repeat until EOF */
-    ;
   add_default_rules_to_plan();
+  add_default_rules_to_plan();
+  add_default_rules_to_plan();
+  yycontext ctx;
+  memset(&ctx, 0, sizeof(yycontext));
+  parser_state.stream=file;
+  while (yyparse(&ctx))     /* repeat until EOF */
+    ;
+  yyrelease(&ctx);
 }
 
 void set_parse_error(char * msg, char * yytext) {

@@ -21,6 +21,8 @@ typedef struct {
 typedef enum { mandatory, ifdepends, optional } requirements_t;
 typedef enum { range, logical_or, any, only } values_t;
 
+typedef unsigned int tag_t;
+
 /* definitons of structs of function pointers to hold type information for "lazy evaluation" */
 
 typedef struct f_s {
@@ -29,27 +31,27 @@ typedef struct f_s {
 
 typedef struct f_int_s {
   int a;
-  ret_t (*functionp)(TIFF *, int a);
+  ret_t (*functionp)(TIFF *, tag_t a);
 } f_int_t;
 
 typedef struct f_intint_s {
   int a;
   unsigned int b;
-  ret_t (*functionp)(TIFF*, int a, unsigned int b);
+  ret_t (*functionp)(TIFF*, tag_t a, unsigned int b);
 } f_intint_t;
 
 typedef struct f_intintint_s {
   int a;
   unsigned int b;
   unsigned int c;
-  ret_t (*functionp)(TIFF*, int a, unsigned int b, unsigned int c);
+  ret_t (*functionp)(TIFF*, tag_t a, unsigned int b, unsigned int c);
 } f_intintint_t;
 
 typedef struct f_intintintp_s {
   int a;
   int b;
   unsigned int * c;
-  ret_t (*functionp)(TIFF*, int a, int b, unsigned int * c);
+  ret_t (*functionp)(TIFF*, tag_t a, int b, unsigned int * c);
 } f_intintintp_t;
 
 typedef enum { f_dummy, f_void, f_int, f_intint, f_intintint, f_intintintp } ftype_t;
@@ -57,7 +59,7 @@ typedef enum { f_dummy, f_void, f_int, f_intint, f_intintint, f_intintintp } fty
 struct funcu {
   ftype_t ftype;
   funcp pred;
-  int tag;
+  tag_t tag;
   union  {
     struct f_s * fvoidt;
     struct f_int_s * fintt;
@@ -71,7 +73,7 @@ struct funcu {
 typedef struct parser_state_s {
   int lineno;
   int valuelist;
-  int tag;
+  tag_t tag;
   values_t val;
   requirements_t req;
   unsigned int i_stack[40];
@@ -79,7 +81,6 @@ typedef struct parser_state_s {
   int called_tags[MAXTAGS];
   FILE * stream;
   int any_reference;
-
 } parser_state_t;
 
 void set_parse_error(char * msg, char * yytext);

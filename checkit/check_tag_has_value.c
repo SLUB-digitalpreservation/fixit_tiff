@@ -24,7 +24,7 @@ ret_t check_tag_has_value(TIFF* tif, int tag, unsigned int value) {
       res.returncode=0;
       return res;
     } else {
-      tif_fails("tag %i should have value %i, but have count/value=%u\n", tag, value, val);
+      tif_fails("tag %i should have value %u, but have count/value=%u\n", tag, value, val);
     }
   } else { /* tag not defined */ 
     tif_fails("tag %i should exist, because defined\n", tag);

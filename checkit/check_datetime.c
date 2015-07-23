@@ -62,7 +62,6 @@ ret_t check_datetime(TIFF* tif ) {
     int hour=0;
     int min=0;
     int sec=0;
-
     if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
       if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {
         ret_t res;

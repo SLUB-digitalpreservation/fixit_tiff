@@ -5,8 +5,10 @@
 #define DEBUG
 */
 
-ret_t check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, unsigned int * values) {
-  printf("check if tag %i (%s) has some of these %i-values", tag, TIFFFieldName(TIFFFieldWithTag(tif, tag)), count);
+ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsigned int * values) {
+  printf("check if tag %u (%s) has some of these %i-values", tag, TIFFTagName(tif, tag), count);
+   tifp_check( tif)
+
   int i;
   unsigned int * p = values;
   for (i=0; i< count; i++) {
@@ -14,26 +16,52 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, int tag, int count, unsigned
     p++;
   }
   printf("\n");
-  uint16 val;
-  void * data;
-  int found=TIFFGetField(tif, tag, &val, &data);
-  if (1==found) { /* check va-list */
+  TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
+  switch (datatype) {
+    case TIFF_LONG: { 
+                      p = values;
+                      ret_t res;
+                      for (i=0; i< count; i++) {
 #ifdef DEBUG
-    printf("### found: value=%u data=%p \n",val, data);
+                        printf("### value = %u", *p);
 #endif
-    /* we check only count, because we evaluate only int-values */
-    p = values;
-    for (i=0; i< count; i++) {
-      if ((val == *p)) { 
-        ret_t res;
-        res.returnmsg=NULL;
-        res.returncode=0;
-        return res;
-      }
-    }
-    tif_fails("tag %i should have some of the values, but have count/value=%i\n", tag, val);
-  } else { /* tag not defined */ 
-    tif_fails("tag %i should exist, because defined\n", tag);
+                        res = check_tag_has_u32value(tif, tag, *p);
+                        if (res.returncode == 0) return res;
+                        p++;
+                      }
+                      return res;
+                      break;
+                    }
+    case TIFF_SHORT: {
+                       p = values;
+                       ret_t res;
+                       for (i=0; i< count; i++) {
+#ifdef DEBUG
+                         printf("### value = %u", *p);
+#endif
+                         res = check_tag_has_u16value(tif, tag, *p);
+                         if (res.returncode == 0) return res;
+                         p++;
+                       }
+                       return res;
+                       break;
+                     }
+    case TIFF_RATIONAL: {
+                          p = values;
+                          ret_t res;
+                          for (i=0; i< count; i++) {
+#ifdef DEBUG
+                            printf("### value = %u", *p);
+#endif
+                            res = check_tag_has_fvalue(tif, tag, *p);
+                            if (res.returncode == 0) return res;
+                            p++;
+                          }
+                          return res;
+                          break;
+                        }
+    default: /*  none */
+                        tif_fails("tag %u should have values of type long, short or float, but was:%i\n", tag, datatype);
   }
 }
 

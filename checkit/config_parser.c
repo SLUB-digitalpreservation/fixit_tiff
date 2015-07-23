@@ -13,14 +13,16 @@
 #include <string.h>
 #include <assert.h>
 #include "../fixit/fixit_tiff.h"
+#include "../fixit/tiff_helper.h"
 #include "config_parser.h"
 #include "check.h"
 
 /* TODO: handle stuff like BITS PER SAMPLE with multiple values */
 /* TODO: handle stuff like DATETIME or COPYRIGHT */
 
+/*
 #define DEBUG
-
+*/
 
 #define YY_CTX_LOCAL
 
@@ -132,6 +134,8 @@ int execute_plan (TIFF * tif) {
 #ifdef DEBUG
           printf("execute: predicate was not successfull\n");
 #endif
+        this_exe_p->result.returncode=0;
+        this_exe_p->result.returnmsg="predicate was not successfull, skipped check";
           /* the predicate was not successfull, skip check */
         } else { /* predicate was successful */
 #ifdef DEBUG
@@ -251,9 +255,11 @@ int append_function_to_plan (void * fp, const char * name ) {
   }
   return 0;
 }
-void add_default_rules_to_plan() {
+
+//------------------------------------------------------------------------------
+void add_special_datetime_check()
+{
   /* add special datetime check */
-  printf("added default rules\n");
   char fname[30];
   funcp f = NULL;
   f=malloc( sizeof( struct funcu ) );
@@ -264,7 +270,7 @@ void add_default_rules_to_plan() {
   tag_t tag = TIFFTAG_DATETIME;
   f->tag=tag;
   /* - */
-  snprintf(fname, 29, "tst_tag%i_datetime", tag);
+  snprintf(fname, 29, "tst_tag%u_datetime", tag);
   /* create datastruct for fp */
   struct f_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_s ));
@@ -295,6 +301,64 @@ void add_default_rules_to_plan() {
   f->pred=predicate;
   append_function_to_plan(f, fname);
   /* end special datetime check */
+}
+
+void add_special_valid_type_check(tag_t tag) {
+  /* add special valid type check */
+  char fname[30];
+  funcp f = NULL;
+  f=malloc( sizeof( struct funcu ) );
+  if (NULL == f) {
+    fprintf (stderr, "could not alloc mem for f\n");
+    exit(EXIT_FAILURE);
+  };
+  f->tag=tag;
+  /* - */
+  snprintf(fname, 29, "tst_tag%u_check_valid_type", tag);
+  /* create datastruct for fp */
+  struct f_int_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_int_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->a = tag;
+  fsp->functionp = &check_tag_has_valid_type;
+  f->ftype = f_int;
+  f->fu.fintt = fsp;
+  funcp predicate = NULL;
+  predicate=malloc( sizeof( struct funcu ) );
+  if (NULL == predicate) {
+    fprintf (stderr, "could not alloc mem for pred\n");
+    exit(EXIT_FAILURE);
+  };
+  predicate->pred=NULL;
+  struct f_int_s * fsp2 = NULL;
+  fsp2 = malloc( sizeof( struct f_int_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for pred fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp2->a = tag;
+  fsp2->functionp = &check_tag;
+  predicate->ftype = f_int;
+  predicate->fu.fintt = fsp2;
+  f->pred=predicate;
+  append_function_to_plan(f, fname);
+  /* end special valid type check */
+}
+
+void add_default_rules_to_plan(TIFF * tif) {
+  printf("add default rules\n");
+  add_special_datetime_check();
+  uint32 tag_counter=TIFFGetRawTagListCount(tif);
+  uint32 tagidx;
+  for (tagidx=0; tagidx < tag_counter; tagidx++) {
+    tag_t tag;
+    tag = TIFFGetRawTagListEntry( tif, tagidx );
+    printf("tag %u added\n\n", tag);
+    add_special_valid_type_check( tag );
+  }
 }
 
 /* stack functions for parser */
@@ -365,25 +429,25 @@ void commentline() {
 }
 void rule_should_not_occure(char* s) {
 #ifdef DEBUG
-  printf("no parser rule matched after line %i (prev tag was %i): '%s'\n", getlineno(), gettag(), s);
+  printf("no parser rule matched after line %i (prev tag was %u): '%s'\n", getlineno(), gettag(), s);
 #endif
 }
 void set_mandatory() { 
 #ifdef DEBUG
-  printf("tag '%i' is mandatory\n", gettag());
+  printf("tag '%u' is mandatory\n", gettag());
 #endif
   parser_state.req=mandatory;
 }
 void set_optional() {
 #ifdef DEBUG
-  printf("tag '%i' is optional\n", gettag());
+  printf("tag '%u' is optional\n", gettag());
 #endif
   parser_state.req=optional; 
 }
 
 void set_ifdepends() {
 #ifdef DEBUG
-  printf("tag '%i' is set if depends\n", gettag());
+  printf("tag '%u' is set if depends\n", gettag());
 #endif
   parser_state.req=ifdepends; 
 }
@@ -639,11 +703,7 @@ void reset_parser_state() {
 #include "config_dsl.grammar.c"   /* yyparse() */
 
 void parse_plan () {
-  clean_plan();
   reset_parser_state();
-  add_default_rules_to_plan();
-  add_default_rules_to_plan();
-  add_default_rules_to_plan();
   yycontext ctx;
   memset(&ctx, 0, sizeof(yycontext));
 
@@ -651,14 +711,11 @@ void parse_plan () {
   while (yyparse(&ctx))     /* repeat until EOF */
     ;
   yyrelease(&ctx);
+
 }
 
 void parse_plan_via_stream( FILE * file ) {
-  clean_plan();
   reset_parser_state();
-  add_default_rules_to_plan();
-  add_default_rules_to_plan();
-  add_default_rules_to_plan();
   yycontext ctx;
   memset(&ctx, 0, sizeof(yycontext));
   parser_state.stream=file;

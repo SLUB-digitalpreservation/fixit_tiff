@@ -21,7 +21,6 @@ typedef struct {
 typedef enum { mandatory, ifdepends, optional } requirements_t;
 typedef enum { range, logical_or, any, only } values_t;
 
-typedef unsigned int tag_t;
 
 /* definitons of structs of function pointers to hold type information for "lazy evaluation" */
 
@@ -69,7 +68,11 @@ struct funcu {
   } fu;
 };
 
+/* MINTAGS - MAXTAGS is range of possible existing TAG numbers */
+#define MINTAGS 254
 #define MAXTAGS 65536
+
+
 typedef struct parser_state_s {
   int lineno;
   int valuelist;

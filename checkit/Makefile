@@ -1,5 +1,5 @@
 LIB+=-ltiff -lm
-CFLAGS=-O2 -g -pg -Wall
+CFLAGS=-O2 -g -Wall
 GRAMMAR=config_dsl.grammar.c
 OBJS=check_helper.o check_tag.o check_tag_has_value.o \
 check_tag_has_value_in_range.o check_tag_has_some_of_these_values.o \

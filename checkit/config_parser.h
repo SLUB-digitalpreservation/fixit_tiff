@@ -24,47 +24,47 @@ typedef enum { range, logical_or, any, only } values_t;
 
 /* definitons of structs of function pointers to hold type information for "lazy evaluation" */
 
-typedef struct f_s {
+typedef struct f_tifp_s {
   ret_t (*functionp)(TIFF *);
-} f_t;
+} f_tifp_t;
 
-typedef struct f_int_s {
+typedef struct f_tifp_tag_s {
   int a;
   ret_t (*functionp)(TIFF *, tag_t a);
-} f_int_t;
+} f_tifp_tag_t;
 
-typedef struct f_intint_s {
+typedef struct f_tifp_tag_uint_s {
   int a;
   unsigned int b;
   ret_t (*functionp)(TIFF*, tag_t a, unsigned int b);
-} f_intint_t;
+} f_tifp_tag_uint_t;
 
-typedef struct f_intintint_s {
+typedef struct f_tifp_tag_uint_uint_s {
   int a;
   unsigned int b;
   unsigned int c;
   ret_t (*functionp)(TIFF*, tag_t a, unsigned int b, unsigned int c);
-} f_intintint_t;
+} f_tifp_tag_uint_uint_t;
 
-typedef struct f_intintintp_s {
+typedef struct f_tifp_tag_int_uintp_s {
   int a;
   int b;
   unsigned int * c;
   ret_t (*functionp)(TIFF*, tag_t a, int b, unsigned int * c);
-} f_intintintp_t;
+} f_tifp_tag_int_uintp_t;
 
-typedef enum { f_dummy, f_void, f_int, f_intint, f_intintint, f_intintintp } ftype_t;
+typedef enum { f_dummy, f_tifp, f_tifp_tag, f_tifp_tag_uint, f_tifp_tag_uint_uint, f_tifp_tag_int_uintp } ftype_t;
 
 struct funcu {
   ftype_t ftype;
   funcp pred;
   tag_t tag;
   union  {
-    struct f_s * fvoidt;
-    struct f_int_s * fintt;
-    struct f_intint_s * fintintt;
-    struct f_intintint_s * fintintintt;
-    struct f_intintintp_s * fintintintpt;
+    struct f_tifp_s * ftifp;
+    struct f_tifp_tag_s * ftifp_tag;
+    struct f_tifp_tag_uint_s * ftifp_tag_uint;
+    struct f_tifp_tag_uint_uint_s * ftifp_tag_uint_uint;
+    struct f_tifp_tag_int_uintp_s * ftifp_tag_int_uintp;
   } fu;
 };
 

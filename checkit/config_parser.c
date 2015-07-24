@@ -51,28 +51,28 @@ ret_t call_fp(TIFF* tif, funcp fp) {
   if (NULL != fp) {
     switch (fp->ftype) {
       case f_dummy: break;
-      case f_void: 
+      case f_tifp: 
                     {
-                      f_t * function = NULL;
-                      function = fp->fu.fvoidt;
+                      f_tifp_t * function = NULL;
+                      function = fp->fu.ftifp;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
                       ret = (function->functionp)(tif);
                       break;
                     }
-      case f_int:
+      case f_tifp_tag:
                     {
-                      f_int_t * function = NULL;
-                      function = fp->fu.fintt;
+                      f_tifp_tag_t * function = NULL;
+                      function = fp->fu.ftifp_tag;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
                       ret = (function->functionp)(tif, function->a); 
                       break;
                     }
-      case f_intint:
+      case f_tifp_tag_uint:
                     {
-                      f_intint_t * function = NULL;
-                      function = fp->fu.fintintt;
+                      f_tifp_tag_uint_t * function = NULL;
+                      function = fp->fu.ftifp_tag_uint;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
 #ifdef DEBUG
@@ -81,10 +81,10 @@ ret_t call_fp(TIFF* tif, funcp fp) {
                       ret = (function->functionp)(tif, function->a, function->b); 
                       break;
                     }
-      case f_intintint:
+      case f_tifp_tag_uint_uint:
                     {
-                      f_intintint_t * function = NULL;
-                      function = fp->fu.fintintintt;
+                      f_tifp_tag_uint_uint_t * function = NULL;
+                      function = fp->fu.ftifp_tag_uint_uint;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
 #ifdef DEBUG
@@ -93,10 +93,10 @@ ret_t call_fp(TIFF* tif, funcp fp) {
                       ret = (function->functionp)(tif, function->a, function->b, function->c); 
                       break;
                     }
-      case f_intintintp:
+      case f_tifp_tag_int_uintp:
                     {
-                      f_intintintp_t * function = NULL;
-                      function = fp->fu.fintintintpt;
+                      f_tifp_tag_int_uintp_t * function = NULL;
+                      function = fp->fu.ftifp_tag_int_uintp;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
 #ifdef DEBUG
@@ -277,15 +277,15 @@ int append_function_to_plan (funcp fp, const char * name ) {
  */
 void _helper_add_fsp_void(struct funcu * f, ret_t (* function)(TIFF *), char * fname) {
 /* create datastruct for fp */
-  struct f_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_s ));
+  struct f_tifp_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_tifp_s ));
   if (NULL == fsp) {
     fprintf (stderr, "could not alloc mem for fsp\n");
     exit(EXIT_FAILURE);
   };
   fsp->functionp = function;
-  f->ftype = f_void;
-  f->fu.fvoidt = fsp;
+  f->ftype = f_tifp;
+  f->fu.ftifp = fsp;
 
 }
 
@@ -297,16 +297,16 @@ void _helper_add_fsp_void(struct funcu * f, ret_t (* function)(TIFF *), char * f
  * @param tag tag
  */
 void _helper_add_fsp_int(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag) {
-  struct f_int_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_int_s ));
+  struct f_tifp_tag_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_tifp_tag_s ));
   if (NULL == fsp) {
     fprintf (stderr, "could not alloc mem for fsp\n");
     exit(EXIT_FAILURE);
   };
   fsp->a = tag;
   fsp->functionp = function;
-  f->ftype = f_int;
-  f->fu.fintt = fsp;
+  f->ftype = f_tifp_tag;
+  f->fu.ftifp_tag = fsp;
 }
 
 
@@ -319,8 +319,8 @@ void _helper_add_fsp_int(struct funcu * f, ret_t (* function)(TIFF *, tag_t), ch
  */
 void _helper_add_fsp_intint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v) {
   /* create datastruct for fp */
-  struct f_intint_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_intint_s ));
+  struct f_tifp_tag_uint_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_tifp_tag_uint_s ));
   if (NULL == fsp) {
     fprintf (stderr, "could not alloc mem for fsp\n");
     exit(EXIT_FAILURE);
@@ -328,8 +328,8 @@ void _helper_add_fsp_intint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, 
   fsp->a = tag;
   fsp->b = v;
   fsp->functionp = function;
-  f->ftype = f_intint;
-  f->fu.fintintt = fsp;
+  f->ftype = f_tifp_tag_uint;
+  f->fu.ftifp_tag_uint = fsp;
 }
 
 
@@ -344,8 +344,8 @@ void _helper_add_fsp_intint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, 
 void _helper_add_fsp_intintintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp) {
   /* create datastruct for fp */
   printf("count of values = %i\n", count_of_values);
-  struct f_intintintp_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_intintintp_s ));
+  struct f_tifp_tag_int_uintp_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_tifp_tag_int_uintp_s ));
   if (NULL == fsp) {
     fprintf (stderr, "could not alloc mem for fsp\n");
     exit(EXIT_FAILURE);
@@ -354,8 +354,8 @@ void _helper_add_fsp_intintintp(struct funcu * f,  ret_t (* function)(TIFF *, ta
   fsp->b = count_of_values;
   fsp->c = rp;
   fsp->functionp = function;
-  f->ftype = f_intintintp;
-  f->fu.fintintintpt = fsp;
+  f->ftype = f_tifp_tag_int_uintp;
+  f->fu.ftifp_tag_int_uintp = fsp;
 }
 
 /* adds a function to struct funcu * f
@@ -368,8 +368,8 @@ void _helper_add_fsp_intintintp(struct funcu * f,  ret_t (* function)(TIFF *, ta
  */
 void _helper_add_fsp_intintint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r) {
   /* create datastruct for fp */
-  struct f_intintint_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_intintint_s ));
+  struct f_tifp_tag_uint_uint_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_tifp_tag_uint_uint_s ));
   if (NULL == fsp) {
     fprintf (stderr, "could not alloc mem for fsp\n");
     exit(EXIT_FAILURE);
@@ -378,8 +378,8 @@ void _helper_add_fsp_intintint(struct funcu * f, ret_t (* function)(TIFF *, tag_
   fsp->b = l;
   fsp->c = r;
   fsp->functionp = function;
-  f->ftype = f_intintint;
-  f->fu.fintintintt = fsp;
+  f->ftype = f_tifp_tag_uint_uint;
+  f->fu.ftifp_tag_uint_uint = fsp;
 }
 
 /* because datetime string is often erroreneous, we need to add it as an

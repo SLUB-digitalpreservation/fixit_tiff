@@ -37,6 +37,7 @@ int main (int argc, char * argv[]) {
   add_default_rules_to_plan( tif);
   parse_plan_via_stream( cfg );
   print_plan();
+  check_has_only_one_ifd( tif);
   execute_plan(tif);
   print_plan_results();
   clean_plan();

@@ -68,3 +68,15 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
         return TIFFFieldName(fieldp);
    } else { return ("undefined tag"); }
 }
+
+ret_t check_has_only_one_ifd(TIFF* tif) {
+  printf("check if only one IFD exists\n");
+  if (1 == TIFFNumberOfDirectories( tif )) {
+    ret_t res;
+    res.returnmsg=NULL;
+    res.returncode=0;
+    return res;
+  } else {
+    tif_fails("baseline TIFF should have only one IFD");
+  }
+}

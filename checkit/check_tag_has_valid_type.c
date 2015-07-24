@@ -1,7 +1,6 @@
 
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
-#include "../fixit/tiff_helper.h"
 /* #define DEBUG */
 
 /* checks if TIF has a specified tag */
@@ -11,10 +10,7 @@ ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
     fprintf( stderr, "TIFF pointer is empty\n");
     tif_fails("TIFF pointer is empty\n");
   };
-  uint16 val;
-  void * data;
-  int found=TIFFGetField(tif, tag, &val, &data);
-  if (1==found) { /* check va-list */
+  if (NULL != TIFFFindField(tif, tag, TIFF_ANY)) { /* check va-list */
     TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
 #ifdef DEBUG
     printf("### found: value=%i data=%p \n",val, data);

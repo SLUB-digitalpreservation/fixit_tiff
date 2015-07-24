@@ -1,6 +1,5 @@
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
-#include "../fixit/tiff_helper.h"
 /* #define DEBUG */
 
 

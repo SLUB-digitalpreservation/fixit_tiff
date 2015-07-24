@@ -1,7 +1,6 @@
 #include <math.h>
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
-#include "../fixit/tiff_helper.h"
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)

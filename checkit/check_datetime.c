@@ -9,7 +9,6 @@
 
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
-#include "../fixit/tiff_helper.h"
 
 /** check if date / time values are within correct ranges 
  * @param year year

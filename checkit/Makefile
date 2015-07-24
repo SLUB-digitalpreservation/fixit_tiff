@@ -1,7 +1,7 @@
 LIB+=-ltiff -lm
-CFLAGS=-O2 -g -Wall
+CFLAGS=-O2 -g -pg -Wall
 GRAMMAR=config_dsl.grammar.c
-OBJS=../fixit/tiff_helper.o check_helper.o check_tag.o check_tag_has_value.o \
+OBJS=check_helper.o check_tag.o check_tag_has_value.o \
 check_tag_has_value_in_range.o check_tag_has_some_of_these_values.o \
 check_tag_has_valid_type.o check_datetime.o config_parser.o
 

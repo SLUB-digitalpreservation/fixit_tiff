@@ -9,7 +9,6 @@
 
 
 #include "../fixit/fixit_tiff.h"
-#include "../fixit/tiff_helper.h"
 #include "config_parser.h"
 
 /** main */

@@ -167,7 +167,7 @@ int execute_plan (TIFF * tif) {
    * forbidden all other tags */
   printf("check if forbidden tags are still existing\n");
   int tag;
-  for (tag=0; tag<MAXTAGS; tag++) {
+  for (tag=MINTAGS; tag<MAXTAGS; tag++) {
     if (0 == parser_state.called_tags[tag]) { /* only unchecked tags */
       ret_t res = check_notag( tif, tag);
       if (0 != res.returncode) { /* check if tag is not part of tif */
@@ -446,11 +446,11 @@ void add_special_valid_type_check(tag_t tag) {
 void add_default_rules_to_plan(TIFF * tif) {
   printf("add default rules\n");
   add_special_datetime_check();
-  uint32 tag_counter=TIFFGetRawTagListCount(tif);
+  uint32 tag_counter=TIFFGetTagListCount(tif);
   uint32 tagidx;
   for (tagidx=0; tagidx < tag_counter; tagidx++) {
     tag_t tag;
-    tag = TIFFGetRawTagListEntry( tif, tagidx );
+    tag = TIFFGetTagListEntry( tif, tagidx );
     printf("tag %u added\n\n", tag);
     add_special_valid_type_check( tag );
   }

@@ -256,6 +256,120 @@ int append_function_to_plan (void * fp, const char * name ) {
   return 0;
 }
 
+/* adds a function to struct funcu * f
+ * @param f already allocated struct funcu * pointer
+ * @param function adress of function
+ * @param fname name of function as combined message (already allocated)
+ */
+void _helper_add_fsp_void(struct funcu * f, ret_t (* function)(TIFF *), char * fname) {
+/* create datastruct for fp */
+  struct f_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->functionp = function;
+  f->ftype = f_void;
+  f->fu.fvoidt = fsp;
+
+}
+
+
+/* adds a function to struct funcu * f
+ * @param f already allocated struct funcu * pointer
+ * @param function adress of function
+ * @param fname name of function as combined message (already allocated)
+ * @param tag tag
+ */
+void _helper_add_fsp_int(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag) {
+  struct f_int_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_int_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->a = tag;
+  fsp->functionp = function;
+  f->ftype = f_int;
+  f->fu.fintt = fsp;
+}
+
+
+/* adds a function to struct funcu * f
+ * @param f already allocated struct funcu * pointer
+ * @param function adress of function
+ * @param fname name of function as combined message (already allocated)
+ * @param tag tag
+ * @param v param a for function
+ */
+void _helper_add_fsp_intint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v) {
+  /* create datastruct for fp */
+  struct f_intint_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_intint_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->a = tag;
+  fsp->b = v;
+  fsp->functionp = function;
+  f->ftype = f_intint;
+  f->fu.fintintt = fsp;
+}
+
+
+/* adds a function to struct funcu * f
+ * @param f already allocated struct funcu * pointer
+ * @param function adress of function
+ * @param fname name of function as combined message (already allocated)
+ * @param tag tag
+ * @param count_of_values count of parameters for function
+ * @param rp pointer to parameter values
+ */
+void _helper_add_fsp_intintintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp) {
+  /* create datastruct for fp */
+  printf("count of values = %i\n", count_of_values);
+  struct f_intintintp_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_intintintp_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->a = tag;
+  fsp->b = count_of_values;
+  fsp->c = rp;
+  fsp->functionp = function;
+  f->ftype = f_intintintp;
+  f->fu.fintintintpt = fsp;
+}
+
+/* adds a function to struct funcu * f
+ * @param f already allocated struct funcu * pointer
+ * @param function adress of function
+ * @param fname name of function as combined message (already allocated)
+ * @param tag tag
+ * @param l param a for function
+ * @param r param b for function
+ */
+void _helper_add_fsp_intintint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r) {
+  /* create datastruct for fp */
+  struct f_intintint_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_intintint_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->a = tag;
+  fsp->b = l;
+  fsp->c = r;
+  fsp->functionp = function;
+  f->ftype = f_intintint;
+  f->fu.fintintintt = fsp;
+}
+
+
+
 //------------------------------------------------------------------------------
 void add_special_datetime_check()
 {
@@ -271,16 +385,7 @@ void add_special_datetime_check()
   f->tag=tag;
   /* - */
   snprintf(fname, 29, "tst_tag%u_datetime", tag);
-  /* create datastruct for fp */
-  struct f_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_s ));
-  if (NULL == fsp) {
-    fprintf (stderr, "could not alloc mem for fsp\n");
-    exit(EXIT_FAILURE);
-  };
-  fsp->functionp = &check_datetime;
-  f->ftype = f_void;
-  f->fu.fvoidt = fsp;
+  _helper_add_fsp_void(f, &check_datetime, fname);
   funcp predicate = NULL;
   predicate=malloc( sizeof( struct funcu ) );
   if (NULL == predicate) {
@@ -288,16 +393,7 @@ void add_special_datetime_check()
     exit(EXIT_FAILURE);
   };
   predicate->pred=NULL;
-  struct f_int_s * fsp2 = NULL;
-  fsp2 = malloc( sizeof( struct f_int_s ));
-  if (NULL == fsp) {
-    fprintf (stderr, "could not alloc mem for pred fsp\n");
-    exit(EXIT_FAILURE);
-  };
-  fsp2->a = tag;
-  fsp2->functionp = &check_tag;
-  predicate->ftype = f_int;
-  predicate->fu.fintt = fsp2;
+  _helper_add_fsp_int(predicate, &check_tag, "predicate", tag);
   f->pred=predicate;
   append_function_to_plan(f, fname);
   /* end special datetime check */
@@ -315,17 +411,7 @@ void add_special_valid_type_check(tag_t tag) {
   f->tag=tag;
   /* - */
   snprintf(fname, 29, "tst_tag%u_check_valid_type", tag);
-  /* create datastruct for fp */
-  struct f_int_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_int_s ));
-  if (NULL == fsp) {
-    fprintf (stderr, "could not alloc mem for fsp\n");
-    exit(EXIT_FAILURE);
-  };
-  fsp->a = tag;
-  fsp->functionp = &check_tag_has_valid_type;
-  f->ftype = f_int;
-  f->fu.fintt = fsp;
+  _helper_add_fsp_int(f, &check_tag_has_valid_type, fname, tag);
   funcp predicate = NULL;
   predicate=malloc( sizeof( struct funcu ) );
   if (NULL == predicate) {
@@ -333,16 +419,7 @@ void add_special_valid_type_check(tag_t tag) {
     exit(EXIT_FAILURE);
   };
   predicate->pred=NULL;
-  struct f_int_s * fsp2 = NULL;
-  fsp2 = malloc( sizeof( struct f_int_s ));
-  if (NULL == fsp) {
-    fprintf (stderr, "could not alloc mem for pred fsp\n");
-    exit(EXIT_FAILURE);
-  };
-  fsp2->a = tag;
-  fsp2->functionp = &check_tag;
-  predicate->ftype = f_int;
-  predicate->fu.fintt = fsp2;
+  _helper_add_fsp_int(predicate, &check_tag, "predicate", tag);
   f->pred=predicate;
   append_function_to_plan(f, fname);
   /* end special valid type check */
@@ -493,32 +570,12 @@ void rule_addtag_config() {
                   unsigned int r = i_pop();
                   unsigned int l = i_pop();
                   snprintf(fname, 29, "tst_tag%u_%i_%s_%u_%u", parser_state.tag, parser_state.req, "range", l, r);
-                  /* create datastruct for fp */
-                  struct f_intintint_s * fsp = NULL;
-                  fsp = malloc( sizeof( struct f_intintint_s ));
-                  if (NULL == fsp) {
-                    fprintf (stderr, "could not alloc mem for fsp\n");
-                    exit(EXIT_FAILURE);
-                  };
-                  fsp->a = tag;
-                  fsp->b = l;
-                  fsp->c = r;
-                  fsp->functionp = &check_tag_has_value_in_range;
-                  f->ftype = f_intintint;
-                  f->fu.fintintintt = fsp;
+                  _helper_add_fsp_intintint(f, &check_tag_has_value_in_range, fname, tag, l, r);
                   break;
                 }
     case logical_or: {
                        int count_of_values = parser_state.valuelist;
                        snprintf(fname, 29, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "logical_or", count_of_values); 
-                       /* create datastruct for fp */
-                       printf("count of values = %i\n", count_of_values);
-                       struct f_intintintp_s * fsp = NULL;
-                       fsp = malloc( sizeof( struct f_intintintp_s ));
-                       if (NULL == fsp) {
-                         fprintf (stderr, "could not alloc mem for fsp\n");
-                         exit(EXIT_FAILURE);
-                       };
                        unsigned int * rp = NULL;
                        rp = malloc ( count_of_values * sizeof( int ) );
                        if (NULL == rp) {
@@ -531,12 +588,7 @@ void rule_addtag_config() {
                          *(rnp) = i_pop();
                          rnp++;
                        }
-                       fsp->a = tag;
-                       fsp->b = count_of_values;
-                       fsp->c = rp;
-                       fsp->functionp = &check_tag_has_some_of_these_values;
-                       f->ftype = f_intintintp;
-                       f->fu.fintintintpt = fsp;
+                       _helper_add_fsp_intintintp(f, &check_tag_has_some_of_these_values, fname, tag, count_of_values, rp);
                        break;
                      }
     case only: {
@@ -544,28 +596,9 @@ void rule_addtag_config() {
                  if (1 == count_of_values) {
                    unsigned int v = i_pop();
                    snprintf(fname, 29, "tst_tag%u_%i_%s_%u", parser_state.tag, parser_state.req, "only", v);
-                   /* create datastruct for fp */
-                   struct f_intint_s * fsp = NULL;
-                   fsp = malloc( sizeof( struct f_intint_s ));
-                   if (NULL == fsp) {
-                     fprintf (stderr, "could not alloc mem for fsp\n");
-                     exit(EXIT_FAILURE);
-                   };
-                   fsp->a = tag;
-                   fsp->b = v;
-                   fsp->functionp = &check_tag_has_value;
-                   f->ftype = f_intint;
-                   f->fu.fintintt = fsp;
+                   _helper_add_fsp_intint(f, &check_tag_has_value, fname, tag, v);
                  } else { /* valuelist, pE. BitsPerSample */
                    snprintf(fname, 29, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "onlym", count_of_values); 
-                   /* create datastruct for fp */
-                   printf("count of values = %i\n", count_of_values);
-                   struct f_intintintp_s * fsp = NULL;
-                   fsp = malloc( sizeof( struct f_intintintp_s ));
-                   if (NULL == fsp) {
-                     fprintf (stderr, "could not alloc mem for fsp\n");
-                     exit(EXIT_FAILURE);
-                   };
                    unsigned int * rp = NULL;
                    rp = malloc ( count_of_values * sizeof( int ) );
                    if (NULL == rp) {
@@ -578,28 +611,13 @@ void rule_addtag_config() {
                      *(rnp) = i_pop();
                      rnp++;
                    }
-                   fsp->a = tag;
-                   fsp->b = count_of_values;
-                   fsp->c = rp;
-                   fsp->functionp = &check_tag_has_valuelist;
-                   f->ftype = f_intintintp;
-                   f->fu.fintintintpt = fsp;
+                   _helper_add_fsp_intintintp(f, &check_tag_has_valuelist, fname, tag, count_of_values, rp);
                  }
                  break;
                }
     case any: {
                 snprintf(fname, 29, "tst_tag%u_%i_%s", parser_state.tag, parser_state.req, "any");
-                /* create datastruct for fp */
-                struct f_int_s * fsp = NULL;
-                fsp = malloc( sizeof( struct f_int_s ));
-                if (NULL == fsp) {
-                  fprintf (stderr, "could not alloc mem for fsp\n");
-                  exit(EXIT_FAILURE);
-                };
-                fsp->a = tag;
-                fsp->functionp = &check_tag;
-                f->ftype = f_int;
-                f->fu.fintt = fsp;
+                _helper_add_fsp_int(f, &check_tag, fname, tag);
                 break;
               }
   }
@@ -619,30 +637,11 @@ void rule_addtag_config() {
                         unsigned int valreference = i_pop();
                         tag_t tagreference = i_pop();
                         printf("ifdepends references to %u.%u\n", tagreference, valreference);
-                        struct f_intint_s * fsp = NULL;
-                        fsp = malloc( sizeof( struct f_intint_s ));
-                        if (NULL == fsp) {
-                          fprintf (stderr, "could not alloc mem for pred fsp\n");
-                          exit(EXIT_FAILURE);
-                        };
-                        fsp->a = tagreference;
-                        fsp->b = valreference;
-                        fsp->functionp = &check_tag_has_value;
-                        predicate->ftype = f_intint;
-                        predicate->fu.fintintt = fsp;
+                        _helper_add_fsp_intint(predicate, &check_tag_has_value, "predicate", tagreference, valreference);
                       } else { /* point to any reference */
                         tag_t tagreference = i_pop();
                         printf("ifdepends references to %u.any\n", tagreference);
-                        struct f_int_s * fsp = NULL;
-                        fsp = malloc( sizeof( struct f_int_s ));
-                        if (NULL == fsp) {
-                          fprintf (stderr, "could not alloc mem for pred fsp\n");
-                          exit(EXIT_FAILURE);
-                        };
-                        fsp->a = tagreference;
-                        fsp->functionp = &check_tag;
-                        predicate->ftype = f_int;
-                        predicate->fu.fintt = fsp;
+                        _helper_add_fsp_int(predicate, &check_tag, "predicate", tagreference);
                       }
                       f->pred=predicate;
                       break;
@@ -659,16 +658,7 @@ void rule_addtag_config() {
                         exit(EXIT_FAILURE);
                       };
                       predicate->pred=NULL;
-                      struct f_int_s * fsp = NULL;
-                      fsp = malloc( sizeof( struct f_int_s ));
-                      if (NULL == fsp) {
-                        fprintf (stderr, "could not alloc mem for pred fsp\n");
-                        exit(EXIT_FAILURE);
-                      };
-                      fsp->a = tag;
-                      fsp->functionp = &check_tag;
-                      predicate->ftype = f_int;
-                      predicate->fu.fintt = fsp;
+                      _helper_add_fsp_int(predicate, &check_tag, "predicate", tag);
                       f->pred=predicate;
                       break;
                    }
@@ -685,6 +675,8 @@ void rule_addtag_config() {
   reset_valuelist();
   parser_state.any_reference = 0;
 }
+
+
 
 void reset_parser_state() {
   parser_state.lineno=1;

@@ -30,7 +30,7 @@
 parser_state_t parser_state;
 executionplan_t plan;
 
-
+/* redefined YY_INPUT to read from stream */
 #define YY_INPUT(yyctx, buf, result, max_size)		\
   {							\
     int yyc= fgetc(parser_state.stream);		\
@@ -39,7 +39,11 @@ executionplan_t plan;
   }                                                     
 
 
-/* type specific calls of function pointers */
+/* type specific calls of function pointers 
+ * @param tif pointer to libtiff TIIFF structure
+ * @param fp pointer to funcu structure to hold function and its parameters
+ * @return ret_t structure for results of called function
+ */
 ret_t call_fp(TIFF* tif, funcp fp) {
   ret_t ret;
   ret.returncode=1;
@@ -110,7 +114,10 @@ ret_t call_fp(TIFF* tif, funcp fp) {
 }
 
 /* executes a plan (list) of functions, checks if predicate-function calls are
- * needed, too. */
+ * needed, too. The plan is a global variable. 
+ * @param tif pointer to TIFF structure
+ * @return return-code is 0 if all called functions are succeed 
+ */
 int execute_plan (TIFF * tif) {
   executionentry_t * this_exe_p = plan.start;
   int is_valid = 0; /* 0 means valid, >0 invalid */
@@ -187,6 +194,7 @@ void print_plan () {
   }
 }
 
+/* prints a plan (list) of functions and their results*/
 void print_plan_results() {
   printf("print plan results:\n");
   executionentry_t * this_exe_p = plan.start;
@@ -204,8 +212,14 @@ void print_plan_results() {
 
 
 
-/* adds a function to an execution plan */
-int append_function_to_plan (void * fp, const char * name ) {
+/* adds a function to an execution plan
+ *
+ * the plan is a global variable
+ * @param fp is a pointer to function
+ * @param name is a string of fname
+ * @return retirn 0 if succeed
+ */
+int append_function_to_plan (funcp fp, const char * name ) {
   assert(NULL != fp);
   assert(NULL != name);
   executionentry_t * entry = NULL;
@@ -368,11 +382,9 @@ void _helper_add_fsp_intintint(struct funcu * f, ret_t (* function)(TIFF *, tag_
   f->fu.fintintintt = fsp;
 }
 
-
-
-//------------------------------------------------------------------------------
-void add_special_datetime_check()
-{
+/* because datetime string is often erroreneous, we need to add it as an
+ * specific check to global plan */
+void add_special_datetime_check() {
   /* add special datetime check */
   char fname[30];
   funcp f = NULL;
@@ -399,6 +411,9 @@ void add_special_datetime_check()
   /* end special datetime check */
 }
 
+/* because some tags are used wit wrong types, we need to check them too
+ * @param tif pointer to TIFF structure, because we want to check only exisiting tags
+ */
 void add_special_valid_type_check(tag_t tag) {
   /* add special valid type check */
   char fname[30];
@@ -409,7 +424,6 @@ void add_special_valid_type_check(tag_t tag) {
     exit(EXIT_FAILURE);
   };
   f->tag=tag;
-  /* - */
   snprintf(fname, 29, "tst_tag%u_check_valid_type", tag);
   _helper_add_fsp_int(f, &check_tag_has_valid_type, fname, tag);
   funcp predicate = NULL;
@@ -425,6 +439,10 @@ void add_special_valid_type_check(tag_t tag) {
   /* end special valid type check */
 }
 
+/* here we collect all special rules
+ * @param tif pointer to TIFF structure tags
+ */
+
 void add_default_rules_to_plan(TIFF * tif) {
   printf("add default rules\n");
   add_special_datetime_check();
@@ -438,7 +456,7 @@ void add_default_rules_to_plan(TIFF * tif) {
   }
 }
 
-/* stack functions for parser */
+/* stack function for parser */
 void i_push (unsigned int i) {
   if (parser_state.i_stackp >= 40) {
     fprintf(stderr, "stackoverflow in i_stack\n");
@@ -446,6 +464,7 @@ void i_push (unsigned int i) {
   }
   parser_state.i_stack[parser_state.i_stackp++] = i;
 }
+/* stack function for parser */
 unsigned int i_pop () {
   if (parser_state.i_stackp <= 0) {
     fprintf(stderr, "stackunderflow in i_stack\n");
@@ -472,7 +491,9 @@ void clean_plan () {
 
 
 
+/* helper function for parser */
 tag_t settag( tag_t tag) { parser_state.tag=tag; return tag; }
+/* helper function for parser */
 tag_t gettag( ) { return parser_state.tag;}
 int incrlineno() {
   parser_state.lineno++; 
@@ -481,7 +502,9 @@ int incrlineno() {
 #endif
   return parser_state.lineno; 
 }
+/* helper function for parser */
 int getlineno() { return parser_state.lineno;}
+
 /*
 int rule_tagorder_in_dsl( int tag ) {
   int prevtag = gettag();
@@ -494,27 +517,35 @@ int rule_tagorder_in_dsl( int tag ) {
   }
 }
 */
+
+/* helper function for parser */
 void tagline() {  
 #ifdef DEBUG
   printf("tagline\n");
 #endif
 }
+/* helper function for parser */
 void commentline() { 
 #ifdef DEBUG
   printf("commentline\n");
 #endif
 }
+/* helper function for parser */
 void rule_should_not_occure(char* s) {
 #ifdef DEBUG
   printf("no parser rule matched after line %i (prev tag was %u): '%s'\n", getlineno(), gettag(), s);
 #endif
 }
+
+/* helper function for parser */
 void set_mandatory() { 
 #ifdef DEBUG
   printf("tag '%u' is mandatory\n", gettag());
 #endif
   parser_state.req=mandatory;
 }
+
+/* helper function for parser */
 void set_optional() {
 #ifdef DEBUG
   printf("tag '%u' is optional\n", gettag());
@@ -522,6 +553,7 @@ void set_optional() {
   parser_state.req=optional; 
 }
 
+/* helper function for parser */
 void set_ifdepends() {
 #ifdef DEBUG
   printf("tag '%u' is set if depends\n", gettag());
@@ -529,28 +561,34 @@ void set_ifdepends() {
   parser_state.req=ifdepends; 
 }
 
+/* helper function for parser */
 void set_range() { parser_state.val = range;}
 
+/* helper function for parser */
 
 void set_logical_or() { parser_state.val = logical_or;}
 
+/* helper function for parser */
 
 void set_only() { parser_state.val = only;}
 
+/* helper function for parser */
 void set_any() { parser_state.val = any;}
 
-
+/* helper function for parser */
 void set_any_reference() { parser_state.any_reference = 1;}
 
+/* helper function for parser */
 void reset_valuelist() {
   parser_state.valuelist = 0;
 }
+/* helper function for parser */
 void incr_values () {
   parser_state.valuelist++;
 }
 
-/* this adds the config of a tagline to execution plan */
-/* HINT: order of calling arguments from stacks is IMPORTANT! */
+/* this adds the config of a tagline to execution plan
+ * HINT: order of calling arguments from stacks is IMPORTANT! */
 void rule_addtag_config() {
 #ifdef DEBUG
   printf( "try to match tagline at line %i\n", getlineno());
@@ -677,7 +715,7 @@ void rule_addtag_config() {
 }
 
 
-
+/* reset the parser state */
 void reset_parser_state() {
   parser_state.lineno=1;
   parser_state.valuelist=0;
@@ -692,8 +730,10 @@ void reset_parser_state() {
   }
 }
 
+/* include the PEG generated parser, see "man peg" for details */
 #include "config_dsl.grammar.c"   /* yyparse() */
 
+/* function to parse a config file from STDIN */
 void parse_plan () {
   reset_parser_state();
   yycontext ctx;
@@ -706,6 +746,7 @@ void parse_plan () {
 
 }
 
+/* function to parse a config file from file stream */
 void parse_plan_via_stream( FILE * file ) {
   reset_parser_state();
   yycontext ctx;
@@ -716,6 +757,10 @@ void parse_plan_via_stream( FILE * file ) {
   yyrelease(&ctx);
 }
 
+/* set parse error
+ * @param msg describes the details about what was going wrong
+ * @param yytext gives context of the error
+ */
 void set_parse_error(char * msg, char * yytext) {
   fprintf(stderr, "%s at line %i (error at '%s')\n", msg, parser_state.lineno, yytext);
   exit(EXIT_FAILURE);

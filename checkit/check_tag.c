@@ -32,5 +32,5 @@ ret_t check_notag(TIFF* tif, tag_t tag) {
   res.returnmsg=NULL;
   res.returncode=0;
   return res;
-}w\0
+}
 

@@ -275,7 +275,7 @@ int append_function_to_plan (funcp fp, const char * name ) {
  * @param function adress of function
  * @param fname name of function as combined message (already allocated)
  */
-void _helper_add_fsp_void(struct funcu * f, ret_t (* function)(TIFF *), char * fname) {
+void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(TIFF *), char * fname) {
 /* create datastruct for fp */
   struct f_tifp_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_s ));
@@ -296,7 +296,7 @@ void _helper_add_fsp_void(struct funcu * f, ret_t (* function)(TIFF *), char * f
  * @param fname name of function as combined message (already allocated)
  * @param tag tag
  */
-void _helper_add_fsp_int(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag) {
+void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag) {
   struct f_tifp_tag_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_s ));
   if (NULL == fsp) {
@@ -317,7 +317,7 @@ void _helper_add_fsp_int(struct funcu * f, ret_t (* function)(TIFF *, tag_t), ch
  * @param tag tag
  * @param v param a for function
  */
-void _helper_add_fsp_intint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v) {
+void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v) {
   /* create datastruct for fp */
   struct f_tifp_tag_uint_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_uint_s ));
@@ -341,7 +341,7 @@ void _helper_add_fsp_intint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, 
  * @param count_of_values count of parameters for function
  * @param rp pointer to parameter values
  */
-void _helper_add_fsp_intintintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp) {
+void _helper_add_fsp_tifp_tag_uint_uintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp) {
   /* create datastruct for fp */
   printf("count of values = %i\n", count_of_values);
   struct f_tifp_tag_int_uintp_s * fsp = NULL;
@@ -366,7 +366,7 @@ void _helper_add_fsp_intintintp(struct funcu * f,  ret_t (* function)(TIFF *, ta
  * @param l param a for function
  * @param r param b for function
  */
-void _helper_add_fsp_intintint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r) {
+void _helper_add_fsp_tifp_tag_uint_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r) {
   /* create datastruct for fp */
   struct f_tifp_tag_uint_uint_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_uint_uint_s ));
@@ -397,7 +397,7 @@ void add_special_datetime_check() {
   f->tag=tag;
   /* - */
   snprintf(fname, 29, "tst_tag%u_datetime", tag);
-  _helper_add_fsp_void(f, &check_datetime, fname);
+  _helper_add_fsp_tifp(f, &check_datetime, fname);
   funcp predicate = NULL;
   predicate=malloc( sizeof( struct funcu ) );
   if (NULL == predicate) {
@@ -405,7 +405,7 @@ void add_special_datetime_check() {
     exit(EXIT_FAILURE);
   };
   predicate->pred=NULL;
-  _helper_add_fsp_int(predicate, &check_tag, "predicate", tag);
+  _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tag);
   f->pred=predicate;
   append_function_to_plan(f, fname);
   /* end special datetime check */
@@ -425,7 +425,7 @@ void add_special_valid_type_check(tag_t tag) {
   };
   f->tag=tag;
   snprintf(fname, 29, "tst_tag%u_check_valid_type", tag);
-  _helper_add_fsp_int(f, &check_tag_has_valid_type, fname, tag);
+  _helper_add_fsp_tifp_tag(f, &check_tag_has_valid_type, fname, tag);
   funcp predicate = NULL;
   predicate=malloc( sizeof( struct funcu ) );
   if (NULL == predicate) {
@@ -433,7 +433,7 @@ void add_special_valid_type_check(tag_t tag) {
     exit(EXIT_FAILURE);
   };
   predicate->pred=NULL;
-  _helper_add_fsp_int(predicate, &check_tag, "predicate", tag);
+  _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tag);
   f->pred=predicate;
   append_function_to_plan(f, fname);
   /* end special valid type check */
@@ -608,7 +608,7 @@ void rule_addtag_config() {
                   unsigned int r = i_pop();
                   unsigned int l = i_pop();
                   snprintf(fname, 29, "tst_tag%u_%i_%s_%u_%u", parser_state.tag, parser_state.req, "range", l, r);
-                  _helper_add_fsp_intintint(f, &check_tag_has_value_in_range, fname, tag, l, r);
+                  _helper_add_fsp_tifp_tag_uint_uint(f, &check_tag_has_value_in_range, fname, tag, l, r);
                   break;
                 }
     case logical_or: {
@@ -626,7 +626,7 @@ void rule_addtag_config() {
                          *(rnp) = i_pop();
                          rnp++;
                        }
-                       _helper_add_fsp_intintintp(f, &check_tag_has_some_of_these_values, fname, tag, count_of_values, rp);
+                       _helper_add_fsp_tifp_tag_uint_uintp(f, &check_tag_has_some_of_these_values, fname, tag, count_of_values, rp);
                        break;
                      }
     case only: {
@@ -634,7 +634,7 @@ void rule_addtag_config() {
                  if (1 == count_of_values) {
                    unsigned int v = i_pop();
                    snprintf(fname, 29, "tst_tag%u_%i_%s_%u", parser_state.tag, parser_state.req, "only", v);
-                   _helper_add_fsp_intint(f, &check_tag_has_value, fname, tag, v);
+                   _helper_add_fsp_tifp_tag_uint(f, &check_tag_has_value, fname, tag, v);
                  } else { /* valuelist, pE. BitsPerSample */
                    snprintf(fname, 29, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "onlym", count_of_values); 
                    unsigned int * rp = NULL;
@@ -649,13 +649,13 @@ void rule_addtag_config() {
                      *(rnp) = i_pop();
                      rnp++;
                    }
-                   _helper_add_fsp_intintintp(f, &check_tag_has_valuelist, fname, tag, count_of_values, rp);
+                   _helper_add_fsp_tifp_tag_uint_uintp(f, &check_tag_has_valuelist, fname, tag, count_of_values, rp);
                  }
                  break;
                }
     case any: {
                 snprintf(fname, 29, "tst_tag%u_%i_%s", parser_state.tag, parser_state.req, "any");
-                _helper_add_fsp_int(f, &check_tag, fname, tag);
+                _helper_add_fsp_tifp_tag(f, &check_tag, fname, tag);
                 break;
               }
   }
@@ -675,11 +675,11 @@ void rule_addtag_config() {
                         unsigned int valreference = i_pop();
                         tag_t tagreference = i_pop();
                         printf("ifdepends references to %u.%u\n", tagreference, valreference);
-                        _helper_add_fsp_intint(predicate, &check_tag_has_value, "predicate", tagreference, valreference);
+                        _helper_add_fsp_tifp_tag_uint(predicate, &check_tag_has_value, "predicate", tagreference, valreference);
                       } else { /* point to any reference */
                         tag_t tagreference = i_pop();
                         printf("ifdepends references to %u.any\n", tagreference);
-                        _helper_add_fsp_int(predicate, &check_tag, "predicate", tagreference);
+                        _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tagreference);
                       }
                       f->pred=predicate;
                       break;
@@ -696,7 +696,7 @@ void rule_addtag_config() {
                         exit(EXIT_FAILURE);
                       };
                       predicate->pred=NULL;
-                      _helper_add_fsp_int(predicate, &check_tag, "predicate", tag);
+                      _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tag);
                       f->pred=predicate;
                       break;
                    }

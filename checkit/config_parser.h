@@ -96,11 +96,11 @@ void parse_plan_via_stream (FILE * stream);
 void add_default_rules_to_plan();
 
 /* helper */
-void _helper_add_fsp_void(struct funcu * f, ret_t (* function)(TIFF *), char * fname);
-void _helper_add_fsp_int(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag);
-void _helper_add_fsp_intint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v);
-void _helper_add_fsp_intintintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp);
-void _helper_add_fsp_intintint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r);
+void _helper_add_fsp_tifp(struct funcu * f, ret_t (* function)(TIFF *), char * fname);
+void _helper_add_fsp_tifp_tag(struct funcu * f, ret_t (* function)(TIFF *, tag_t), char * fname, tag_t tag);
+void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int), char * fname, tag_t tag, unsigned int v);
+void _helper_add_fsp_tifp_tag_uint_uint(struct funcu * f, ret_t (* function)(TIFF *, tag_t, unsigned int, unsigned int), char * fname, tag_t tag, unsigned int l, unsigned int r);
+void _helper_add_fsp_tifp_tag_int_uintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp);
 
 #endif
 /* _FIXIT_TIFF_CONFIG_PARSER */

@@ -99,13 +99,11 @@
 # 274; optional; range(1, 8)	# THIS IS NOT BASELINE TIFF!!! DO NOT UNCOMMENT!!!
 274; optional; only(1)
 
-# DO NOT UNCOMMENT! MIN SAMPLE VALUE IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 280	0118	MinSampleValue	The minimum component value used. Default is 0.
-#280; optional; any
+280; optional; any
 
-# DO NOT UNCOMMENT! MAX SAMPLE VALUE IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 281	0119	MaxSampleValue	The maximum component value used; only for statistical purposes. Default is 2**(BitsPerSample) - 1.
-#281; optional; any
+281; optional; any
 
 # 284	011C	PlanarConfiguration		How the components of each pixel are stored. 1 = Chunky format. 2 = Planar format and Baseline TIFF readers are not required to support it. Default: 1.
 284; optional; only(1)

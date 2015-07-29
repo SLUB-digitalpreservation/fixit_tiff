@@ -130,7 +130,7 @@
 # 306	0132	DateTime	Date and time of image creation in the format "YYYY:MM:DD HH:MM:SS".
 306; optional; any
 
-# DO NOT UNCOMMENT! ARTIST IS NOT SUITABLE FOR LONG TERM ARCHIVAL BECAUSE OF PRIVACY CONCERNS!
+# DO NOT UNCOMMENT! ARTIST IS NOT SUITABLE FOR LONG TERM ARCHIVAL DUE TO PRIVACY CONCERNS!
 # 315	013B	Artist		Person who created the image. Some older TIFF files used this tag for storing Copyright information.
 #315; optional; any
 

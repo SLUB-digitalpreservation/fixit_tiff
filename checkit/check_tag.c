@@ -85,7 +85,7 @@ ret_t check_tag(TIFF* tif, tag_t tag) {
     res = check_tag_has_valid_type( tif, tag);
     return res;
   } else {
-    tif_fails("tag %u should exist, because defined\n", tag);
+    tif_fails("tag %u (%s) should exist, because defined\n", tag, TIFFTagName(tif, tag));
   }
 }
 
@@ -95,7 +95,7 @@ ret_t check_notag(TIFF* tif, tag_t tag) {
   tifp_check( tif)
     ret_t res = check_tag_quiet( tif, tag);
   if (res.returncode == 0) {
-    tif_fails("found tag %u which is not whitelisted\n", tag);
+    tif_fails("found tag %u (%s) which is not whitelisted\n", tag,  TIFFTagName(tif, tag));
   } else {
     res.returnmsg=NULL;
     res.returncode=0;

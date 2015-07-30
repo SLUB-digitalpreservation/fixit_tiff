@@ -46,10 +46,8 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
  * @param filename filename which should be processed, repaired
  */
 ret_t check_datetime(TIFF* tif ) {
-  if (NULL == tif) {
-    fprintf( stderr, "TIFF pointer is empty\n");
-    tif_fails("TIFF pointer is empty\n");
-  };
+  tifp_check( tif)
+  printf("check if datetime tag is correct\n");
 /* find date-tag and fix it */
   char *datetime=NULL;
   uint32 count=0;

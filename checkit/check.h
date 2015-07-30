@@ -19,6 +19,7 @@ ret_t check_tag_has_valuelist( TIFF* tif, tag_t tag, int count, unsigned int * v
 ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b);
 ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value);
 ret_t check_tag(TIFF* tif, tag_t tag);
+ret_t check_tag_quiet(TIFF* tif, tag_t tag);
 ret_t check_notag(TIFF* tif, tag_t tag);
 ret_t check_tag_has_valid_type();
 ret_t check_datetime(TIFF* tif);

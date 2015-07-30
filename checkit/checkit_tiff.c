@@ -36,7 +36,7 @@ int main (int argc, char * argv[]) {
   clean_plan();
   add_default_rules_to_plan( tif);
   parse_plan_via_stream( cfg );
-  print_plan();
+  //print_plan();
   /* special checks */
   check_has_only_one_ifd( tif);
   ret_t res = check_tag_quiet( tif, TIFFTAG_DATETIME);
@@ -44,7 +44,7 @@ int main (int argc, char * argv[]) {
       check_datetime( tif );
   }
   execute_plan(tif);
-  print_plan_results();
+  //print_plan_results();
   clean_plan();
   TIFFClose(tif);
   fclose(cfg);

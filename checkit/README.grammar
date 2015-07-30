@@ -22,9 +22,15 @@ syntax:
 * a tagline is built via "TAG ; REQUIREMENTS ; VALUES", where
 * a TAG is a increasing number similar to TIFF-Tag numbers (see TIFF
 definition)
-* REQUIREMENTS could be "mandatory", "optional" or "depends(TAGREFERENCE.VALUEREFERENCE)"
+* REQUIREMENTS could be 
+** "mandatory" - a tag must exist in TIFF
+** "optional" - a tag could exist in TIFF, if so it will be checked 
+** "depends(REFERENCE)" - a tag must exist in TIFF if reference exists 
+** "optdepends(REFERENCE)" - a tag could exists in TIFF if reference exists. If it exists it will be checked 
+* REFERENCE will be TAGREFERENCE.VALUEREFERENCE
 ** TAGREFERENCE points to a tag number which must be exists,
 ** VALUEREFERENCE could be 'any' or a decimal value or a string enclosed in '"'
+** only if REFERENCE exists in TIFF the REQUIREMENTS rule will be checked
 * VALUES could be one of these:
 ** "range(START, END)" where START and END are decimal values
 ** "logical_or( VALUELIST)" where VALUELIST are comma-separated decimale values
@@ -33,6 +39,8 @@ definition)
 * each tagline or comment must be closed with a new line
 
 If multiple rules defined per tag, they will be combined alternatively.
+
+For examples check the example_configs/ - directory.
 
 Values
 ======

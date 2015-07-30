@@ -4,8 +4,7 @@
 
 
 
-ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
-  printf("check if tag %u (%s) has value %u\n", tag, TIFFTagName(tif, tag), value);
+ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
   tifp_check( tif)
   TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
   switch (datatype) {
@@ -22,7 +21,17 @@ ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
                           break;
                         }
     default: /*  none */
-                        tif_fails("tag %u should have values of type long, short or float, but was:%i\n", tag, datatype);
+                        tif_returns("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
+  }
+}
+
+ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
+  printf("check if tag %u (%s) has value %u\n", tag, TIFFTagName(tif, tag), value);
+  ret_t ret = check_tag_has_value_quiet( tif, tag, value);
+  if (ret.returncode == 0) {
+        return ret;
+  } else {
+        tif_fails(ret.returnmsg);
   }
 }
 
@@ -81,7 +90,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                           break;
                         }
     default: /*  none */
-                        tif_fails("tag %u should have values of type long, short or float, but was:%i\n", tag, datatype);
+                        tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
   }
 
 }

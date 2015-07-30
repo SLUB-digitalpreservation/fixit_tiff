@@ -52,7 +52,7 @@ ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
       default: res = 1;
     }
     if (!res) {
-      tif_fails("tag %u has incorrect type: %i\n", tag, datatype);
+      tif_fails("tag %u (%s) has incorrect type: %i\n", tag,TIFFTagName(tif, tag), datatype);
     } else {
       ret_t res;
       res.returnmsg=NULL;
@@ -62,7 +62,7 @@ ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
     }
     /* we check only count, because we evaluate only int-values */
   } else { /* tag not defined */ 
-    tif_fails("tag %u should exist, because defined\n", tag);
+    tif_fails("tag %u (%s) should exist, because defined\n", tag, TIFFTagName(tif, tag));
   }
 }
 

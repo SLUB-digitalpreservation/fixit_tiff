@@ -17,12 +17,12 @@
 #include "config_parser.h"
 #include "check.h"
 
-/* TODO: handle stuff like BITS PER SAMPLE with multiple values */
 /* TODO: handle stuff like DATETIME or COPYRIGHT */
 
 /*
 #define DEBUG
 */
+
 
 #define YY_CTX_LOCAL
 
@@ -123,11 +123,12 @@ int execute_plan (TIFF * tif) {
   int is_valid = 0; /* 0 means valid, >0 invalid */
   while (NULL != this_exe_p) {
 #ifdef DEBUG
-    printf("execute: %s\n", this_exe_p->name);
+    printf("\n\nexecute: %s\n", this_exe_p->name);
 #endif
     funcp fp;
     fp = this_exe_p->fu_p;
-    if (NULL != fp) {
+    ret_t res;
+     if (NULL != fp) {
 #ifdef DEBUG
       printf("execute: fp not null\n");
 #endif
@@ -136,32 +137,49 @@ int execute_plan (TIFF * tif) {
 #ifdef DEBUG
         printf("execute: we have a predicate... ");
 #endif
-        ret_t res =  call_fp(tif, fp->pred);
-        if (0 != res.returncode ) {
-#ifdef DEBUG
-          printf("execute: predicate was not successfull\n");
+        /* has the predicate a predicate? */
+        if (NULL != fp->pred->pred) { /* yes */
+          #ifdef DEBUG
+          printf("execute: we have a predicate predicate... ");
 #endif
-        this_exe_p->result.returncode=0;
-        this_exe_p->result.returnmsg="predicate was not successfull, skipped check";
+          res =  call_fp(tif, fp->pred->pred);
+          if (0 != res.returncode ) {
+#ifdef DEBUG
+            printf("execute: predicate predicate was not successfull\n");
+#endif
+            this_exe_p->result.returncode=0;
+            this_exe_p->result.returnmsg="predicate predicate was not successfull, skipped check";
+            goto exitcall;
+            /* the predicate was not successfull, skip check */
+          } else { /* predicate predicate successfull*/
+#ifdef DEBUG
+            printf("execute: predicate predicate was successfull\n");
+#endif
+          }
+        };
+        /* no predicate predicate or predicate predicate successfull*/
+          res =  call_fp(tif, fp->pred);
+          if (0 != res.returncode ) {
+#ifdef DEBUG
+            printf("execute: predicate was not successfull\n");
+#endif
+            this_exe_p->result.returncode=0;
+            this_exe_p->result.returnmsg="predicate was not successfull, skipped check";
           /* the predicate was not successfull, skip check */
-        } else { /* predicate was successful */
+          goto exitcall;
+        } else {
+     /* predicate was successful */
 #ifdef DEBUG
           printf("execute: predicate was successfull\n");
 #endif
-          parser_state.called_tags[fp->tag]++;
-          this_exe_p->result= call_fp (tif, fp );
-          if (0 != this_exe_p->result.returncode) { is_valid++; }
         }
-      } else { /* no predicate, call function */
-#ifdef DEBUG
-        printf("execute: we have no predicate\n");
-#endif
-        parser_state.called_tags[fp->tag]++;
-          this_exe_p->result= call_fp (tif, fp );
-          if (0 != this_exe_p->result.returncode) { is_valid++; }
-      }
-    }
-    this_exe_p = this_exe_p->next;
+     }
+        /* no predicate or predicate successfull*/
+      parser_state.called_tags[fp->tag]++;
+      this_exe_p->result= call_fp (tif, fp );
+      if (0 != this_exe_p->result.returncode) { is_valid++; }
+     }
+exitcall:    this_exe_p = this_exe_p->next;
   }
   /* now we know which tags are already checked, we need add a rule to
    * forbidden all other tags */
@@ -232,13 +250,13 @@ int append_function_to_plan (funcp fp, const char * name ) {
   entry->fu_p = fp;
   entry->result.returncode = 0;
   entry->result.returnmsg = NULL;
-  entry->name = malloc ( 30*sizeof(char) );
+  entry->name = malloc ( MAXSTRLEN*sizeof(char) );
   if (NULL == entry->name) {
     fprintf(stderr, "could not alloc memory for execution plan");
     exit(EXIT_FAILURE);
   }
   assert(NULL != name);
-  strncpy(entry->name, name, 30-1);
+  strncpy(entry->name, name, MAXSTRLEN-1);
 #ifdef DEBUG
   printf("entry has name:%s\n", entry->name);
 #endif
@@ -416,7 +434,7 @@ void add_special_datetime_check() {
  */
 void add_special_valid_type_check(tag_t tag) {
   /* add special valid type check */
-  char fname[30];
+  char fname[MAXSTRLEN];
   funcp f = NULL;
   f=malloc( sizeof( struct funcu ) );
   if (NULL == f) {
@@ -424,7 +442,7 @@ void add_special_valid_type_check(tag_t tag) {
     exit(EXIT_FAILURE);
   };
   f->tag=tag;
-  snprintf(fname, 29, "tst_tag%u_check_valid_type", tag);
+  snprintf(fname, MAXSTRLEN-1, "tst_tag%u_check_valid_type", tag);
   _helper_add_fsp_tifp_tag(f, &check_tag_has_valid_type, fname, tag);
   funcp predicate = NULL;
   predicate=malloc( sizeof( struct funcu ) );
@@ -554,6 +572,14 @@ void set_ifdepends() {
 }
 
 /* helper function for parser */
+void set_optdepends() {
+#ifdef DEBUG
+  printf("tag '%u' is set optional depends\n", gettag());
+#endif
+  parser_state.req=optdepends; 
+}
+
+/* helper function for parser */
 void set_range() { parser_state.val = range;}
 
 /* helper function for parser */
@@ -585,7 +611,9 @@ void rule_addtag_config() {
 #ifdef DEBUG
   printf( "try to match tagline at line %i\n", getlineno());
 #endif
-  char fname[30];
+  char fname[MAXSTRLEN];
+  int i;
+  for (i= 0; i<MAXSTRLEN; i++) { fname[i]="\0"; }
   funcp f = NULL;
   f=malloc( sizeof( struct funcu ) );
   if (NULL == f) {
@@ -599,13 +627,13 @@ void rule_addtag_config() {
     case range: {
                   unsigned int r = i_pop();
                   unsigned int l = i_pop();
-                  snprintf(fname, 29, "tst_tag%u_%i_%s_%u_%u", parser_state.tag, parser_state.req, "range", l, r);
+                  snprintf(fname, MAXSTRLEN-1, "tst_tag%u_%i_%s_%u_%u", parser_state.tag, parser_state.req, "range", l, r);
                   _helper_add_fsp_tifp_tag_uint_uint(f, &check_tag_has_value_in_range, fname, tag, l, r);
                   break;
                 }
     case logical_or: {
                        int count_of_values = parser_state.valuelist;
-                       snprintf(fname, 29, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "logical_or", count_of_values); 
+                       snprintf(fname, MAXSTRLEN-1, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "logical_or", count_of_values); 
                        unsigned int * rp = NULL;
                        rp = malloc ( count_of_values * sizeof( int ) );
                        if (NULL == rp) {
@@ -625,10 +653,10 @@ void rule_addtag_config() {
                  int count_of_values = parser_state.valuelist;
                  if (1 == count_of_values) {
                    unsigned int v = i_pop();
-                   snprintf(fname, 29, "tst_tag%u_%i_%s_%u", parser_state.tag, parser_state.req, "only", v);
+                   snprintf(fname, MAXSTRLEN-1, "tst_tag%u_%i_%s_%u", parser_state.tag, parser_state.req, "only", v);
                    _helper_add_fsp_tifp_tag_uint(f, &check_tag_has_value, fname, tag, v);
                  } else { /* valuelist, pE. BitsPerSample */
-                   snprintf(fname, 29, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "onlym", count_of_values); 
+                   snprintf(fname, MAXSTRLEN-1, "tst_tag%u_%i_%s_%i", parser_state.tag, parser_state.req, "onlym", count_of_values); 
                    unsigned int * rp = NULL;
                    rp = malloc ( count_of_values * sizeof( int ) );
                    if (NULL == rp) {
@@ -646,7 +674,7 @@ void rule_addtag_config() {
                  break;
                }
     case any: {
-                snprintf(fname, 29, "tst_tag%u_%i_%s", parser_state.tag, parser_state.req, "any");
+                snprintf(fname, MAXSTRLEN-1, "tst_tag%u_%i_%s", parser_state.tag, parser_state.req, "any");
                 _helper_add_fsp_tifp_tag(f, &check_tag, fname, tag);
                 break;
               }
@@ -666,12 +694,12 @@ void rule_addtag_config() {
                       if (parser_state.any_reference == 0) {
                         unsigned int valreference = i_pop();
                         tag_t tagreference = i_pop();
-                        printf("ifdepends references to %u.%u\n", tagreference, valreference);
-                        _helper_add_fsp_tifp_tag_uint(predicate, &check_tag_has_value, "predicate", tagreference, valreference);
+                        printf("ifdepends %u references to %u.%u\n", tag, tagreference, valreference);
+                        _helper_add_fsp_tifp_tag_uint(predicate, &check_tag_has_value_quiet, "predicate", tagreference, valreference);
                       } else { /* point to any reference */
                         tag_t tagreference = i_pop();
-                        printf("ifdepends references to %u.any\n", tagreference);
-                        _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tagreference);
+                        printf("ifdepends %u references to %u.any\n", tag, tagreference);
+                        _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tagreference);
                       }
                       f->pred=predicate;
                       break;
@@ -688,11 +716,45 @@ void rule_addtag_config() {
                         exit(EXIT_FAILURE);
                       };
                       predicate->pred=NULL;
-                      _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tag);
+                      _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tag);
                       f->pred=predicate;
                       break;
                    }
+    /* TODO: add optional_depends */
+    case optdepends: {
+                       funcp predicate = NULL;
+                       predicate=malloc( sizeof( struct funcu ) );
+                       if (NULL == predicate) {
+                         fprintf (stderr, "could not alloc mem for pred\n");
+                         exit(EXIT_FAILURE);
+                       };
+                       predicate->pred=NULL;
+                       /* set predicate of predicate to check_tag */
+                       funcp predicatepredicate = NULL;
+                       predicatepredicate=malloc( sizeof( struct funcu ) );
+                       if (NULL == predicatepredicate) {
+                         fprintf (stderr, "could not alloc mem for pred\n");
+                         exit(EXIT_FAILURE);
+                       };
+                       predicatepredicate->pred=NULL;
+                       _helper_add_fsp_tifp_tag(predicatepredicate, &check_tag_quiet, "predicatepredicate", tag);
+                       /* set rest of predicate */
+                       predicate->pred = predicatepredicate;
+                       if (parser_state.any_reference == 0) {
+                         unsigned int valreference = i_pop();
+                         tag_t tagreference = i_pop();
+                         printf("optdepends %u references to %u.%u\n", tag, tagreference, valreference);
+                         _helper_add_fsp_tifp_tag_uint(predicate, &check_tag_has_value_quiet, "predicate", tagreference, valreference);
+                       } else { /* point to any reference */
+                         tag_t tagreference = i_pop();
+                         printf("optdepends %u references to %u.any\n", tag, tagreference);
+                         _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tagreference);
+                       }
+                       f->pred=predicate;
+                       break;
 
+                     
+    }
     default:
       printf("unknown parserstate.req, should not occure\n");
       exit(EXIT_FAILURE);

@@ -2,7 +2,7 @@
 #
 # works as whitelist
 # * tag: any tag number in TIFF
-# * required: mandatory | optional | depends( $tag.$value ) 
+# * required: mandatory | optional | depends( $tag.$value ) | optdepends( $tag.$value ) 
 # * values: range($start, $end) | logical_or( $a, …) | only($a) |any
 
 # This defines a sample config for baseline tiffs
@@ -117,12 +117,12 @@
 #289; optional; any
 
 # 290	0122	GrayResponseUnit	The precision of the information contained in the GrayResponseCurve. Default: 2; Recommended: 3
-290; depends(262.0); range(1, 5)
-290; depends(262.1); range(1, 5)
+290; optdepends(262.0); range(1, 5)
+290; optdepends(262.1); range(1, 5)
 
 # 291	0123	GrayResponseCurve	For grayscale data, the optical density of each possible pixel value.
-291; depends(262.0); any
-291; depends(262.1); any
+291; optdepends(262.0); any
+291; optdepends(262.1); any
 
 # 305	0131	Software	Name and version number of the software package(s) used to create the image.
 305; optional; any

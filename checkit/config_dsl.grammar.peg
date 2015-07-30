@@ -21,15 +21,24 @@ TagReference    <- Number
 Semicolon       <- ';' ( Space )*
                 / < MiscUntilEOL >                            { set_parse_error("missed semicolon", yytext);}
 Requirements    <- 'mandatory'                                { set_mandatory(); }
-                / OptionalDepends                             { set_ifdepends(); }
+                / IfDepends                                   { set_ifdepends(); }
+                / OptDepends                                  { set_optdepends(); }
                 / 'optional'                                  { set_optional(); }
                 / < MiscUntilEOL >                            { set_parse_error("wrong requirements-keyword", yytext);}
-OptionalDepends <- 'depends' OpenBracket TagReference Dot ValueReference ClosingBracket
+IfDepends       <- 'depends' OpenBracket TagReference Dot ValueReference ClosingBracket
                 / 'depends' OpenBracket TagReference Dot ValueReference { set_parse_error("requirement expects a closing bracket",  yytext); }
                 / 'depends' OpenBracket TagReference Dot      { set_parse_error("requirement expects a value reference",  yytext); }
                 / 'depends' OpenBracket TagReference          { set_parse_error("requirement expects a dot",  yytext); }
                 / 'depends' OpenBracket                       { set_parse_error("requirement expects a tagreference",  yytext); }
                 / 'depends'                                   { set_parse_error("requirement expects an open bracket",  yytext); }
+
+OptDepends      <- 'optdepends' OpenBracket TagReference Dot ValueReference ClosingBracket
+                / 'optdepends' OpenBracket TagReference Dot ValueReference { set_parse_error("requirement expects a closing bracket",  yytext); }
+                / 'optdepends' OpenBracket TagReference Dot      { set_parse_error("requirement expects a value reference",  yytext); }
+                / 'optdepends' OpenBracket TagReference          { set_parse_error("requirement expects a dot",  yytext); }
+                / 'optdepends' OpenBracket                       { set_parse_error("requirement expects a tagreference",  yytext); }
+                / 'optdepends'                                   { set_parse_error("requirement expects an open bracket",  yytext); }
+
 
 Values          <- Any
                 / Range

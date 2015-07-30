@@ -18,11 +18,11 @@ typedef struct {
         executionentry_t * last; 
 } executionplan_t;
 
-typedef enum { mandatory, ifdepends, optional } requirements_t;
+typedef enum { mandatory, ifdepends, optdepends, optional } requirements_t;
 typedef enum { range, logical_or, any, only } values_t;
 
 
-/* definitons of structs of function pointers to hold type information for "lazy evaluation" */
+/* definitions of structs of function pointers to hold type information for "lazy evaluation" */
 
 typedef struct f_tifp_s {
   ret_t (*functionp)(TIFF *);

@@ -47,7 +47,7 @@ int test_plausibility (int * year, int * month, int * day, int * hour, int * min
  */
 ret_t check_datetime(TIFF* tif ) {
   tifp_check( tif)
-  printf("check if datetime tag is correct\n");
+  printf("check if tag %u (%s) is correct\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME));
 /* find date-tag and fix it */
   char *datetime=NULL;
   uint32 count=0;
@@ -67,10 +67,10 @@ ret_t check_datetime(TIFF* tif ) {
         return res;
 
       } else {
-        tif_fails("datetime not plausible, should be  \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", datetime);
+        tif_fails("tag %u (%s) value of datetime not plausible, should be  \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
       }
     } else {
-      tif_fails("datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", datetime);
+      tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
     }
   }
   ret_t res;

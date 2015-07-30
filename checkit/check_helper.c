@@ -79,6 +79,6 @@ ret_t check_has_only_one_ifd(TIFF* tif) {
     res.returncode=0;
     return res;
   } else {
-    tif_fails("baseline TIFF should have only one IFD");
+    tif_fails("baseline TIFF should have only one IFD\n");
   }
 }

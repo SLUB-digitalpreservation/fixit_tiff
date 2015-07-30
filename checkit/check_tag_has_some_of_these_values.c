@@ -60,7 +60,7 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                           break;
                         }
     default: /*  none */
-                        tif_fails("tag %u should have values of type long, short or float, but was:%i\n", tag, datatype);
+                        tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
   }
 }
 

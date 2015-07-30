@@ -2,6 +2,8 @@
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
 
+#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *80 ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, 79, args); res.returnmsg = str; res.returncode=1; return res;}
+
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)
 {
@@ -14,11 +16,11 @@ ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)
       res.returncode=0;
       return res;
     } else {
-      tif_fails("tag %u should have value %f, but have count/value=%f\n", tag, value, val);
+      tif_returns("tag %u should have value %f, but have count/value=%f\n", tag, value, val);
     }
 
   } else {
-    tif_fails("tag %u should exist, because defined\n", tag);
+    tif_returns("tag %u should exist, because defined\n", tag);
   }
 }
 
@@ -34,11 +36,11 @@ ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value)
       res.returncode=0;
       return res;
     } else {
-      tif_fails("tag %u should have value %u, but have count/value=%u\n", tag, value, val);
+      tif_returns("tag %u should have value %u, but have count/value=%u\n", tag, value, val);
     }
 
   } else {
-    tif_fails("tag %u should exist, because defined\n", tag);
+    tif_returns("tag %u should exist, because defined\n", tag);
   }
 }
 
@@ -54,11 +56,11 @@ ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value)
       res.returncode=0;
       return res;
     } else {
-      tif_fails("tag %u should have value %u, but have count/value=%u\n", tag, value, val);
+      tif_returns("tag %u should have value %u, but have count/value=%u\n", tag, value, val);
     }
 
   } else {
-    tif_fails("tag %u should exist, because defined\n", tag);
+    tif_returns("tag %u should exist, because defined\n", tag);
   }
 }
 

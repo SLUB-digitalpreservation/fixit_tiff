@@ -9,15 +9,20 @@ typedef struct ret_s {
 
 typedef unsigned int tag_t;
 
-#define tif_fails(args...) {ret_t res;  char * str =malloc( sizeof(char) *80 ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, 79, args); printf("\t%s", str); res.returnmsg = str; res.returncode=1; return res;}
+#define MAXSTRLEN 160
+
+#define tif_fails(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); printf("\t%s", str); res.returnmsg = str; res.returncode=1; return res;}
 
 #define tifp_check( tif ) {if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); } }
+
+#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *80 ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, 79, args); res.returnmsg = str; res.returncode=1; return res;}
 
 
 ret_t check_tag_has_some_of_these_values( TIFF* tif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_valuelist( TIFF* tif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b);
 ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value);
+ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value);
 ret_t check_tag(TIFF* tif, tag_t tag);
 ret_t check_tag_quiet(TIFF* tif, tag_t tag);
 ret_t check_notag(TIFF* tif, tag_t tag);

@@ -2,7 +2,6 @@
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
 
-#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *80 ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, 79, args); res.returnmsg = str; res.returncode=1; return res;}
 
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)

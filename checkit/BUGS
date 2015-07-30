@@ -1,3 +1,2 @@
 * parser could not handle ascii-strings yet (use ANY as workaround)
-* parser could not handle fractions yet (for example XRESOLUTION, use ANY as workaround)
 

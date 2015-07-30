@@ -405,13 +405,13 @@ void add_special_datetime_check() {
     exit(EXIT_FAILURE);
   };
   predicate->pred=NULL;
-  _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tag);
+  _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tag);
   f->pred=predicate;
   append_function_to_plan(f, fname);
   /* end special datetime check */
 }
 
-/* because some tags are used wit wrong types, we need to check them too
+/* @deprecated because some tags are used wit wrong types, we need to check them too
  * @param tif pointer to TIFF structure, because we want to check only exisiting tags
  */
 void add_special_valid_type_check(tag_t tag) {
@@ -433,27 +433,19 @@ void add_special_valid_type_check(tag_t tag) {
     exit(EXIT_FAILURE);
   };
   predicate->pred=NULL;
-  _helper_add_fsp_tifp_tag(predicate, &check_tag, "predicate", tag);
+  _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tag);
   f->pred=predicate;
   append_function_to_plan(f, fname);
   /* end special valid type check */
 }
 
-/* here we collect all special rules
+/* @deprecated here we collect all special rules
  * @param tif pointer to TIFF structure tags
  */
 
 void add_default_rules_to_plan(TIFF * tif) {
-  printf("add default rules\n");
-  add_special_datetime_check();
-  uint32 tag_counter=TIFFGetTagListCount(tif);
-  uint32 tagidx;
-  for (tagidx=0; tagidx < tag_counter; tagidx++) {
-    tag_t tag;
-    tag = TIFFGetTagListEntry( tif, tagidx );
-    printf("tag %u added\n\n", tag);
-    add_special_valid_type_check( tag );
-  }
+  // printf("add default rules\n");
+  // add_special_datetime_check();
 }
 
 /* stack function for parser */

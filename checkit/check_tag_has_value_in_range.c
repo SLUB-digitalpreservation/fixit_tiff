@@ -22,10 +22,10 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                           return res;
 
                         } else {
-                          tif_fails("tag %u should have value in range %u - %u, but have count/value=%u\n", tag, a, b, val);
+                          tif_fails("tag %u (%s) should have value in range %u - %u, but have count/value=%u\n", tag,TIFFTagName(tif, tag), a, b, val);
                         }
                       } else {
-                        tif_fails("tag %u should exist, because defined\n", tag);
+                        tif_fails("tag %u (%s) should exist, because defined\n", tag,TIFFTagName(tif, tag));
                       }
 
                       break;
@@ -41,10 +41,10 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                           return res;
 
                         } else {
-                          tif_fails("tag %u should have value in range %u - %u, but have count/value=%u\n", tag, a, b, val);
+                          tif_fails("tag %u (%s) should have value in range %u - %u, but have count/value=%u\n", tag,TIFFTagName(tif, tag),  a, b, val);
                         }
                       } else {
-                        tif_fails("tag %u should exist, because defined\n", tag);
+                        tif_fails("tag %u (%s) should exist, because defined\n", tag, TIFFTagName(tif, tag));
                       }
 
                       break;
@@ -60,16 +60,16 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
                           return res;
 
                         } else {
-                          tif_fails("tag %u should have value in range %u - %u, but have count/value=%f\n", tag, a, b, val);
+                          tif_fails("tag %u (%s) should have value in range %u - %u, but have count/value=%f\n", tag,TIFFTagName(tif, tag),  a, b, val);
                         }
                       } else {
-                        tif_fails("tag %u should exist, because defined\n", tag);
+                        tif_fails("tag %u (%s) should exist, because defined\n", tag,TIFFTagName(tif, tag));
                       }
 
                       break;
                         }
     default: /*  none */
-                        tif_fails("tag %u should have values of type long, short or float, but was:%i\n", tag, datatype);
+                        tif_fails("tag %u (%s) should have values of type long, short or float, but was:%i\n", tag,TIFFTagName(tif, tag), datatype);
   }
 
 }

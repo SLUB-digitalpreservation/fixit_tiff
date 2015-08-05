@@ -34,20 +34,25 @@ int main (int argc, char * argv[]) {
     exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
   };
   clean_plan();
-  add_default_rules_to_plan( tif);
   parse_plan_via_stream( cfg );
-  //print_plan();
+  int is_valid = 0;
+  ret_t res;
   /* special checks */
-  check_has_only_one_ifd( tif);
-  check_tagorder( tif);
-  ret_t res = check_tag_quiet( tif, TIFFTAG_DATETIME);
+  res = check_has_only_one_ifd( tif); if (0 != res.returncode) {is_valid++;}
+  res = check_tagorder( tif); if (0 != res.returncode) {is_valid++;}
+  res = check_tag_quiet( tif, TIFFTAG_DATETIME);
   if (res.returncode == 0) { 
-      check_datetime( tif );
+      res = check_datetime( tif );
+      if (0 != res.returncode) {is_valid++;}
   }
-  execute_plan(tif);
+  is_valid += execute_plan(tif);
   //print_plan_results();
   clean_plan();
   TIFFClose(tif);
   fclose(cfg);
-  exit(EXIT_SUCCESS);
+  if (0 == is_valid) {
+    exit(EXIT_SUCCESS);
+  } else {
+    exit(EXIT_FAILURE);
+  }
 }

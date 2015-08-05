@@ -15,7 +15,7 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
     p++;
   }
   printf("\n");
-  TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
+  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
                       p = values;

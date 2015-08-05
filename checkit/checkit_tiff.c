@@ -39,6 +39,7 @@ int main (int argc, char * argv[]) {
   //print_plan();
   /* special checks */
   check_has_only_one_ifd( tif);
+  check_tagorder( tif);
   ret_t res = check_tag_quiet( tif, TIFFTAG_DATETIME);
   if (res.returncode == 0) { 
       check_datetime( tif );

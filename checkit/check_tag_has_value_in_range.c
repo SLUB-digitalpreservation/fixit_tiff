@@ -1,6 +1,6 @@
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
-
+#include <assert.h>
 /* 
 #define DEBUG
 */
@@ -9,7 +9,10 @@ ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigne
   printf("check if tag %u (%s) has value in range %u - %u\n", tag, TIFFTagName(tif, tag), a, b);
   tifp_check( tif)
   if (a > b) { unsigned int c=a; a=b; b=c; }
-  TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
+  //const TIFFField* fip = TIFFFieldWithTag(tif, tag);
+  const TIFFField* fip = TIFFFindField(tif, tag, TIFF_ANY);
+  assert ( NULL != fip);
+  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
     case TIFF_LONG: {
                       uint32 val;

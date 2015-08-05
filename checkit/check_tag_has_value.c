@@ -6,7 +6,7 @@
 
 ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
   tifp_check( tif)
-  TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
+  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
     case TIFF_LONG: {
                       return check_tag_has_u32value(tif, tag, value);
@@ -45,7 +45,7 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
     p++;
   }
   printf("\n");
-  TIFFDataType datatype =  TIFFFieldDataType(TIFFFieldWithTag(tif, tag));
+  TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
     case TIFF_LONG: { 
                       p = values;

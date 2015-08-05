@@ -203,6 +203,7 @@ exitcall:    this_exe_p = this_exe_p->next;
 }
 
 /* prints a plan (list) of functions */
+/*
 void print_plan () {
   printf("print plan:\n");
   executionentry_t * this_exe_p = plan.start;
@@ -211,6 +212,7 @@ void print_plan () {
     this_exe_p = this_exe_p->next;
   }
 }
+*/
 
 /* prints a plan (list) of functions and their results*/
 void print_plan_results() {
@@ -400,71 +402,7 @@ void _helper_add_fsp_tifp_tag_uint_uint(struct funcu * f, ret_t (* function)(TIF
   f->fu.ftifp_tag_uint_uint = fsp;
 }
 
-/* because datetime string is often erroreneous, we need to add it as an
- * specific check to global plan */
-void add_special_datetime_check() {
-  /* add special datetime check */
-  char fname[30];
-  funcp f = NULL;
-  f=malloc( sizeof( struct funcu ) );
-  if (NULL == f) {
-    fprintf (stderr, "could not alloc mem for f\n");
-    exit(EXIT_FAILURE);
-  };
-  tag_t tag = TIFFTAG_DATETIME;
-  f->tag=tag;
-  /* - */
-  snprintf(fname, 29, "tst_tag%u_datetime", tag);
-  _helper_add_fsp_tifp(f, &check_datetime, fname);
-  funcp predicate = NULL;
-  predicate=malloc( sizeof( struct funcu ) );
-  if (NULL == predicate) {
-    fprintf (stderr, "could not alloc mem for pred\n");
-    exit(EXIT_FAILURE);
-  };
-  predicate->pred=NULL;
-  _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tag);
-  f->pred=predicate;
-  append_function_to_plan(f, fname);
-  /* end special datetime check */
-}
 
-/* @deprecated because some tags are used wit wrong types, we need to check them too
- * @param tif pointer to TIFF structure, because we want to check only exisiting tags
- */
-void add_special_valid_type_check(tag_t tag) {
-  /* add special valid type check */
-  char fname[MAXSTRLEN];
-  funcp f = NULL;
-  f=malloc( sizeof( struct funcu ) );
-  if (NULL == f) {
-    fprintf (stderr, "could not alloc mem for f\n");
-    exit(EXIT_FAILURE);
-  };
-  f->tag=tag;
-  snprintf(fname, MAXSTRLEN-1, "tst_tag%u_check_valid_type", tag);
-  _helper_add_fsp_tifp_tag(f, &check_tag_has_valid_type, fname, tag);
-  funcp predicate = NULL;
-  predicate=malloc( sizeof( struct funcu ) );
-  if (NULL == predicate) {
-    fprintf (stderr, "could not alloc mem for pred\n");
-    exit(EXIT_FAILURE);
-  };
-  predicate->pred=NULL;
-  _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tag);
-  f->pred=predicate;
-  append_function_to_plan(f, fname);
-  /* end special valid type check */
-}
-
-/* @deprecated here we collect all special rules
- * @param tif pointer to TIFF structure tags
- */
-
-void add_default_rules_to_plan(TIFF * tif) {
-  // printf("add default rules\n");
-  // add_special_datetime_check();
-}
 
 /* stack function for parser */
 void i_push (unsigned int i) {
@@ -541,11 +479,13 @@ void commentline() {
 #endif
 }
 /* helper function for parser */
+/*
 void rule_should_not_occure(char* s) {
 #ifdef DEBUG
   printf("no parser rule matched after line %i (prev tag was %u): '%s'\n", getlineno(), gettag(), s);
 #endif
 }
+*/
 
 /* helper function for parser */
 void set_mandatory() { 
@@ -720,7 +660,6 @@ void rule_addtag_config() {
                       f->pred=predicate;
                       break;
                    }
-    /* TODO: add optional_depends */
     case optdepends: {
                        funcp predicate = NULL;
                        predicate=malloc( sizeof( struct funcu ) );

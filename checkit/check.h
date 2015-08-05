@@ -29,6 +29,7 @@ ret_t check_notag(TIFF* tif, tag_t tag);
 ret_t check_tag_has_valid_type();
 ret_t check_datetime(TIFF* tif);
 ret_t check_has_only_one_ifd(TIFF* tif);
+ret_t check_tagorder(TIFF* tif);
 
 /* helper */
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value);

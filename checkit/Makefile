@@ -1,5 +1,10 @@
 LIB+=-ltiff -lm
-CFLAGS=-O2 -g -Wall
+SANITIZE=-fsanitize=undefined -fsanitize=shift \
+-fsanitize=integer-divide-by-zero -fsanitize=unreachable \
+-fsanitize=vla-bound -fsanitize=null -fsanitize=return \
+-fsanitize=signed-integer-overflow 
+#-fsanitize=leak
+CFLAGS=-O2 -g -Wall $(SANITIZE)
 GRAMMAR=config_dsl.grammar.c
 OBJS=check_helper.o check_tag.o check_tag_has_value.o \
 check_tag_has_value_in_range.o check_tag_has_some_of_these_values.o \

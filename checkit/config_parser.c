@@ -421,6 +421,56 @@ unsigned int i_pop () {
   return parser_state.i_stack[--parser_state.i_stackp];
 }
 
+void clean_funcp (funcp p) {
+  if (NULL != p) {
+    if (NULL != p->pred) {
+      clean_funcp( p->pred);
+      p->pred=NULL;
+    }
+    switch( p->ftype ) {
+      case f_tifp_tag_int_uintp: 
+        if (NULL != p->fu.ftifp_tag_int_uintp->c) {
+          free(p->fu.ftifp_tag_int_uintp->c);
+          p->fu.ftifp_tag_int_uintp->c = NULL;
+        }
+        if (NULL != p->fu.ftifp_tag_int_uintp) {
+          free(p->fu.ftifp_tag_int_uintp);
+          p->fu.ftifp_tag_int_uintp=NULL;
+        }
+        break;
+        /* f_tifp, f_tifp_tag, f_tifp_tag_uint, f_tifp_tag_uint_uint, */
+      case f_tifp:
+        if (NULL != p->fu.ftifp) {
+          free(p->fu.ftifp);
+          p->fu.ftifp=NULL;
+        }
+        break;
+      case f_tifp_tag:
+        if (NULL != p->fu.ftifp_tag) {
+          free(p->fu.ftifp_tag);
+          p->fu.ftifp_tag=NULL;
+        }
+        break;
+      case f_tifp_tag_uint:
+        if (NULL != p->fu.ftifp_tag_uint) {
+          free(p->fu.ftifp_tag_uint);
+          p->fu.ftifp_tag_uint=NULL;
+        }
+        break;
+      case f_tifp_tag_uint_uint:
+        if (NULL != p->fu.ftifp_tag_uint_uint) {
+          free(p->fu.ftifp_tag_uint_uint);
+          p->fu.ftifp_tag_uint_uint=NULL;
+        }
+        break;
+      default: ;
+    } 
+    free (p);
+    p=NULL;
+  }
+}
+
+
 /* function to clean an execution plan */
 void clean_plan () {
   /*executionentry_t * last = plan.last; */
@@ -428,7 +478,18 @@ void clean_plan () {
   if (NULL != entry) {
     while (entry->next) {
       executionentry_t * next = entry->next;
-      free (entry->name);
+      if (NULL != entry->name) {
+        free (entry->name);
+        entry->name=NULL;
+      }
+      if (
+      (NULL != entry->result.returnmsg) &&
+      (0 !=  entry->result.returncode) 
+      ) {
+        free(entry->result.returnmsg);
+        entry->result.returnmsg = NULL;
+      }
+      clean_funcp(entry->fu_p);
       free (entry);
       entry = next;
     }
@@ -553,7 +614,7 @@ void rule_addtag_config() {
 #endif
   char fname[MAXSTRLEN];
   int i;
-  for (i= 0; i<MAXSTRLEN; i++) { fname[i]="\0"; }
+  for (i= 0; i<MAXSTRLEN; i++) { fname[i]='\0'; }
   funcp f = NULL;
   f=malloc( sizeof( struct funcu ) );
   if (NULL == f) {

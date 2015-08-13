@@ -28,7 +28,9 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                         if (res.returncode == 0) return res;
                         p++;
                       }
-                      return res;
+                      uint32 val;
+                      TIFFGetField(tif, tag, &val);
+                      tif_fails("tag %u (%s) does not have some of expected values (but have:%u)\n", tag, TIFFTagName(tif, tag), val);
                       break;
                     }
     case TIFF_SHORT: {
@@ -42,7 +44,9 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                          if (res.returncode == 0) return res;
                          p++;
                        }
-                       return res;
+                       uint16 val;
+                       TIFFGetField(tif, tag, &val);
+                       tif_fails("tag %u (%s) does not have some of expected values (but have:%u)\n", tag, TIFFTagName(tif, tag), val);
                        break;
                      }
     case TIFF_RATIONAL: {
@@ -56,7 +60,9 @@ ret_t check_tag_has_some_of_these_values(TIFF* tif, tag_t tag, int count, unsign
                             if (res.returncode == 0) return res;
                             p++;
                           }
-                          return res;
+                          float val;
+                          TIFFGetField(tif, tag, &val);
+                          tif_fails("tag %u (%s) does not have some of expected values (but have:%f)\n", tag, TIFFTagName(tif, tag), val);
                           break;
                         }
     default: /*  none */

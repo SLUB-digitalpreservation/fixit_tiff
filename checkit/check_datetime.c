@@ -59,24 +59,38 @@ ret_t check_datetime(TIFF* tif ) {
     int hour=0;
     int min=0;
     int sec=0;
-    if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
-      if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {
-        ret_t res;
-        res.returnmsg=NULL;
-        res.returncode=0;
-        return res;
+    
+    int r = 0;
+    int i;
+    for (i=0; i<count; i++) {
+        if (datetime[i] == '\0') {
+          r = i+1;
+          break;
+        }
+    }
+    printf(" count=%u\n\n", count);
+    if (0 == r) {
+      if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
+        if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {
+          ret_t res;
+          res.returnmsg=NULL;
+          res.returncode=0;
+          return res;
 
+        } else {
+          tif_fails("tag %u (%s) value of datetime not plausible, should be  \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
+        }
       } else {
-        tif_fails("tag %u (%s) value of datetime not plausible, should be  \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
+        tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
       }
     } else {
-      tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\"\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime);
+      tif_fails("tag %u (%s) value of datetime should be \"yyyy:MM:DD hh:mm:ss\", but was \"%s\" and contains a \\0 at %i (count=%u)\n", TIFFTAG_DATETIME, TIFFTagName(tif, TIFFTAG_DATETIME), datetime, r, count);
     }
+
   }
   ret_t res;
   res.returnmsg=NULL;
   res.returncode=0;
   return res;
-
 }
 

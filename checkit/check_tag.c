@@ -26,6 +26,9 @@ ret_t check_tag(TIFF* tif, tag_t tag) {
     ret_t res = check_tag_quiet( tif, tag);
   if (res.returncode == 0) {
     res = check_tag_has_valid_type( tif, tag);
+    if (res.returncode == 0) {
+      res = check_tag_has_valid_asciivalue(tif, tag);
+    }
     return res;
   } else {
     tif_fails("tag %u (%s) should exist, because defined\n", tag, TIFFTagName(tif, tag));

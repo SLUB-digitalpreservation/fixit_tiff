@@ -36,6 +36,7 @@ definition)
 ** "logical_or( VALUELIST)" where VALUELIST are comma-separated decimale values
 ** "any" which means any match
 ** "only(VALUE) where VALUE is a decimal value or a string enclosed in ""
+** "regex("REGEX") where REGEX is a PCRE-regular expression with escaped '"' and '\', it only works with tags of type ascii
 * each tagline or comment must be closed with a new line
 
 If multiple rules defined per tag, they will be combined alternatively.

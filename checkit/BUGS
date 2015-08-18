@@ -1,2 +1,2 @@
-* parser could not handle ascii-strings yet (use ANY as workaround)
+* parser could not handle valuedata yet (use ANY as workaround)
 

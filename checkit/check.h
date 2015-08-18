@@ -2,7 +2,6 @@
 #define _FIXIT_TIFF_CHECK
 #include <tiff.h>
 #include <tiffio.h>
-#include <pcre.h>
 
 typedef struct ret_s {
   int returncode;
@@ -33,7 +32,7 @@ ret_t check_datetime(TIFF* tif);
 ret_t check_has_only_one_ifd(TIFF* tif);
 ret_t check_tagorder(TIFF* tif);
 ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag); 
-ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, pcre * value);
+ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char* value);
 /* helper */
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value);
 ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value);

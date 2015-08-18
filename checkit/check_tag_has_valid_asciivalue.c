@@ -1,7 +1,9 @@
 
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
+/* 
 #define DEBUG 
+*/
 
 /* checks if TIF with tag and type ASCII */
 ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag) {

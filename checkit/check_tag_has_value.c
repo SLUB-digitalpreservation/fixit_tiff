@@ -1,5 +1,6 @@
 #include "check.h"
 #include "../fixit/fixit_tiff.h"
+#include <pcre.h>
 /* #define DEBUG */
 
 
@@ -35,8 +36,8 @@ ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
   }
 }
 
-ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, pcre * value) {
-  printf("check if tag %u (%s) has value matching regex\n", tag, TIFFTagName(tif, tag));
+ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * value) {
+  printf("check if tag %u (%s) has value matching regex '%s'\n", tag, TIFFTagName(tif, tag), value);
   tifp_check( tif)
     TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
   switch (datatype) {
@@ -45,28 +46,44 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, pcre * value) {
                        uint32 count;
                        int found=TIFFGetField(tif, tag, &val, &count);
                        if (1 == found) {
-                       count = strlen( val);
-                       #define OVECCOUNT 30    /* should be a multiple of 3 */
-                       int ovector[OVECCOUNT];
-                         int rc = pcre_exec( value, NULL, val, count, 0,PCRE_NOTEMPTY , ovector, OVECCOUNT);
-                       printf("tag %s with count=%d and val='%s' -> rc=%d\n", TIFFTagName(tif, tag), count, val, rc);
-                         if (rc >= 0 ) {
-                           ret_t res;
-                           res.returnmsg=NULL;
-                           res.returncode=0;
-                           return res;
+                         count = strlen( val);
+#define OVECCOUNT 30    /* should be a multiple of 3 */
+                         pcre *re;
+                         int erroffset;
+                         const char * errorcode;
+                         re = pcre_compile(
+                             value,                /* the pattern */
+                             0,                      /* default options */
+                             &errorcode,             /* for error code */
+                             &erroffset,             /* for error offset */
+                             NULL);                  /* no compile context */
+                         if (NULL != re) {
+
+                           int ovector[OVECCOUNT];
+                           int rc = pcre_exec( re, NULL, val, count, 0,PCRE_NOTEMPTY , ovector, OVECCOUNT);
+#ifdef DEBUG
+                           printf("tag %s with count=%d and val='%s' -> rc=%d\n", TIFFTagName(tif, tag), count, val, rc);
+#endif
+                           if (rc >= 0 ) {
+                             ret_t res;
+                             res.returnmsg=NULL;
+                             res.returncode=0;
+                             return res;
+                           } else {
+                             switch(rc) {
+                               case PCRE_ERROR_NOMATCH: 
+                                 tif_fails("tag %u with value '%s' no match to given regex '%s'\n", tag, val, value);
+                                 break;
+                                 /*
+                                    Handle other special cases if you like
+                                    */
+                               default: 
+                                 tif_fails("tag %u with value '%s' called regex '%s' with matching error %d\n", tag, val, value, rc); 
+                                 break;
+                             }
+                         }
                          } else {
-                           switch(rc) {
-                             case PCRE_ERROR_NOMATCH: 
-                               tif_fails("tag %u no match to given regex\n", tag);
-                               break;
-                               /*
-                                  Handle other special cases if you like
-                                  */
-                             default: 
-                               tif_fails("tag %u regex with matching error %d\n", tag, rc); 
-                               break;
-                           }
+                           tif_fails("regex '%s' compile error: %s at offset: %i\n",value, errorcode, erroffset);
                          }
                        } else {
                          tif_fails("tag %u should exist, because defined\n", tag);

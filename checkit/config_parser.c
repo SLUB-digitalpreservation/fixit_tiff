@@ -16,11 +16,11 @@
 #include "../fixit/tiff_helper.h"
 #include "config_parser.h"
 #include "check.h"
+#include <pcre.h>
 
-/* TODO: handle stuff like DATETIME or COPYRIGHT */
-
+/*
 #define DEBUG
-
+*/
 
 #define YY_CTX_LOCAL
 
@@ -103,14 +103,14 @@ ret_t call_fp(TIFF* tif, funcp fp) {
                       ret = (function->functionp)(tif, function->a, function->b, function->c); 
                       break;
                     }
-case f_tifp_tag_regexp:
+      case f_tifp_tag_charp:
                     {
-                      f_tifp_tag_regexp_t * function = NULL;
-                      function = fp->fu.ftifp_tag_regexp;
+                      f_tifp_tag_charp_t * function = NULL;
+                      function = fp->fu.ftifp_tag_charp;
                       assert(NULL != function);
                       assert(NULL != function->functionp);
 #ifdef DEBUG
-                      printf("debug: found a=%i b=%u\n", function->a, function->b);
+                      printf("debug: found a=%i b=%s\n", function->a, function->b);
 #endif
                       ret = (function->functionp)(tif, function->a, function->b); 
                       break;
@@ -370,19 +370,19 @@ void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(TIFF *, 
  * @param tag tag
  * @param v param a for function
  */
-void _helper_add_fsp_tifp_tag_regex(struct funcu * f, ret_t (* function)(TIFF *, tag_t, pcre *), char * fname, tag_t tag, pcre * v) {
+void _helper_add_fsp_tifp_tag_charp(struct funcu * f, ret_t (* function)(TIFF *, tag_t, const char *), char * fname, tag_t tag, const char * v) {
   /* create datastruct for fp */
-  struct f_tifp_tag_regexp_s * fsp = NULL;
-  fsp = malloc( sizeof( struct f_tifp_tag_regexp_s ));
+  struct f_tifp_tag_charp_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_tifp_tag_charp_s ));
   if (NULL == fsp) {
     fprintf (stderr, "could not alloc mem for fsp\n");
     exit(EXIT_FAILURE);
   };
   fsp->a = tag;
-  fsp->b = v;
+  fsp->b = strdup(v);
   fsp->functionp = function;
-  f->ftype = f_tifp_tag_regexp;
-  f->fu.ftifp_tag_regexp = fsp;
+  f->ftype = f_tifp_tag_charp;
+  f->fu.ftifp_tag_charp = fsp;
 }
 
 
@@ -643,7 +643,7 @@ void set_regex( const char * regex_string) {
     #ifdef DEBUG
     printf("regex found: '%s' in line %i\n", regex_string, parser_state.lineno);
     #endif DEBUG
-    parser_state.regex= re;
+    pcre_free(re);
     parser_state.regex_string= regex_string;
   } else {
     fprintf(stderr, "regex compile error: %s at offset: %i in line %i\n", errorcode, erroffset, parser_state.lineno);
@@ -739,7 +739,7 @@ void rule_addtag_config() {
               }
     case regex: {
                   snprintf(fname, MAXSTRLEN-1, "tst_tag%u_%i_%s_%s", parser_state.tag, parser_state.req, "regex", parser_state.regex_string);
-                  _helper_add_fsp_tifp_tag_regex(f, &check_tag_has_value_matching_regex, fname, tag, parser_state.regex);
+                  _helper_add_fsp_tifp_tag_charp(f, &check_tag_has_value_matching_regex, fname, tag, parser_state.regex_string);
                   break;
                 }
     default:

@@ -1,4 +1,4 @@
-LIB+=-ltiff -lm
+LIB+=-ltiff -lpcre -lm
 SANITIZE=-fsanitize=undefined -fsanitize=shift \
 -fsanitize=integer-divide-by-zero -fsanitize=unreachable \
 -fsanitize=vla-bound -fsanitize=null -fsanitize=return \

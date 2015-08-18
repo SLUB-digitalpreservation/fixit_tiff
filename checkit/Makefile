@@ -1,3 +1,6 @@
+### needs libtiff (>= v4)
+###       libpcre (>=v3)
+
 LIB+=-ltiff -lpcre -lm
 SANITIZE=-fsanitize=undefined -fsanitize=shift \
 -fsanitize=integer-divide-by-zero -fsanitize=unreachable \

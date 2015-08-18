@@ -70,7 +70,7 @@
 # 255	00FF	SubfileType		A general indication of the kind of data contained in this subfile. This field is deprecated. The NewSubfileType field should be used instead.
 #255; optional; range(1, 3)
 
-# DO NOT UNCOMMENT! THRESSHOLDING IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
+# DO NOT UNCOMMENT! THRESHOLDING IS NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 263	0107	Threshholding	For black and white TIFF files that represent shades of gray, the technique used to convert from gray to black and white pixels. Default is 1.
 #263; optional; range(1, 3)
 
@@ -87,13 +87,13 @@
 266; optional; only(1)
 
 # 270	010E	ImageDescription	A string that describes the subject of the image.
-270; optional; any
+270; optional; regex("^[[:print:]]*$")
 
 # 271	010F	Make	The scanner manufacturer.
-271; optional; any
+271; optional; regex("^[[:print:]]*$")
 
 # 272	0110	Model	The scanner model name or number.
-272; optional; any
+272; optional; regex("^[[:print:]]*$")
 
 # 274	0112	Orientation		The orientation of the image with respect to the rows and columns. Default is 1, and only this value is Baseline TIFF conform. 
 # 274; optional; range(1, 8)	# THIS IS NOT BASELINE TIFF!!! DO NOT UNCOMMENT!!!
@@ -125,10 +125,10 @@
 291; optdepends(262.1); any
 
 # 305	0131	Software	Name and version number of the software package(s) used to create the image.
-305; optional; any
+305; optional; regex("^[[:print:]]*$")
 
 # 306	0132	DateTime	Date and time of image creation in the format "YYYY:MM:DD HH:MM:SS".
-306; optional; any
+306; optional; regex("^[12][901][0-9][0-9]:[01][0-9]:[0-3][0-9] [012][0-9]:[0-5][0-9]:[0-6][0-9]$")
 
 # DO NOT UNCOMMENT! ARTIST IS NOT SUITABLE FOR LONG TERM ARCHIVAL DUE TO PRIVACY CONCERNS!
 # 315	013B	Artist		Person who created the image. Some older TIFF files used this tag for storing Copyright information.
@@ -150,7 +150,7 @@
 700; optional; any
 
 # 33432	8298	Copyright	Complete copyright notice of the person or organization that claims the copyright to the image.
-33432; optional; any
+33432; optional; regex("^[[:print:]]*$")
 
 # DO NOT UNCOMMENT! IPTC METADATA ARE NOT SUITABLE FOR LONG TERM ARCHIVAL!
 # 33723 83BB	IPTC	IPTC (International Press Telecommunications Council) metadata. 

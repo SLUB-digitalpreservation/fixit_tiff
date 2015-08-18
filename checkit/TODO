@@ -1,5 +1,6 @@
 - add check that all offsets used once
 - add check that ascii-value does not contain \0
+- add check that all offsets are word aligned
 - add checks for XMP specification
   http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/xmp/pdfs/XMP%20SDK%20Release%20cc-2014-12/XMPSpecificationPart1.pdf
 

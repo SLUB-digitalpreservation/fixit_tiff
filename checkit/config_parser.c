@@ -19,9 +19,7 @@
 
 /* TODO: handle stuff like DATETIME or COPYRIGHT */
 
-/*
 #define DEBUG
-*/
 
 
 #define YY_CTX_LOCAL
@@ -105,6 +103,19 @@ ret_t call_fp(TIFF* tif, funcp fp) {
                       ret = (function->functionp)(tif, function->a, function->b, function->c); 
                       break;
                     }
+case f_tifp_tag_regexp:
+                    {
+                      f_tifp_tag_regexp_t * function = NULL;
+                      function = fp->fu.ftifp_tag_regexp;
+                      assert(NULL != function);
+                      assert(NULL != function->functionp);
+#ifdef DEBUG
+                      printf("debug: found a=%i b=%u\n", function->a, function->b);
+#endif
+                      ret = (function->functionp)(tif, function->a, function->b); 
+                      break;
+                    }
+
       default:
                     fprintf(stderr, "call_fp() error, should not occure!\n");
                     exit(EXIT_FAILURE);
@@ -352,6 +363,28 @@ void _helper_add_fsp_tifp_tag_uint(struct funcu * f, ret_t (* function)(TIFF *, 
   f->fu.ftifp_tag_uint = fsp;
 }
 
+/* adds a function to struct funcu * f
+ * @param f already allocated struct funcu * pointer
+ * @param function adress of function
+ * @param fname name of function as combined message (already allocated)
+ * @param tag tag
+ * @param v param a for function
+ */
+void _helper_add_fsp_tifp_tag_regex(struct funcu * f, ret_t (* function)(TIFF *, tag_t, pcre *), char * fname, tag_t tag, pcre * v) {
+  /* create datastruct for fp */
+  struct f_tifp_tag_regexp_s * fsp = NULL;
+  fsp = malloc( sizeof( struct f_tifp_tag_regexp_s ));
+  if (NULL == fsp) {
+    fprintf (stderr, "could not alloc mem for fsp\n");
+    exit(EXIT_FAILURE);
+  };
+  fsp->a = tag;
+  fsp->b = v;
+  fsp->functionp = function;
+  f->ftype = f_tifp_tag_regexp;
+  f->fu.ftifp_tag_regexp = fsp;
+}
+
 
 /* adds a function to struct funcu * f
  * @param f already allocated struct funcu * pointer
@@ -595,6 +628,31 @@ void set_only() { parser_state.val = only;}
 void set_any() { parser_state.val = any;}
 
 /* helper function for parser */
+void set_regex( const char * regex_string) { 
+  parser_state.val = regex;
+  pcre *re;
+  int erroffset;
+  const char * errorcode;
+  re = pcre_compile(
+      regex_string,                /* the pattern */
+      0,                      /* default options */
+      &errorcode,             /* for error code */
+      &erroffset,             /* for error offset */
+      NULL);                  /* no compile context */
+  if (NULL != re) {
+    #ifdef DEBUG
+    printf("regex found: '%s' in line %i\n", regex_string, parser_state.lineno);
+    #endif DEBUG
+    parser_state.regex= re;
+    parser_state.regex_string= regex_string;
+  } else {
+    fprintf(stderr, "regex compile error: %s at offset: %i in line %i\n", errorcode, erroffset, parser_state.lineno);
+    exit(EXIT_FAILURE);
+  }
+}
+
+
+/* helper function for parser */
 void set_any_reference() { parser_state.any_reference = 1;}
 
 /* helper function for parser */
@@ -679,6 +737,14 @@ void rule_addtag_config() {
                 _helper_add_fsp_tifp_tag(f, &check_tag, fname, tag);
                 break;
               }
+    case regex: {
+                  snprintf(fname, MAXSTRLEN-1, "tst_tag%u_%i_%s_%s", parser_state.tag, parser_state.req, "regex", parser_state.regex_string);
+                  _helper_add_fsp_tifp_tag_regex(f, &check_tag_has_value_matching_regex, fname, tag, parser_state.regex);
+                  break;
+                }
+    default:
+      printf("unknown parserstate.val, should not occure\n");
+      exit(EXIT_FAILURE);
   }
   /* set predicate if and only if lastreq = depends */
   /* HINT: order of evaluating last val and last req is IMPORTANT! */

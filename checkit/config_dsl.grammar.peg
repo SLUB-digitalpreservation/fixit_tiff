@@ -44,7 +44,7 @@ Values          <- Any
                 / Range
                 / LogicalOr
                 / Only
-#                / RegEx
+                / RegEx
                 / < MiscUntilEOL >                            { set_parse_error("wrong values-keyword", yytext);}
 Range           <- 'range' OpenBracket Number Colon Number ClosingBracket {set_range(); }
                 / 'range' OpenBracket Number Colon Number     { set_parse_error("values expects a closing bracket", yytext); }
@@ -77,7 +77,12 @@ Only            <- 'only' OpenBracket ValueList ClosingBracket                { 
                 / 'only' OpenBracket ValueList                { set_parse_error("values expects a closing bracket", yytext);}
                 / 'only' OpenBracket                          { set_parse_error("values expects a value list", yytext);}
                 / 'only'                                      { set_parse_error("values expects an open bracket", yytext);}
-#RegEx           <- 'regex(' ( . )+                 { printf ("Regex not supported yet\n"); }
+RegEx           <- 'regex' OpenBracket '"' < ( PCRE )* > '"' ClosingBracket { set_regex( yytext ); }
+                / 'regex' OpenBracket '"' < ( PCRE )* > '"'   { set_parse_error("expects a closing bracket", yytext); }
+                / 'regex' OpenBracket '"' < ( PCRE )* >       { set_parse_error("expects a closing '\"'", yytext); }
+                / 'regex' OpenBracket '"'                     { set_parse_error("expects a PCRE-regex", yytext); }
+                / 'regex' OpenBracket                         { set_parse_error("expects an open '\"'", yytext); }
+                / 'regex'                                     { set_parse_error("expects an open bracket", yytext); }
 SpaceLine       <- Space? EndOfLine
 Space           <- ' ' / '\t'
 Any             <- 'any'                                      { set_any(); }
@@ -86,3 +91,10 @@ Digit           <- [0-9]
 EndOfLine       <- '\r\n' / '\n' / '\r'
 EndOfFile       <- !.
 MiscUntilEOL    <- ( [^\r\n]+ )
+PCRE            <- EscapedPCRE
+                / [^"\\]
+# FIXME: unescape char in yybuffer                
+EscapedPCRE     <- '\\' '\\'
+                / '\\' '"'
+
+

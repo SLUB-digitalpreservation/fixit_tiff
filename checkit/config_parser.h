@@ -19,7 +19,7 @@ typedef struct {
 } executionplan_t;
 
 typedef enum { mandatory, ifdepends, optdepends, optional } requirements_t;
-typedef enum { range, logical_or, any, only } values_t;
+typedef enum { range, logical_or, any, only, regex } values_t;
 
 
 /* definitions of structs of function pointers to hold type information for "lazy evaluation" */
@@ -53,7 +53,14 @@ typedef struct f_tifp_tag_int_uintp_s {
   ret_t (*functionp)(TIFF*, tag_t a, int b, unsigned int * c);
 } f_tifp_tag_int_uintp_t;
 
-typedef enum { f_dummy, f_tifp, f_tifp_tag, f_tifp_tag_uint, f_tifp_tag_uint_uint, f_tifp_tag_int_uintp } ftype_t;
+typedef struct f_tifp_tag_regexp_s {
+  int a;
+  pcre * b;
+  ret_t (*functionp)(TIFF*, tag_t a, pcre * b);
+} f_tifp_tag_regexp_t;
+
+
+typedef enum { f_dummy, f_tifp, f_tifp_tag, f_tifp_tag_uint, f_tifp_tag_uint_uint, f_tifp_tag_int_uintp, f_tifp_tag_regexp } ftype_t;
 
 struct funcu {
   ftype_t ftype;
@@ -65,6 +72,7 @@ struct funcu {
     struct f_tifp_tag_uint_s * ftifp_tag_uint;
     struct f_tifp_tag_uint_uint_s * ftifp_tag_uint_uint;
     struct f_tifp_tag_int_uintp_s * ftifp_tag_int_uintp;
+    struct f_tifp_tag_regexp_s * ftifp_tag_regexp;
   } fu;
 };
 
@@ -84,6 +92,8 @@ typedef struct parser_state_s {
   int called_tags[MAXTAGS];
   FILE * stream;
   int any_reference;
+  pcre * regex;
+  char * regex_string;
 } parser_state_t;
 
 void set_parse_error(char * msg, char * yytext);

@@ -35,6 +35,48 @@ ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
   }
 }
 
+ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, pcre * value) {
+  printf("check if tag %u (%s) has value matching regex\n", tag, TIFFTagName(tif, tag));
+  tifp_check( tif)
+    TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
+  switch (datatype) {
+    case TIFF_ASCII: {
+                       char * val;
+                       uint32 count;
+                       int found=TIFFGetField(tif, tag, &val, &count);
+                       if (1 == found) {
+                       count = strlen( val);
+                       #define OVECCOUNT 30    /* should be a multiple of 3 */
+                       int ovector[OVECCOUNT];
+                         int rc = pcre_exec( value, NULL, val, count, 0,PCRE_NOTEMPTY , ovector, OVECCOUNT);
+                       printf("tag %s with count=%d and val='%s' -> rc=%d\n", TIFFTagName(tif, tag), count, val, rc);
+                         if (rc >= 0 ) {
+                           ret_t res;
+                           res.returnmsg=NULL;
+                           res.returncode=0;
+                           return res;
+                         } else {
+                           switch(rc) {
+                             case PCRE_ERROR_NOMATCH: 
+                               tif_fails("tag %u no match to given regex\n", tag);
+                               break;
+                               /*
+                                  Handle other special cases if you like
+                                  */
+                             default: 
+                               tif_fails("tag %u regex with matching error %d\n", tag, rc); 
+                               break;
+                           }
+                         }
+                       } else {
+                         tif_fails("tag %u should exist, because defined\n", tag);
+                       }
+                     }
+    default:  /*  none */
+                     tif_fails("tag %u (%s) should have value of type ASCII, but was:%i\n", tag, TIFFTagName(tif, tag), datatype);
+  }
+}
+
 ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * values) {
   printf("check if tag %u (%s) has these %i-values", tag, TIFFTagName(tif, tag), count);
   tifp_check( tif)

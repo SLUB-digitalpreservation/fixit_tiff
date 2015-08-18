@@ -396,7 +396,9 @@ void _helper_add_fsp_tifp_tag_charp(struct funcu * f, ret_t (* function)(TIFF *,
  */
 void _helper_add_fsp_tifp_tag_uint_uintp(struct funcu * f,  ret_t (* function)(TIFF *, tag_t, int, unsigned int *), char * fname, tag_t tag, int count_of_values, unsigned int * rp) {
   /* create datastruct for fp */
+#ifdef DEBUG
   printf("count of values = %i\n", count_of_values);
+#endif
   struct f_tifp_tag_int_uintp_s * fsp = NULL;
   fsp = malloc( sizeof( struct f_tifp_tag_int_uintp_s ));
   if (NULL == fsp) {

@@ -8,7 +8,6 @@
  */
 
 #include "check.h"
-#include "../fixit/fixit_tiff.h"
 
 /** check if date / time values are within correct ranges 
  * @param year year
@@ -20,7 +19,9 @@
  * @return 0 if success, otherwise -1
  */
 int test_plausibility (int * year, int * month, int * day, int * hour, int * min, int * sec) {
-  if (FLAGGED == flag_be_verbose) printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
+#ifdef DEBUG
+  printf ("found: y=%d m=%d d=%d h=%d m=%d s=%d\n", *year, *month, *day, *hour, *min, *sec);
+#endif
   if (
       1500 < *year && 
       2100 > *year &&

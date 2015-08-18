@@ -1,5 +1,6 @@
 #ifndef _FIXIT_TIFF_CHECK
 #define _FIXIT_TIFF_CHECK
+#include <stdlib.h>
 #include <tiff.h>
 #include <tiffio.h>
 

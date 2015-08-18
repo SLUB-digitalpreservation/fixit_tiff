@@ -1,6 +1,6 @@
 #include "check.h"
-#include "../fixit/fixit_tiff.h"
 #include <pcre.h>
+#include <string.h>
 /* #define DEBUG */
 
 

@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../fixit/fixit_tiff.h"
-#include "../fixit/tiff_helper.h"
 #include "config_parser.h"
 #include "check.h"
 #include <pcre.h>
@@ -642,9 +640,9 @@ void set_regex( const char * regex_string) {
       &erroffset,             /* for error offset */
       NULL);                  /* no compile context */
   if (NULL != re) {
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("regex found: '%s' in line %i\n", regex_string, parser_state.lineno);
-    #endif DEBUG
+#endif
     pcre_free(re);
     parser_state.regex_string= regex_string;
   } else {

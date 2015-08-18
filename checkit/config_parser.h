@@ -1,6 +1,5 @@
 #ifndef _FIXIT_TIFF_CONFIG_PARSER
 #define _FIXIT_TIFF_CONFIG_PARSER
-#include "../fixit/fixit_tiff.h"
 #include "check.h"
 
 
@@ -56,7 +55,7 @@ typedef struct f_tifp_tag_int_uintp_s {
 typedef struct f_tifp_tag_charp_s {
   int a;
   const char * b;
-  ret_t (*functionp)(TIFF*, tag_t a, char * b);
+  ret_t (*functionp)(TIFF*, tag_t a, const char * b);
 } f_tifp_tag_charp_t;
 
 

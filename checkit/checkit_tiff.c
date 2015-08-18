@@ -8,7 +8,6 @@
  */
 
 
-#include "../fixit/fixit_tiff.h"
 #include "config_parser.h"
 
 /** main */
@@ -25,13 +24,13 @@ int main (int argc, char * argv[]) {
   TIFF* tif = TIFFOpen(tiff_file, "r");
   if (NULL == tif) {
     fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
-    exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
+    exit (EXIT_FAILURE);
   };
 
   FILE * cfg = fopen(cfg_file, "r");
   if (NULL == cfg) {
     fprintf( stderr, "file '%s' could not be opened\n", cfg_file);
-    exit (FIXIT_TIFF_READ_PERMISSION_ERROR);
+    exit (EXIT_FAILURE);
   };
   clean_plan();
   parse_plan_via_stream( cfg );

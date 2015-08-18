@@ -68,7 +68,9 @@ ret_t check_datetime(TIFF* tif ) {
           break;
         }
     }
+#ifdef DEBUG
     printf(" count=%u\n\n", count);
+#endif
     if (0 == r) {
       if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
         if (0 == test_plausibility(&year, &month, &day, &hour, &min, &sec)) {

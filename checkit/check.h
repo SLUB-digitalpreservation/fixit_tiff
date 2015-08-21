@@ -9,6 +9,36 @@ typedef struct ret_s {
   char * returnmsg;
 } ret_t;
 
+typedef struct ifd_entry_s {
+  uint16 count;
+  TIFFDataType datatype;
+  enum{ is_offset, is_value } value_or_offset;
+  union {
+    uint32 data32;
+    uint16 data16[2];
+    uint8 data8[4];
+    uint32 data32offset;
+  };
+} ifd_entry_t;
+
+typedef struct offset_s {
+  uint16 count;
+  TIFFDataType datatype;
+  union {
+    uint8  *data8p;
+    uint16 *data16p;
+    uint32 *data32p;
+    char   *datacharp;
+    int8   *datas8p;
+    int16  *datas16p;
+    int32  *datas32p;
+    float  *datafloatp;
+    double *datadoublep;
+    uint64 *data64p;
+    int64  *datas64p;
+  };
+} offset_t;
+
 typedef unsigned int tag_t;
 
 #define MAXSTRLEN 160
@@ -17,7 +47,7 @@ typedef unsigned int tag_t;
 
 #define tifp_check( tif ) {if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); } }
 
-#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *80 ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, 79, args); res.returnmsg = str; res.returncode=1; return res;}
+#define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); res.returnmsg = str; res.returncode=1; return res;}
 
 
 ret_t check_tag_has_some_of_these_values( TIFF* tif, tag_t tag, int count, unsigned int * values);
@@ -43,5 +73,8 @@ uint32 TIFFGetRawTagTypeListEntry( TIFF  * tif, int tagidx );
 uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) ;
 int TIFFGetRawTagListCount (TIFF * tif) ;
 TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag);
+ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag);
+ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx );
+offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datatype);
 #endif
 /* _FIXIT_TIFF_CHECK */

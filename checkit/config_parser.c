@@ -724,9 +724,10 @@ void rule_addtag_config() {
                    };
                    int i;
                    unsigned int * rnp=rp;
+                   rnp+=(count_of_values-1);
                    for (i=0; i<count_of_values; i++) {
                      *(rnp) = i_pop();
-                     rnp++;
+                     rnp--;
                    }
                    _helper_add_fsp_tifp_tag_uint_uintp(f, &check_tag_has_valuelist, fname, tag, count_of_values, rp);
                  }

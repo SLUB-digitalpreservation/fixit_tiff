@@ -16,13 +16,6 @@ ret_t check_has_only_one_ifd(TIFF* tif) {
   int fd = TIFFFileno( tif);
   /* seek the image file directory (bytes 4-7) */
   uint32 offset = get_first_IFD( fd );
-
-  if (read(fd, &offset, 4) != 4) {
-    perror ("TIFF Header read error");
-    exit(EXIT_FAILURE);
-  }
-  if (TIFFIsByteSwapped(tif))
-    TIFFSwabLong(&offset);
   // printf("diroffset to %i (0x%04lx)\n", offset, offset);
   //printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
   /* read and seek to IFD address */
@@ -67,6 +60,20 @@ ret_t check_all_offsets_are_word_aligned(TIFF * tif) {
         tif_fails("offset of tag %u (%s) points to 0x%08x and is not word-aligned\n", tag, TIFFTagName(tif, tag), offset);
       }
     }
+  }
+  ret_t res;
+  res.returnmsg=NULL;
+  res.returncode=0;
+  return res;
+}
+
+/* check if IFDs are word aligned */
+ret_t check_all_IFDs_are_word_aligned(TIFF * tif) {
+  printf("check if all IFDs are word aligned\n");
+  int fd = TIFFFileno( tif);
+  uint32 ifd = get_first_IFD( fd ); /*  TODO: check all other IFDs, too */
+  if ( 0 != (ifd & 1)) {
+    tif_fails("offset of first IFD points to 0x%08x and is not word-aligned\n", ifd);
   }
   ret_t res;
   res.returnmsg=NULL;

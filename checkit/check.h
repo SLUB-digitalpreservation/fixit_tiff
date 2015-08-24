@@ -66,6 +66,7 @@ ret_t check_tag_has_valid_asciivalue(TIFF* tif, tag_t tag);
 ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char* value);
 ret_t check_all_offsets_are_word_aligned(TIFF * tif);
 ret_t check_all_offsets_are_used_once_only(TIFF * tif);
+ret_t check_all_IFDs_are_word_aligned(TIFF * tif);
 /* helper */
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value);
 ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value);

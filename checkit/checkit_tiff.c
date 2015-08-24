@@ -37,6 +37,7 @@ int main (int argc, char * argv[]) {
   int is_valid = 0;
   ret_t res;
   /* special checks */
+  res = check_all_IFDs_are_word_aligned( tif); if (0 != res.returncode) {is_valid++;}
   res = check_has_only_one_ifd( tif); if (0 != res.returncode) {is_valid++;}
   res = check_tagorder( tif); if (0 != res.returncode) {is_valid++;}
   res = check_all_offsets_are_used_once_only( tif ); if (0 != res.returncode) {is_valid++;}

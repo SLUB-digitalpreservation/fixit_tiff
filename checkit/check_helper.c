@@ -73,51 +73,6 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    } else { return ("undefined tag"); }
 }
 
-ret_t check_has_only_one_ifd(TIFF* tif) {
-  printf("check if only one IFD exists\n");
-  /* next commented lines, because TIFFNumberOfDirectories are in endless loop,
-   * if the TIFF file from https://github.com/EasyinnovaSL/DPFManager/blob/develop/src/test/resources/IFD%20struct/Circular%20E.tif
-   * is read:
-     if (1 == TIFFNumberOfDirectories( tif )) {
-     ret_t res;
-     res.returnmsg=NULL;
-     res.returncode=0;
-     return res;
-     }*/
-  int fd = TIFFFileno( tif);
-  /* seek the image file directory (bytes 4-7) */
-  lseek(fd, (off_t) 4, SEEK_SET);
-  uint32 offset;
-  if (read(fd, &offset, 4) != 4)
-    perror ("TIFF Header read error");
-  if (TIFFIsByteSwapped(tif))
-    TIFFSwabLong(&offset);
-  // printf("diroffset to %i (0x%04lx)\n", offset, offset);
-  //printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
-  /* read and seek to IFD address */
-  lseek(fd, (off_t) offset, SEEK_SET);
-  uint16 count;
-  if (read(fd, &count, 2) != 2)
-    perror ("TIFF Header read error2");
-  if (TIFFIsByteSwapped(tif))
-    TIFFSwabShort(&count);
-  lseek(fd, 12 * count, SEEK_CUR);
-  /* next 4 bytes are the new IFDn entry, should be empty */
-  uint32 IFDn;
-  if (read(fd, &IFDn, 4) != 4)
-    perror ("TIFF Header read error3");
-  if (TIFFIsByteSwapped(tif))
-    TIFFSwabLong(&IFDn);
-  if (0 == IFDn) {
-    ret_t res;
-    res.returnmsg=NULL;
-    res.returncode=0;
-    return res;
-  } else {
-    tif_fails("baseline TIFF should have only one IFD, but IFD0 at 0x%08x has pointer to IFDn 0x%08x\n", offset, IFDn );
-  }
-}
-
 
 /* scans first IDF and returns count of tags
  * Hint: sideeffect, if succeed the seek points to beginning of the first

@@ -39,6 +39,8 @@ int main (int argc, char * argv[]) {
   /* special checks */
   res = check_has_only_one_ifd( tif); if (0 != res.returncode) {is_valid++;}
   res = check_tagorder( tif); if (0 != res.returncode) {is_valid++;}
+  res = check_all_offsets_are_used_once_only( tif ); if (0 != res.returncode) {is_valid++;}
+  res = check_all_offsets_are_word_aligned( tif );  if (0 != res.returncode) {is_valid++;}
   res = check_tag_quiet( tif, TIFFTAG_DATETIME);
   if (res.returncode == 0) { 
       res = check_datetime( tif );

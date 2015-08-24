@@ -15,8 +15,8 @@ ret_t check_has_only_one_ifd(TIFF* tif) {
      }*/
   int fd = TIFFFileno( tif);
   /* seek the image file directory (bytes 4-7) */
-  lseek(fd, (off_t) 4, SEEK_SET);
-  uint32 offset;
+  uint32 offset = get_first_IFD( fd );
+
   if (read(fd, &offset, 4) != 4) {
     perror ("TIFF Header read error");
     exit(EXIT_FAILURE);

@@ -78,5 +78,6 @@ TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag);
 ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag);
 ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx );
 offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datatype);
+uint32 get_first_IFD(int fd);
 #endif
 /* _FIXIT_TIFF_CHECK */

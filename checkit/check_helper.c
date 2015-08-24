@@ -2,6 +2,7 @@
 #include "check.h"
 #include <unistd.h>
 #include <assert.h>
+#include <fcntl.h>
 /* 
 #define DEBUG
 */
@@ -73,26 +74,72 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    } else { return ("undefined tag"); }
 }
 
+int TIFFIsByteSwapped_fd(int fd) {
+   /* seek the image file directory (bytes 4-7) */
+  lseek(fd, (off_t) 0, SEEK_SET);
+  uint16 header;
+  uint16 magic;
+  int ret;
+  if (read(fd, &header, 2) != 2) {
+    perror ("TIFF Header read error");
+    exit( EXIT_FAILURE );
+  }
+  if (header == 0x4949) ret = 0; /* little endian */
+  else if (header == 0x4d4d) ret = 1; /*  big endian */
+  else {
+    fprintf (stderr, "TIFF Header error, not Byte Order Bytes for TIFF: 0x%04x\n", header);
+    exit(EXIT_FAILURE);
+  }
+  if (read(fd, &magic, 2) != 2) {
+    perror ("TIFF Header read error");
+    exit( EXIT_FAILURE );
+  }
+  uint16 magic2 = magic;
+  if (ret) TIFFSwabShort( &magic2 ); /*  big endian */
+  if (magic2 == 42) { return ret; }
+  else { fprintf (stderr, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
+    exit(EXIT_FAILURE);
+  }
+}
+
+uint32 get_first_IFD(int fd) {
+  int isByteSwapped = TIFFIsByteSwapped_fd(fd);
+  /* seek the image file directory (bytes 4-7) */
+  lseek(fd, (off_t) 4, SEEK_SET);
+  uint32 offset;
+  if (read(fd, &offset, 4) != 4) {
+    perror ("TIFF Header read error");
+    exit( EXIT_FAILURE );
+  }
+  if (isByteSwapped) {
+    TIFFSwabLong (&offset);
+  }
+  return offset;
+}
 
 /* scans first IDF and returns count of tags
  * Hint: sideeffect, if succeed the seek points to beginning of the first
  * IFD-entry */
 int TIFFGetRawTagListCount (TIFF * tif) {
   int fd = TIFFFileno( tif);
+#ifdef __WIN_32
+  const char * filename = TIFFFileName( tif);
+  fd = open(filename, O_RDONLY | O_BINARY);
+  printf("GET RAW %s\n", filename);
+  //tif = TIFFFdOpen( fd, filename, "r");
+#endif  
   /* seek the image file directory (bytes 4-7) */
-  lseek(fd, (off_t) 4, SEEK_SET);
-  uint32 offset;
-  if (read(fd, &offset, 4) != 4)
-    perror ("TIFF Header read error");
-  if (TIFFIsByteSwapped(tif))
-    TIFFSwabLong(&offset);
+  uint32 offset = get_first_IFD( fd );
+ 
   // printf("diroffset to %i (0x%04lx)\n", offset, offset);
   //printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
   /* read and seek to IFD address */
   lseek(fd, (off_t) offset, SEEK_SET);
   uint16 count;
-  if (read(fd, &count, 2) != 2)
+  if (read(fd, &count, 2) != 2) {
     perror ("TIFF Header read error2");
+    exit(EXIT_FAILURE);
+  }
   if (TIFFIsByteSwapped(tif))
     TIFFSwabShort(&count);
   return count;
@@ -108,8 +155,10 @@ uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
-  if (read(fd, ifdentries, 12 * count) != 12*count)
-    perror ("TIFF Header read error2");
+  if (read(fd, ifdentries, 12 * count) != 12*count) {
+    perror ("TIFF Header read error3");
+    exit(EXIT_FAILURE);
+  }
   uint8 * e = ifdentries;
   for (i = 0; i<count; i++) {
     uint8 lo = *e;
@@ -217,8 +266,10 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
-  if (read(fd, ifdentries, 12 * count) != 12*count)
-    perror ("TIFF Header read error2");
+  if (read(fd, ifdentries, 12 * count) != 12*count) {
+    perror ("TIFF Header read error4");
+    exit(EXIT_FAILURE);
+  }
   uint8 * e = ifdentries;
   for (i = 0; i<count; i++) {
     uint8 lo = *e;
@@ -410,8 +461,10 @@ ret_t check_tagorder(TIFF* tif) {
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
-  if (read(fd, ifdentries, 12 * count) != 12*count)
-    perror ("TIFF Header read error2");
+  if (read(fd, ifdentries, 12 * count) != 12*count) {
+    perror ("TIFF Header read error5");
+    exit(EXIT_FAILURE);
+  }
   uint8 * e = ifdentries;
   uint16 lasttag = 0;
   for (i = 0; i<count; i++) {

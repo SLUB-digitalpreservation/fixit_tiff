@@ -64,6 +64,7 @@ distclean: clean
 	@rm -f core
 	@rm -Rf doc/
 	@rm -f .depend
+	@rm -f *.d
 
 
 depend: .depend

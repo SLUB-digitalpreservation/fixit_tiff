@@ -1,14 +1,22 @@
-HINT:
+HINT
+====
+
 * this is work in progress. 
 * The program could already used to check TIFF-files now
 * Remember, it is in alpha-state and needs additional rules to validate tiff files completely. At the moment, only simple tag-conditions are checked.
 * Please, if you find errors or do you have test files like https://github.com/EasyinnovaSL/DPFManager/tree/develop/src/test/resources/, please do not hesitate to contact me.
 
-Compile:
+== Compile ==
 
 $> make
 
-Run:
+If you want to compile the programm with an older linux distribution, pE,
+Debian Wheezy, use this line instead:
+
+$> SANITIZE="-DOLDTIFF" make
+
+
+== Run ==
 
 $> ./checkit_tiff ../examples/invalid_date.tiff example_configs/config_dsl__baseline_tiff6.txt
 
@@ -59,97 +67,4 @@ check if forbidden tags are still existing
 	found tag 315 (Artist) which is not whitelisted
 	found tag 34377 (Photoshop) which is not whitelisted
 found 6 errors
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

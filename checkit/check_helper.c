@@ -70,7 +70,18 @@ ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value)
 const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    const TIFFField* fieldp = TIFFFieldWithTag(tif, tag);
    if (NULL != fieldp) {
+#ifndef OLDTIFF   
         return TIFFFieldName(fieldp);
+#else
+        const char * tagstring;
+        tagstring =malloc( sizeof(char) *MAXSTRLEN );
+        if (NULL==tagstring) {
+          fprintf(stderr, "could not allocate memory for tagstring\n");
+          exit(EXIT_FAILURE);
+          }; 
+          snprintf (tagstring, MAXSTRLEN-1, "tag %u", tag);
+          return tagstring;
+#endif
    } else { return ("undefined tag"); }
 }
 

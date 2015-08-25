@@ -7,7 +7,7 @@ SANITIZE?=-fsanitize=undefined -fsanitize=shift \
 -fsanitize=vla-bound -fsanitize=null -fsanitize=return \
 -fsanitize=signed-integer-overflow 
 #-fsanitize=leak
-CFLAGS= -g -Wall $(SANITIZE)
+CFLAGS?= -g -Wall $(SANITIZE)
 GRAMMAR=config_dsl.grammar.c
 OBJS=check_helper.o\
 check_tag.o \

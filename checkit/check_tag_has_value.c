@@ -37,7 +37,7 @@ ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
                         };
   };
   ret_t ret;
-  ret.returncode=0; ret.returnmsg=""; return ret;
+  ret.returncode=0; ret.returnmsg=NULL; return ret;
 }
 
 ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
@@ -46,7 +46,7 @@ ret_t check_tag_has_value(TIFF* tif, tag_t tag, unsigned int value) {
   if (ret.returncode == 0) {
         return ret;
   } else {
-        tif_fails(ret.returnmsg);
+        tif_fails("%s", ret.returnmsg);
   }
 }
 
@@ -124,13 +124,11 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
   if (count != ifd_entry.count) {
     tif_fails("tag %u (%s) has %u values, but list has %u values\n", tag, TIFFTagName(tif, tag), ifd_entry.count, count);
   }
-/*  if (ifd_entry.value_or_offset == is_offset) { // get count values from offset 
-    tif_fails("tag %u (%s) has offset values, not supported yet\n", tag, TIFFTagName(tif, tag));
-    }
-    */
+  ret_t res;
+  res.returncode=0;
+  res.returnmsg=NULL;
   switch (ifd_entry.datatype) {
     case TIFF_LONG: { 
-                      ret_t res;
                       /*  value */
                       if (ifd_entry.value_or_offset == is_value) {
                         for (i=0; i< count; i++) {
@@ -160,7 +158,6 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                       break;
                     }
     case TIFF_SHORT: {
-                       ret_t res;
                       /*  value */
                        if (ifd_entry.value_or_offset == is_value) {
                          for (i=0; i< count; i++) {

@@ -90,6 +90,11 @@ ret_t check_all_offsets_are_used_once_only(TIFF * tif) {
   uint32 tags[ count ];
   int count_of_offsets = 0;
   int i;
+
+  for (tagidx = 0; tagidx< count; tagidx++) {
+    offsets[ tagidx ] = 0;
+    tags[ tagidx ] = 0;
+  }
   for (tagidx = 0; tagidx< count; tagidx++) {
     ifd_entry_t ifd_entry = TIFFGetRawTagIFDListEntry( tif, tagidx );
     if (ifd_entry.value_or_offset==is_offset) {

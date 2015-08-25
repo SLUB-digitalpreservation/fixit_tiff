@@ -157,7 +157,7 @@ int execute_plan (TIFF * tif) {
             printf("execute: predicate predicate was not successfull\n");
 #endif
             this_exe_p->result.returncode=0;
-            this_exe_p->result.returnmsg="predicate predicate was not successfull, skipped check";
+            this_exe_p->result.returnmsg=strdup("predicate predicate was not successfull, skipped check");
             goto exitcall;
             /* the predicate was not successfull, skip check */
           } else { /* predicate predicate successfull*/
@@ -173,7 +173,7 @@ int execute_plan (TIFF * tif) {
             printf("execute: predicate was not successfull\n");
 #endif
             this_exe_p->result.returncode=0;
-            this_exe_p->result.returnmsg="predicate was not successfull, skipped check";
+            this_exe_p->result.returnmsg=strdup("predicate was not successfull, skipped check");
           /* the predicate was not successfull, skip check */
           goto exitcall;
         } else {
@@ -230,9 +230,9 @@ void print_plan_results() {
   while (NULL != this_exe_p) {
     const char * msg;
     if (0 == this_exe_p->result.returncode) { 
-      msg = "passed"; 
+      msg = strdup("passed"); 
     } else {
-      msg=this_exe_p->result.returnmsg; 
+      msg=strdup(this_exe_p->result.returnmsg); 
     }
     printf("action was: %s, result=%s\n", this_exe_p->name, msg);
     this_exe_p = this_exe_p->next;

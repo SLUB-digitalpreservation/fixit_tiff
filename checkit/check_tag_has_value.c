@@ -26,7 +26,10 @@ ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
                        break;
                      }
     case TIFF_RATIONAL: {
-                          if (value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
+                          if (0 == ifd_entry.data16[1]) {
+                            tif_returns("tag %u (%s), dedominator is zero, tagvalue %u/%u differs from value %u (rational)",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], ifd_entry.data16[1], value); 
+                            break;
+                            } else if (value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
                             tif_returns("tag %u (%s), tagvalue %u/%u differs from value %u (rational)",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], ifd_entry.data16[1], value); 
                             break;
                           }

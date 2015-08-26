@@ -125,7 +125,7 @@
 291; optdepends(262.1); any
 
 # 297           PageNumber      actual page, and total pagecount, the actual page count starts with 0; Recommended: 0, 1
-297; optional; only(5,6)
+297; optional; only(0,1)
 
 # 305	0131	Software	Name and version number of the software package(s) used to create the image.
 305; optional; regex("^[[:print:]]*$")

@@ -15,19 +15,19 @@ ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value) {
   switch (ifd_entry.datatype) {
     case TIFF_LONG: {
                       if (value != ifd_entry.data32) {
-                        tif_returns("tag %u (%s), tagvalue %u differs from value %u (long)",  tag, TIFFTagName(tif, tag),  ifd_entry.data32, value); 
+                        tif_returns("tag %u (%s), tagvalue %u differs from value %u (long)\n",  tag, TIFFTagName(tif, tag),  ifd_entry.data32, value); 
                       }
                       break;
                     }
     case TIFF_SHORT: {
                        if (value != ifd_entry.data16[0])  {
-                         tif_returns("tag %u (%s), tagvalue %u differs from value %u (short)",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], value); 
+                         tif_returns("tag %u (%s), tagvalue %u differs from value %u (short)\n",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], value); 
                        }
                        break;
                      }
     case TIFF_RATIONAL: {
                           if (0 == ifd_entry.data16[1]) {
-                            tif_returns("tag %u (%s), dedominator is zero, tagvalue %u/%u differs from value %u (rational)",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], ifd_entry.data16[1], value); 
+                            tif_returns("tag %u (%s), dedominator is zero, tagvalue %u/%u differs from value %u (rational)\n",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], ifd_entry.data16[1], value); 
                             break;
                             } else if (value - (ifd_entry.data16[0] / ifd_entry.data16[1]) > 1) {
                             tif_returns("tag %u (%s), tagvalue %u/%u differs from value %u (rational)",  tag, TIFFTagName(tif, tag),  ifd_entry.data16[0], ifd_entry.data16[1], value); 

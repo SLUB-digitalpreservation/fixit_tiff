@@ -9,18 +9,8 @@ SANITIZE?=-fsanitize=undefined -fsanitize=shift \
 #-fsanitize=leak
 CFLAGS?= -g -Wall $(SANITIZE)
 GRAMMAR=config_dsl.grammar.c
-OBJS=check_helper.o\
-check_tag.o \
-check_tag_has_value_in_range.o \
-check_tag_has_some_of_these_values.o \
-check_tag_has_valid_type.o\
-check_datetime.o \
-check_tag_has_valid_asciivalue.o\
-check_tag_has_value.o \
-config_parser.o \
-check_ifd.o
-
-SRCS=$(OBJS:%.o=*.c)
+SRCS=$(wildcard tagrules/*.c) check_helper.c check_ifd.c config_parser.c
+OBJS=$(patsubst %.c,%.o, $(SRCS))
 
 # default target
 all: checkit_tiff test
@@ -34,7 +24,7 @@ config_parser.c: config_dsl.grammar.c
 config_dsl.grammar.c: config_dsl.grammar.peg
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INC) -c $<
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 # produce parser via PEG
 %.c: %.peg

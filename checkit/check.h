@@ -48,8 +48,6 @@ typedef unsigned int tag_t;
 #define tifp_check( tif ) {if (NULL == tif) { tif_fails("TIFF pointer is empty\n"); } }
 
 #define tif_returns(args...) {ret_t res;  char * str =malloc( sizeof(char) *MAXSTRLEN ); if (NULL==str) { fprintf(stderr, "could not allocate memory for tif_fails\n"); exit(EXIT_FAILURE); }; snprintf (str, MAXSTRLEN-1, args); res.returnmsg = str; res.returncode=1; return res;}
-
-
 ret_t check_tag_has_some_of_these_values( TIFF* tif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_valuelist( TIFF* tif, tag_t tag, int count, unsigned int * values);
 ret_t check_tag_has_value_in_range(TIFF* tif, tag_t tag, unsigned int a, unsigned int b);
@@ -67,18 +65,5 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char* value
 ret_t check_all_offsets_are_word_aligned(TIFF * tif);
 ret_t check_all_offsets_are_used_once_only(TIFF * tif);
 ret_t check_all_IFDs_are_word_aligned(TIFF * tif);
-/* helper */
-ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value);
-ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value);
-ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value);
-const char * TIFFTagName (  TIFF * tif, tag_t tag );
-uint32 TIFFGetRawTagTypeListEntry( TIFF  * tif, int tagidx );
-uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) ;
-int TIFFGetRawTagListCount (TIFF * tif) ;
-TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag);
-ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag);
-ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx );
-offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datatype);
-uint32 get_first_IFD(int fd);
 #endif
 /* _FIXIT_TIFF_CHECK */

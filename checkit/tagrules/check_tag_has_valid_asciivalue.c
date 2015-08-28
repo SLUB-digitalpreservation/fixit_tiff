@@ -1,5 +1,6 @@
 
-#include "check.h"
+#include "../check.h"
+#include "../check_helper.h"
 /* 
 #define DEBUG 
 */

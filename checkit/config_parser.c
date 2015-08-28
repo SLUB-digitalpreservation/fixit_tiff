@@ -761,11 +761,15 @@ void rule_addtag_config() {
                       if (parser_state.any_reference == 0) {
                         unsigned int valreference = i_pop();
                         tag_t tagreference = i_pop();
+#ifdef DEBUG
                         printf("ifdepends %u references to %u.%u\n", tag, tagreference, valreference);
+#endif
                         _helper_add_fsp_tifp_tag_uint(predicate, &check_tag_has_value_quiet, "predicate", tagreference, valreference);
                       } else { /* point to any reference */
                         tag_t tagreference = i_pop();
+#ifdef DEBUG
                         printf("ifdepends %u references to %u.any\n", tag, tagreference);
+#endif
                         _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tagreference);
                       }
                       f->pred=predicate;
@@ -809,11 +813,15 @@ void rule_addtag_config() {
                        if (parser_state.any_reference == 0) {
                          unsigned int valreference = i_pop();
                          tag_t tagreference = i_pop();
+#ifdef DEBUG
                          printf("optdepends %u references to %u.%u\n", tag, tagreference, valreference);
+#endif
                          _helper_add_fsp_tifp_tag_uint(predicate, &check_tag_has_value_quiet, "predicate", tagreference, valreference);
                        } else { /* point to any reference */
                          tag_t tagreference = i_pop();
+#ifdef DEBUG
                          printf("optdepends %u references to %u.any\n", tag, tagreference);
+#endif
                          _helper_add_fsp_tifp_tag(predicate, &check_tag_quiet, "predicate", tagreference);
                        }
                        f->pred=predicate;

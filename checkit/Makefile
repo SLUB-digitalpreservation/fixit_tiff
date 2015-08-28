@@ -55,12 +55,12 @@ doc: ../common/doxygen.conf
 
 # clean workdir
 clean:
-	@rm -f *.o
+	@rm -f *.o tagrules/*.o
 	@rm -f checkit_tiff test
 
 # mrproper clean
 distclean: clean
-	@rm -f *~
+	@rm -f *~ tagrules/*~
 	@rm -f core
 	@rm -Rf doc/
 	@rm -f .depend

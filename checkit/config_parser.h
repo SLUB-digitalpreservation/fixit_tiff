@@ -1,3 +1,11 @@
+/* rule based checks if given TIFF is a specific baseline TIFF
+ * 
+ * author: Andreas Romeyke, 2015
+ * licensed under conditions of libtiff 
+ * (see http://libtiff.maptools.org/misc.html)
+ *
+ */
+
 #ifndef _FIXIT_TIFF_CONFIG_PARSER
 #define _FIXIT_TIFF_CONFIG_PARSER
 #include "check.h"

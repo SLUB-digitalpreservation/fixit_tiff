@@ -1,3 +1,10 @@
+/* rule based checks if given TIFF is a specific baseline TIFF
+ * 
+ * author: Andreas Romeyke, 2015
+ * licensed under conditions of libtiff 
+ * (see http://libtiff.maptools.org/misc.html)
+ *
+ */
 
 #include "../check.h"
 #include "../check_helper.h"

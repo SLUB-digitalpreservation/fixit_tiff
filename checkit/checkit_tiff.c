@@ -1,10 +1,9 @@
-/* fixes broken TIFF Files
+/* rule based checks if given TIFF is a specific baseline TIFF
  * 
- * fixes invalid DateTime-field in Baseline-TIFFs,
- * based on http://www.awaresystems.be/imaging/tiff/tifftags/baseline.html
- *
- * author: Andreas Romeyke, 2013
+ * author: Andreas Romeyke, 2015
  * licensed under conditions of libtiff 
+ * (see http://libtiff.maptools.org/misc.html)
+ *
  */
 
 
@@ -13,7 +12,7 @@
 /** main */
 int main (int argc, char * argv[]) {
   if (argc != 3) {
-        fprintf( stderr, "%s needs two arguments, first should be the tiff-filename, second the config-file\n", argv[0]);
+        fprintf( stderr, "%s needs two arguments, first should be the tiff-filename, second the config-file, example:\n\t %s tiffs_should_pass/minimal_valid.tiff example_configs/baseline_minimal.cfg\n", argv[0], argv[0]);
         exit (EXIT_FAILURE);
   }
   const char *tiff_file=argv[1];

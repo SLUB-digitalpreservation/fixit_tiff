@@ -1,8 +1,16 @@
+/* rule based checks if given TIFF is a specific baseline TIFF
+ * 
+ * author: Andreas Romeyke, 2015
+ * licensed under conditions of libtiff 
+ * (see http://libtiff.maptools.org/misc.html)
+ *
+ */
+
 #include "check.h"
 #include "check_helper.h"
 #include <unistd.h>
 
-
+/*  check if only one IFD exists */
 ret_t check_has_only_one_ifd(TIFF* tif) {
   printf("check if only one IFD exists\n");
   /* next commented lines, because TIFFNumberOfDirectories are in endless loop,

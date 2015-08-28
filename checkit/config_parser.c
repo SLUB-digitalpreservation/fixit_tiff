@@ -1,10 +1,9 @@
-/* fixes broken TIFF Files
+/* rule based checks if given TIFF is a specific baseline TIFF
  * 
- * fixes unused tags in Baseline-TIFFs,
- * based on http://www.awaresystems.be/imaging/tiff/tifftags/baseline.html
- *
- * author: Andreas Romeyke, 2013
+ * author: Andreas Romeyke, 2015
  * licensed under conditions of libtiff 
+ * (see http://libtiff.maptools.org/misc.html)
+ *
  */
 
 // #define YY_DEBUG

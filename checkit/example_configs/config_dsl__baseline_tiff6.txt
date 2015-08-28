@@ -23,7 +23,8 @@
 ##########################258; mandatory; logical_or(8,16)
 # Bitonal is optional, grey & RGB is mandatory. If 262 AND 258 exist, then the values need to be in the specified range.
 258; depends(262.2); only(8,8,8)
-258; depends(258.any); logical_or(4, 8)
+258; depends(262.0); logical_or(4, 8)
+258; depends(262.1); logical_or(4, 8)
 
 # 259	0103	Compression	Compression scheme used on the image data 
 ### (1 means no compression)

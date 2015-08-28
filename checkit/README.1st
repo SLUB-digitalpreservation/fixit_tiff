@@ -1,9 +1,8 @@
 HINT
 ====
 
-* this is work in progress. 
 * The program could already used to check TIFF-files now
-* Remember, it is in alpha-state and needs additional rules to validate tiff files completely. At the moment, only simple tag-conditions are checked.
+* Remember, it is in alpha-state and needs additional rules to validate tiff files completely. 
 * Please, if you find errors or do you have test files like 
 ** https://github.com/EasyinnovaSL/DPFManager/tree/develop/src/test/resources/
 ** or https://github.com/openpreserve/jhove/tree/junit_tests/examples/tiff/badfiles
@@ -21,38 +20,29 @@ $> SANITIZE="-DOLDTIFF" make
 
 == Run ==
 
-$> ./checkit_tiff ../examples/invalid_date.tiff example_configs/config_dsl__baseline_tiff6.txt
-
+./checkit_tiff ../examples/invalid_date.tiff example_configs/cit_tiff6_baseline_SLUB.cfg 
+'./checkit_tiff' version: 0.223_g74e9931, licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)
 tiff file=../examples/invalid_date.tiff
-cfg_file=example_configs/config_dsl__baseline_tiff6.txt
+cfg_file=example_configs/cit_tiff6_baseline_SLUB.cfg
 TIFFFetchNormalTag: Warning, Incorrect value for "Photoshop"; tag ignored.
-count of values = 3
-ifdepends 258 references to 262.2
-count of values = 2
-ifdepends 258 references to 258.any
-ifdepends 277 references to 262.2
-ifdepends 277 references to 262.1
-ifdepends 277 references to 262.0
-optdepends 290 references to 262.0
-optdepends 290 references to 262.1
-optdepends 291 references to 262.0
-optdepends 291 references to 262.1
+check if all IFDs are word aligned
 check if only one IFD exists
+check if tags are in ascending order
+check if all offsets are used once only
+check if all offsets are word aligned
 check if tag 306 (DateTime) is correct
 	tag 306 (DateTime) value of datetime should be "yyyy:MM:DD hh:mm:ss", but was "04.03.2010 09:59:17"
 check if tag 256 (ImageWidth) has value in range 1 - 4294967295
 check if tag 257 (ImageLength) has value in range 1 - 4294967295
 check if tag 258 (BitsPerSample) has these 3-values, 8, 8, 8
-check if tag 258 (BitsPerSample) has some of these 2-values, 8, 4
 check if tag 259 (Compression) has value 1
 check if tag 262 (PhotometricInterpretation) has value in range 0 - 2
 check if tag 273 (StripOffsets) exists
 check if tag 273 (StripOffsets) has valid type
-	tag 273 (StripOffsets) has incorrect type: 16
+check if tag 273 (StripOffsets) has valid asciivalue
 check if tag 277 (SamplesPerPixel) has value 3
 check if tag 278 (RowsPerStrip) has value in range 1 - 4294967295
 check if tag 279 (StripByteCounts) has value in range 1 - 4294967295
-	tag 279 (StripByteCounts) should have values of type long, short or float, but was:16
 check if tag 282 (XResolution) has value in range 300 - 1200
 check if tag 283 (YResolution) has value in range 300 - 1200
 check if tag 296 (ResolutionUnit) has value 2
@@ -60,14 +50,13 @@ check if tag 254 (SubfileType) has value 0
 check if tag 266 (FillOrder) has value 1
 check if tag 274 (Orientation) has value 1
 check if tag 284 (PlanarConfiguration) has value 1
-check if tag 305 (Software) exists
-check if tag 305 (Software) has valid type
-check if tag 306 (DateTime) exists
-check if tag 306 (DateTime) has valid type
+check if tag 305 (Software) has value matching regex '^[[:print:]]*$'
+check if tag 306 (DateTime) has value matching regex '^[12][901][0-9][0-9]:[01][0-9]:[0-3][0-9] [012][0-9]:[0-5][0-9]:[0-6][0-9]$'
+	tag 306 with value '04.03.2010 09:59:17' no match to given regex '^[12][901][0-9][0-9]:[01][0-9]:[0-3][0-9] [012][0-9]:[0-5][0-9]:[0-6][0-9]$'
 check if forbidden tags are still existing
 	found tag 269 (DocumentName) which is not whitelisted
 	found tag 297 (PageNumber) which is not whitelisted
 	found tag 315 (Artist) which is not whitelisted
 	found tag 34377 (Photoshop) which is not whitelisted
 found 6 errors
-
+$>

@@ -1,6 +1,5 @@
 - add checks for XMP specification
   http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/xmp/pdfs/XMP%20SDK%20Release%20cc-2014-12/XMPSpecificationPart1.pdf
-- add testfiles
-- add version and LICENSE information in code/program output
+- add more testfiles
 
 

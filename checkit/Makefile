@@ -35,6 +35,11 @@ config_dsl.grammar.c: config_dsl.grammar.peg
 %.c: %.peg
 	peg $< > $@
 
+-include version.mk
+
+checkit_tiff.o: checkit_tiff.c
+	$(CC) -DVERSION="\"0.$(REPO_REVISION)\""  $(CFLAGS) $(INC) -c $< -o $@
+
 # default executable
 checkit_tiff: $(OBJS) checkit_tiff.o
 	$(CC) -o $@ $(CFLAGS) $(INC) $^ $(LIB)

@@ -11,6 +11,8 @@
 
 /** main */
 int main (int argc, char * argv[]) {
+  printf("'%s' version: %s, ", argv[0], VERSION);
+  printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n");
   if (argc != 3) {
         fprintf( stderr, "%s needs two arguments, first should be the tiff-filename, second the config-file, example:\n\t %s tiffs_should_pass/minimal_valid.tiff example_configs/baseline_minimal.cfg\n", argv[0], argv[0]);
         exit (EXIT_FAILURE);

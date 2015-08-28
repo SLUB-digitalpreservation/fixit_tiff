@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <fcntl.h>
+#include <string.h>
 /* 
 #define DEBUG
 */
@@ -81,7 +82,7 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
 #ifndef OLDTIFF   
         return TIFFFieldName(fieldp);
 #else
-        const char * tagstring;
+        char * tagstring;
         tagstring =malloc( sizeof(char) *MAXSTRLEN );
         if (NULL==tagstring) {
           fprintf(stderr, "could not allocate memory for tagstring\n");
@@ -90,7 +91,7 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
           snprintf (tagstring, MAXSTRLEN-1, "tag %u", tag);
           return tagstring;
 #endif
-   } else { return ("undefined tag"); }
+   } else { return strdup("undefined tag"); }
 }
 
 int TIFFIsByteSwapped_fd(int fd) {

@@ -49,6 +49,11 @@ int main (int argc, char * argv[]) {
       if (0 != res.returncode) {is_valid++;}
   }
   is_valid += execute_plan(tif);
+   if (is_valid > 0) {
+        printf("found %i errors\n", is_valid);
+  } else {
+        printf("the given tif is valid\n");
+  }
   //print_plan_results();
   clean_plan();
   TIFFClose(tif);

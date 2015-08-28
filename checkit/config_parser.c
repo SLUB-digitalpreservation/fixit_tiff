@@ -202,12 +202,7 @@ exitcall:    this_exe_p = this_exe_p->next;
       }
     }
   }
-  if (is_valid > 0) {
-        printf("found %i errors\n", is_valid);
-  } else {
-        printf("the given tif is valid\n");
-  }
-  return (is_valid);
+   return (is_valid);
 }
 
 /* prints a plan (list) of functions */

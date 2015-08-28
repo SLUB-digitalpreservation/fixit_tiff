@@ -65,6 +65,7 @@ distclean: clean
 	@rm -Rf doc/
 	@rm -f .depend
 	@rm -f *.d
+	@rm -f .depend
 
 
 depend: .depend
@@ -75,6 +76,6 @@ depend: .depend
 
 -include .depend
 
-.PHONY: all clean distclean strip
+.PHONY: all clean distclean strip depend
 
 

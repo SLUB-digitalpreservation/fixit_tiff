@@ -13,7 +13,6 @@
 
 int main()
 {
-  TIFF * tif = NULL;
   /*
   printf("((( print empty plan )))\n");
   print_plan();

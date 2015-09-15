@@ -142,12 +142,6 @@ uint32 get_first_IFD(int fd) {
  * IFD-entry */
 int TIFFGetRawTagListCount (TIFF * tif) {
   int fd = TIFFFileno( tif);
-#ifdef __WIN_32
-  const char * filename = TIFFFileName( tif);
-  fd = open(filename, O_RDONLY | O_BINARY);
-  printf("GET RAW %s\n", filename);
-  //tif = TIFFFdOpen( fd, filename, "r");
-#endif  
   /* seek the image file directory (bytes 4-7) */
   uint32 offset = get_first_IFD( fd );
  

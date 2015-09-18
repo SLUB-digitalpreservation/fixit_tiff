@@ -20,4 +20,7 @@ Q: The compiler reports, that the function TIFFFiledName does not exists. What
 A: You use an older version of the libtiff. If you cannot update, try this:
 'CFLAGS="-DOLDTIFF" make', this enables an alternative in check_helper.c
 
-
+Q: How can I compile a windows version of your program?
+A: I have only tested creating Windows executables using the crosscompiler
+   minGW under Debian Jessie, please see the instructions in 
+   the ../README.windows file.

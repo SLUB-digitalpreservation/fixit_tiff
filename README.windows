@@ -8,10 +8,12 @@ Crosscompiling to Windows
 == libtiff ==
 * needed to compile fixit_tiff and checkit_tiff
 * download the libtiff Source package
-** http://libtiff.maptools.org/ (tiff-4.0.4.tar.gz)
+** http://libtiff.maptools.org/ (tiff-4.0.6.tar.gz or higher)
 * crosscompile libtiff for windows
 ** cd to unzipped source package
-** CFLAGS="-DO_BINARY -D__WIN32__" ./configure --host=i686-w64-mingw32
+** ./configure --host=i686-w64-mingw32 --disable-win32-io
+   (the option "--disable-win32-io" is necessary to get correct filedescriptor
+   under windows)
 ** make -j 2
 
 == libpcre ==
@@ -29,9 +31,9 @@ Crosscompiling to Windows
 == fixit_tiff ==
 * now compile fixit-tool
 ** cd to fixit-tool directory
-** CC="i686-w64-mingw32-gcc" INC="-I ../tiff-4.0.4beta/libtiff/ -L ../tiff-4.0.4beta/libtiff/.libs/ -static" make
+** CC="i686-w64-mingw32-gcc" INC="-I ../tiff-4.0.6/libtiff/ -L ../tiff-4.0.6/libtiff/.libs/ -static" make
 
 == checkit_tiff ==
 * now compile fixit-tool
 ** cd to checkit-tool directory
-** SANITIZE="" CC="i686-w64-mingw32-gcc" INC="-DPCRE_STATIC -I../tiff-4.0.4beta/libtiff/ -I../pcre-8.37/" LIB="-fPIC -static -L../tiff-4.0.4beta/libtiff/.libs/ -L../pcre-8.37/.libs/"  make checkit_tiff
+** SANITIZE="" CC="i686-w64-mingw32-gcc" INC="-DPCRE_STATIC -I../tiff-4.0.6/libtiff/ -I../pcre-8.37/" LIB="-fPIC -static -L../tiff-4.0.6/libtiff/.libs/ -L../pcre-8.37/.libs/"  make checkit_tiff

@@ -21,8 +21,8 @@ OBJS=$(patsubst %.c,%.o, $(SRCS))
 all: checkit_tiff test
 
 # remove debugging symbols (smaller size)
-#strip: all
-#	strip --strip-all checkit_tiff
+strip: all
+	strip --strip-all checkit_tiff
 
 config_parser.c: config_dsl.grammar.c
 

@@ -1,6 +1,6 @@
 LIB+=-ltiff
 CFLAGS=-O2 -g -Wall
-OBJS=tiff_helper.o check_baseline.o check_datetime.o cleanup_datetime.o cleanup_baseline.o cleanup_order.o fixit_tiff.o
+OBJS=tiff_helper.o check_baseline.o check_datetime.o cleanup_datetime.o cleanup_baseline.o cleanup_order.o cleanup_tag.o fixit_tiff.o
 
 # default target
 all: fixit_tiff
@@ -10,7 +10,7 @@ strip: all
 	strip --strip-all fixit_tiff
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(INC) -c $<
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 # default executable
 fixit_tiff: $(OBJS)

@@ -17,7 +17,7 @@ void help () {
   printf ("fixit_tiff\n");
   printf ("uses libtiff version %s\n", TIFFGetVersion());
   printf ("call it with:\n");
-  printf ("\tfixit_tiff [-h|-c|-s|-b] -i <infile> [-o <outfile>]\n");
+  printf ("\tfixit_tiff [-h|-c|-s|-b|-x <tag>] -i <infile> [-o <outfile>]\n");
   printf ("\nwhere <infile> is the possibly broken file\n");
   printf ("and <outfile> is the name of the corrected file\n");
   printf ("\t-c checks file only\n");
@@ -25,6 +25,7 @@ void help () {
   printf ("\t-b clean up (eliminates tags to be baseline tiff conform)\n");
   printf ("\t-q disables describing messages\n");
   printf ("\t-t try to fix tagorder (dangerous)\n");
+  printf ("\t-x tag clean tiff from given tag\n");
   printf ("\tHint: 'fixit_tiff -i <infile> -o <outfile>' repairs date only\n");
 }
 
@@ -69,7 +70,9 @@ int main (int argc, char * argv[]) {
   int flag_baseline_cleanup=UNFLAGGED;
   int flag_tagorder=UNFLAGGED;
   int flag_check_only=UNFLAGGED;
-  while ((c = getopt (argc, argv, "s::cbqt::hi:o:")) != -1) {
+  int clean_tag=UNFLAGGED;
+  flag_be_verbose = FLAGGED;
+  while ((c = getopt (argc, argv, "s::cbqt::hi:o:x:")) != -1) {
       switch (c)
            {
            case 'h': /* help */
@@ -95,8 +98,12 @@ int main (int argc, char * argv[]) {
              break;
            case 'o': /* expects outfile */
              outfilename=optarg;
+	     break;
+	   case 'x': /* expects tagnumber */
+	     clean_tag =atoi(optarg);
+	     break;			
            case '?': /* something goes wrong */
-             if (optopt == 'i' || optopt == 'o')
+             if (optopt == 'i' || optopt == 'o' || optopt == 'x')
                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
              else if (isprint (optopt))
                fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -110,6 +117,11 @@ int main (int argc, char * argv[]) {
            }
   }
   /* added additional checks */
+  /* TODO: add check that no inline and no check if cleantag */
+  if ((UNFLAGGED != clean_tag) && (clean_tag < 254) && (clean_tag > 65535)) {
+    fprintf(stderr, "The option '-x' expects a value in range 254..65535, see '%s -h' for details\n", argv[0]);
+    exit(FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
+  }
   if ((FLAGGED == flag_substitute_only) && (FLAGGED == flag_check_only)) {
     fprintf (stderr, "The options '-s' and '-c' could not be used in combination, see '%s -h' for details\n", argv[0]);
     exit (FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
@@ -142,8 +154,15 @@ int main (int argc, char * argv[]) {
   /* try to fix tag order */
   if (FLAGGED == flag_tagorder) {
         copy_file (infilename, outfilename);
+	if (FLAGGED == flag_be_verbose) printf ("tagorder cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
         cleanup_tagorder(outfilename);
         exit (FIXIT_TIFF_IS_CORRECTED);
+  }
+  if (UNFLAGGED != clean_tag) { /* explicite correction via source target, clean given tag */
+    copy_file (infilename, outfilename);
+    if (FLAGGED == flag_be_verbose) printf ("tag cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
+    cleanup_tag(outfilename, clean_tag);
+    exit (FIXIT_TIFF_IS_CORRECTED);
   }
   /* inplace correction */
   if (FLAGGED == flag_substitute_only) { /* inplace correction */

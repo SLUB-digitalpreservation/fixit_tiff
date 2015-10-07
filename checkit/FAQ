@@ -24,3 +24,10 @@ Q: How can I compile a windows version of your program?
 A: I have only tested creating Windows executables using the crosscompiler
    minGW under Debian Jessie, please see the instructions in 
    the ../README.windows file.
+
+Q: I tried to compile with 'SANITIZE="-DOLDTIFF" make' under Debian Wheezy,
+   but I got the message "error: expected specifier-qualifier-list before
+   'uint64'", why?
+A: You are using the Debian-package libtiff4-dev, but at least libtiff5-dev is
+   expected. The reason for the error was that the uint64 type is only defined
+   in newer tiff.h files.

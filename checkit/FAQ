@@ -31,3 +31,9 @@ Q: I tried to compile with 'SANITIZE="-DOLDTIFF" make' under Debian Wheezy,
 A: You are using the Debian-package libtiff4-dev, but at least libtiff5-dev is
    expected. The reason for the error was that the uint64 type is only defined
    in newer tiff.h files.
+
+Q: Where are older TIFF specs?
+A: take a look to: 
+  TIFF 4: https://web.archive.org/web/20050323073243/http://palimpsest.stanford.edu/bytopic/imaging/std/tiff4.html
+  TIFF 5: https://web.archive.org/web/20050323073243/http://palimpsest.stanford.edu/bytopic/imaging/std/tiff5.html
+

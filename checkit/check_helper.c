@@ -126,7 +126,7 @@ const char * TIFFTagName( TIFF * tif, tag_t tag ) {
    }
 }
 
-int TIFFIsByteSwapped_own(TIFF * tif) {
+int parse_header_and_endianess(TIFF * tif) {
   thandle_t client = TIFFClientdata(tif);
   TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
   TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
@@ -189,7 +189,7 @@ int TIFFIsByteSwapped_own(TIFF * tif) {
 }
 
 uint32 get_first_IFD(TIFF * tif) {
-  int isByteSwapped = TIFFIsByteSwapped_own(tif);
+  int isByteSwapped = parse_header_and_endianess(tif);
   /* seek the image file directory (bytes 4-7) */
   thandle_t client = TIFFClientdata(tif);
   TIFFSeekProc seekproc = TIFFGetSeekProc(tif);

@@ -9,6 +9,7 @@
 
 #include "config_parser.h"
 #include <unistd.h>
+#include <assert.h>
 
 #define FLAGGED 1
 #define UNFLAGGED 0
@@ -87,7 +88,13 @@ int main (int argc, char * argv[]) {
   printf("tiff file=%s\n", tiff_file);
   printf("cfg_file=%s\n", cfg_file);
   /* load tiff file */
-  TIFF* tif = TIFFOpen(tiff_file, "r");
+  TIFF* tif = NULL;
+  if (flag_use_memorymapped_io == FLAGGED) {
+	  tif = TIFFOpen(tiff_file, "rM");
+  } else { /* slow */
+	  tif = TIFFOpen( tiff_file, "rm");
+  }
+
   if (NULL == tif) {
     fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
     exit (EXIT_FAILURE);

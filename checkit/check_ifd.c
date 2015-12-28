@@ -22,27 +22,58 @@ ret_t check_has_only_one_ifd(TIFF* tif) {
      res.returncode=0;
      return res;
      }*/
-  int fd = TIFFFileno( tif);
+  //int fd = TIFFFileno( tif);
   /* seek the image file directory (bytes 4-7) */
-  uint32 offset = get_first_IFD( fd );
+  uint32 offset = get_first_IFD( tif );
   // printf("diroffset to %i (0x%04lx)\n", offset, offset);
   //printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
+  thandle_t client = TIFFClientdata(tif);
+  TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
+  TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+  if (! seekproc) {
+	  perror ("could not get TIFFGetSeekProc");
+  }
+  if (! readproc) {
+	perror ("could not get TIFFGetReadProc");
+  }
+
+   
+
   /* read and seek to IFD address */
-  lseek(fd, (off_t) offset, SEEK_SET);
+  // lseek(fd, (off_t) offset, SEEK_SET);
+  seekproc(client, offset, SEEK_SET);
+
   uint16 count;
+  /*
   if (read(fd, &count, 2) != 2) {
     perror ("TIFF Header read error2");
     exit(EXIT_FAILURE);
   }
+  */
+  if ( readproc( client, &count, 2) != 2 ) {
+	  perror ("TIFF Header read error2");
+	  exit( EXIT_FAILURE );
+  }
+
   if (TIFFIsByteSwapped(tif))
     TIFFSwabShort(&count);
-  lseek(fd, 12 * count, SEEK_CUR);
+
+  //lseek(fd, 12 * count, SEEK_CUR);
+  seekproc(client, 12*count, SEEK_CUR);
+
   /* next 4 bytes are the new IFDn entry, should be empty */
   uint32 IFDn;
+  /*
   if (read(fd, &IFDn, 4) != 4) {
     perror ("TIFF Header read error3");
     exit(EXIT_FAILURE);
   }
+  */
+  if ( readproc( client, &IFDn, 4) != 4 ) {
+	  perror ("TIFF Header read error3");
+	  exit( EXIT_FAILURE );
+  }
+
   if (TIFFIsByteSwapped(tif))
     TIFFSwabLong(&IFDn);
   if (0 == IFDn) {
@@ -79,8 +110,7 @@ ret_t check_all_offsets_are_word_aligned(TIFF * tif) {
 /* check if IFDs are word aligned */
 ret_t check_all_IFDs_are_word_aligned(TIFF * tif) {
   printf("check if all IFDs are word aligned\n");
-  int fd = TIFFFileno( tif);
-  uint32 ifd = get_first_IFD( fd ); /*  TODO: check all other IFDs, too */
+  uint32 ifd = get_first_IFD( tif ); /*  TODO: check all other IFDs, too */
   if ( 0 != (ifd & 1)) {
     tif_fails("offset of first IFD points to 0x%08x and is not word-aligned\n", ifd);
   }

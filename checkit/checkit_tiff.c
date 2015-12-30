@@ -51,7 +51,6 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 	} else { /* slow */
 		tif = TIFFOpen( tiff_file, "rm");
 	}
-
 	if (NULL == tif) {
 		fprintf( stderr, "file '%s' could not be opened\n", tiff_file);
 		return (EXIT_FAILURE);
@@ -172,6 +171,7 @@ int main (int argc, char * argv[]) {
 				parse_plan_via_file(cfg_file);
 				check_specific_tiff_file( fqname, flag_use_memorymapped_io);
 				clean_plan();
+				printf("\n");
 
 			  }
 		  }

@@ -39,7 +39,7 @@ ret_t check_tag(TIFF* tif, tag_t tag) {
     }
     return res;
   } else {
-    tif_fails("tag %u (%s) should exist, because defined\n", tag, TIFFTagName(tif, tag));
+    tif_fails("tag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tif, tag));
   }
 }
 

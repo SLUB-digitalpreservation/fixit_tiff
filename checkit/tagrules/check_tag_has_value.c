@@ -154,13 +154,14 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                         offset_t offset = read_offsetdata(tif, ifd_entry.data32offset, count, ifd_entry.datatype);
                         uint32 * p = offset.data32p;
                         for (i=0; i< count; i++) {
+				uint32 pval = *p;
                           if (TIFFIsByteSwapped(tif))
-                            TIFFSwabLong(p);
+                            TIFFSwabLong(&pval);
 #ifdef DEBUG
-                          printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,*p);
+                          printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
                           if (v[i] != *p) {
-                            tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (long offset) \n",  tag, TIFFTagName(tif, tag), i, *p, v[i]); 
+                            tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (long offset) \n",  tag, TIFFTagName(tif, tag), i, pval, v[i]); 
                           }
                           p++;
                         }
@@ -183,19 +184,19 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
                        if (ifd_entry.value_or_offset == is_offset) {
                          offset_t offset = read_offsetdata(tif, ifd_entry.data32offset, count, ifd_entry.datatype);
                          uint16 * p = offset.data16p;
-
-                         for (i=0; i< count; i++) {
-                           if (TIFFIsByteSwapped(tif))
-                             TIFFSwabShort(p);
+			 for (i=0; i< count; i++) {
+			   uint16 pval = *p;
+			   if (TIFFIsByteSwapped(tif))
+			     TIFFSwabShort(&pval);
 #ifdef DEBUG
-                           printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,*p);
+			     printf("OFFSET: v[%i]=%u p[%i]=%u\n", i,v[i],i,pval);
 #endif
-                           if (v[i] != *p) {
-                             tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (short offset)\n",  tag, TIFFTagName(tif, tag), i, *p, v[i]); 
-                           }
-                           p++;
-                         }
-                       }
+			     if (v[i] != pval) {
+			       tif_fails("tag %u (%s), tagvalue[%i]=%u differs from value=%u (short offset)\n",  tag, TIFFTagName(tif, tag), i, pval, v[i]); 
+			     }
+			     p++;
+			 }
+		       }
 
                        return res;
                        break;
@@ -205,5 +206,4 @@ ret_t check_tag_has_valuelist(TIFF* tif, tag_t tag, int count, unsigned int * va
   }
 
 }
-
 

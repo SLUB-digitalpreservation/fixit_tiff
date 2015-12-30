@@ -15,6 +15,14 @@
 /* 
 #define DEBUG
 */
+
+static int enabled_cache = 0;
+
+void clear_cache () {
+	enabled_cache = 0;
+}
+
+
 //------------------------------------------------------------------------------
 ret_t check_tag_has_fvalue(TIFF*  tif, tag_t tag, float value)
 {
@@ -177,13 +185,13 @@ int parse_header_and_endianess(TIFF * tif) {
   if (magic2 == 42) { return ret; }
   else { 
 	  fprintf (stderr, "TIFF Header error, not a MAGIC BYTE for TIFF: 0x%04x\n", magic);
-	  if (magic2=0x2b00) fprintf (stderr, "\tbut could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html\n");
-	  if (magic2=0x5500) fprintf (stderr, "\tbut could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/\n");
-	  if (magic2=0xbc01) fprintf (stderr, "\tbut could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832\n");
-	  if (magic2=0x4e31) fprintf (stderr, "\tbut could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf\n");
-	  if (magic2=0x5243) fprintf (stderr, "\tbut could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf\n");
-	  if (magic2=0x524f) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
-	  if (magic2=0x5253) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
+	  if (magic2==0x2b00) fprintf (stderr, "\tbut could be a BigTIFF, see http://www.awaresystems.be/imaging/tiff/bigtiff.html\n");
+	  if (magic2==0x5500) fprintf (stderr, "\tbut could be a Panasonic Raw/RW2, see http://libopenraw.freedesktop.org/wiki/Panasonic_RAW/\n");
+	  if (magic2==0xbc01) fprintf (stderr, "\tbut could be a JPEG XR, see http://www.itu.int/rec/T-REC-T.832\n");
+	  if (magic2==0x4e31) fprintf (stderr, "\tbut could be a Navy Image FileFormat, see http://www.navsea.navy.mil/nswc/carderock/tecinfsys/cal-std/doc/28002c.pdf\n");
+	  if (magic2==0x5243) fprintf (stderr, "\tbut could be a DNG camera profile, see http://wwwimages.adobe.com/www.adobe.com/content/dam/Adobe/en/products/photoshop/pdfs/dng_spec_1.4.0.0.pdf\n");
+	  if (magic2==0x524f) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
+	  if (magic2==0x5253) fprintf (stderr, "\tbut could be an Olympus ORF, see http://libopenraw.freedesktop.org/wiki/Olympus_ORF/\n");
     exit(EXIT_FAILURE); 
   }
 }
@@ -194,7 +202,7 @@ uint32 get_first_IFD(TIFF * tif) {
 	static int is_memoized = 0;
 	static TIFF * memoized_tif = NULL;
 	//printf("get_first_IFD is memoized? %s\n", is_memoized ? "true" : "false");
-	if (! is_memoized || (memoized_tif != tif)) {
+	if (! is_memoized || (memoized_tif != tif) || (!enabled_cache)) {
 		int isByteSwapped = parse_header_and_endianess(tif);
 		/* seek the image file directory (bytes 4-7) */
 		thandle_t client = TIFFClientdata(tif);
@@ -224,6 +232,7 @@ uint32 get_first_IFD(TIFF * tif) {
 		memoized_offset = offset;
 		memoized_tif = tif;
 		is_memoized = 1;
+		enabled_cache = 1;
 
 	}
 	return memoized_offset;
@@ -233,124 +242,90 @@ uint32 get_first_IFD(TIFF * tif) {
  * Hint: sideeffect, if succeed the seek points to beginning of the first
  * IFD-entry */
 int TIFFGetRawTagListCount (TIFF * tif) {
-		thandle_t client = TIFFClientdata(tif);
-		TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-		TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
-		if (! seekproc) {
-			perror ("could not get TIFFGetSeekProc");
-		}
-		if (! readproc) {
-			perror ("could not get TIFFGetReadProc");
-		}
-
-	/* memoize it */
-	static int memoized_count = 0;
-	static uint32 memoized_first_IFD = 0;
-	static int is_memoized = 0;
-	static TIFF * memoized_tif = NULL;
-
-	//printf("get_first_IFD is memoized? %s\n", is_memoized ? "true" : "false");
-	if (! is_memoized || (memoized_tif != tif)) {
-
-	
-		//int fd = TIFFFileno( tif);
-		/* seek the image file directory (bytes 4-7) */
-		uint32 offset = get_first_IFD( tif );
-
-		// printf("diroffset to %i (0x%04lx)\n", offset, offset);
-		//printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
-		/* read and seek to IFD address */
-		//lseek(fd, (off_t) offset, SEEK_SET);
-		seekproc(client, offset, SEEK_SET);
-
-		uint16 count;
-		/*if (read(fd, &count, 2) != 2) {
-		  perror ("TIFF Header read error2");
-		  exit(EXIT_FAILURE);
-		  }
-		  */
-		if ( readproc( client, &count, 2) != 2 ) {
-			perror ("TIFF Header read error2");
-			exit( EXIT_FAILURE );
-		}
-
-		if (TIFFIsByteSwapped(tif))
-			TIFFSwabShort(&count);
-		memoized_count = count;
-		memoized_first_IFD = offset + 2;
-		memoized_tif = tif;
-		is_memoized = 1;
-		
+	thandle_t client = TIFFClientdata(tif);
+	TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
+	TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+	if (! seekproc) {
+		perror ("could not get TIFFGetSeekProc");
 	}
-	seekproc(client, memoized_first_IFD, SEEK_SET);
+	if (! readproc) {
+		perror ("could not get TIFFGetReadProc");
+	}
 
-	return memoized_count;
+	//int fd = TIFFFileno( tif);
+	/* seek the image file directory (bytes 4-7) */
+	uint32 offset = get_first_IFD( tif );
+
+	// printf("diroffset to %i (0x%04lx)\n", offset, offset);
+	//printf("byte swapped? %s\n", (TIFFIsByteSwapped(tif)?"true":"false")); 
+	/* read and seek to IFD address */
+	//lseek(fd, (off_t) offset, SEEK_SET);
+	seekproc(client, offset, SEEK_SET);
+
+	uint16 count;
+	/*if (read(fd, &count, 2) != 2) {
+	  perror ("TIFF Header read error2");
+	  exit(EXIT_FAILURE);
+	  }
+	  */
+	if ( readproc( client, &count, 2) != 2 ) {
+		perror ("TIFF Header read error2");
+		exit( EXIT_FAILURE );
+	}
+
+	if (TIFFIsByteSwapped(tif))
+		TIFFSwabShort(&count);
+	return count;
 }
 
 /* scans first IDF and returns the n-th tag */
 uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) {
-	/* memoize it */
-	static int memoized_tagid = 0;
-	static uint32 memoized_first_IFD = 0;
-	static int is_memoized = 0;
-	static TIFF * memoized_tif = NULL;
-	static int memoized_tagidx = -1;
-	//printf("get_first_IFD is memoized? %s\n", is_memoized ? "true" : "false");
-	if (! is_memoized || (memoized_tif != tif) || (memoized_tagidx != tagidx)) {
-
-		int count = TIFFGetRawTagListCount( tif);
-		thandle_t client = TIFFClientdata(tif);
-		TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
-		TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
-		if (! seekproc) {
-			perror ("could not get TIFFGetSeekProc");
-		}
-		if (! readproc) {
-			perror ("could not get TIFFGetReadProc");
-		}
-		//int fd = TIFFFileno( tif);
-		//printf("count %i\n", count);
-		/* read count of tags (2 Bytes) */
-		int i;
-		/* replace i/o operatrions with in-memory-operations */
-		uint8 * ifdentries = NULL;
-		ifdentries = malloc ( sizeof(uint8) * 12 * count);
-		/*
-		   if (read(fd, ifdentries, 12 * count) != 12*count) {
-		   perror ("TIFF Header read error3");
-		   exit(EXIT_FAILURE);
-		   }
-		   */
-		if ( readproc( client, ifdentries, 12 * count) != 12*count ) {
-			perror ("TIFF Header read error3");
-			exit( EXIT_FAILURE );
-		}
-
-		uint8 * e = ifdentries;
-		for (i = 0; i<count; i++) {
-			uint8 lo = *e;
-			e++;
-			uint8 hi = *e;
-			uint16 tagid = (hi << 8) + lo;
-			e++;
-			if (TIFFIsByteSwapped(tif))
-				TIFFSwabShort(&tagid);
-			if (i == tagidx) {
-				// printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
-				memoized_tagid = tagid;
-				goto FOUND;
-			}
-			e+=10;
-		}
-		memoized_tagid = 0;
-FOUND:
-		/* loop each tag until end or given tag found */
-		free( ifdentries );
-		is_memoized = 1;
-		memoized_tif = tif;
-		memoized_tagidx = tagidx;
+	int count = TIFFGetRawTagListCount( tif);
+	thandle_t client = TIFFClientdata(tif);
+	TIFFReadWriteProc readproc = TIFFGetReadProc(tif);
+	TIFFSeekProc seekproc = TIFFGetSeekProc(tif);
+	if (! seekproc) {
+		perror ("could not get TIFFGetSeekProc");
 	}
-  return memoized_tagid;
+	if (! readproc) {
+		perror ("could not get TIFFGetReadProc");
+	}
+	//int fd = TIFFFileno( tif);
+	//printf("count %i\n", count);
+	/* read count of tags (2 Bytes) */
+	int i;
+	/* replace i/o operatrions with in-memory-operations */
+	uint8 * ifdentries = NULL;
+	ifdentries = malloc ( sizeof(uint8) * 12 * count);
+	/*
+	   if (read(fd, ifdentries, 12 * count) != 12*count) {
+	   perror ("TIFF Header read error3");
+	   exit(EXIT_FAILURE);
+	   }
+	   */
+	if ( readproc( client, ifdentries, 12 * count) != 12*count ) {
+		perror ("TIFF Header read error3");
+		exit( EXIT_FAILURE );
+	}
+
+	uint8 * e = ifdentries;
+	for (i = 0; i<count; i++) {
+		uint8 lo = *e;
+		e++;
+		uint8 hi = *e;
+		uint16 tagid = (hi << 8) + lo;
+		e++;
+		if (TIFFIsByteSwapped(tif))
+			TIFFSwabShort(&tagid);
+		if (i == tagidx) {
+			// printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tagid, tagid, hi, lo);
+			return tagid;
+		}
+		e+=10;
+	}
+	/* loop each tag until end or given tag found */
+	free( ifdentries );
+	return 0;
 }
 
 /*
@@ -477,6 +452,7 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx ) {
   /* read count of tags (2 Bytes) */
   int i;
   ifd_entry_t ifd_entry;
+  ifd_entry.value_or_offset = is_error;
   /* replace i/o operatrions with in-memory-operations */
   uint8 * ifdentries = NULL;
   ifdentries = malloc ( sizeof(uint8) * 12 * count);
@@ -620,14 +596,15 @@ ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag) {
       break;
     };
   };
+  ifd_entry_t ifd_entry;
   if (tagidx >= 0) {
-    ifd_entry_t ifd_entry;
     ifd_entry =  TIFFGetRawTagIFDListEntry( tif, tagidx );
-    return ifd_entry;
   } else { /* tag not defined */ 
-    fprintf(stderr, "tag %u (%s) should exist, because defined\n", tag, TIFFTagName(tif, tag));
-    exit(EXIT_FAILURE);
+	  printf("\ttag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tif, tag));
+	  ifd_entry.value_or_offset = is_error;
+	  ifd_entry.count = 0;
   }
+  return ifd_entry;
 }
 /* scans first IDF and returns the type of the n-th tag */
 uint32 TIFFGetRawTagTypeListEntry( TIFF  * tif, int tagidx ) {
@@ -636,7 +613,7 @@ if (tagidx >= 0) {
     ifd_entry =  TIFFGetRawTagIFDListEntry( tif, tagidx );
     return ifd_entry.datatype;
   } else { /* tag not defined */ 
-    fprintf(stderr, "tagidx should be greater 0");
+    fprintf(stderr, "tagidx should be greater equal 0");
     exit(EXIT_FAILURE);
   }
 }
@@ -665,8 +642,8 @@ TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag) {
 #endif
     return datatype;
   } else { /* tag not defined */ 
-    fprintf(stderr, "tag %u (%s) should exist, because defined\n", tag, TIFFTagName(tif, tag));
-    exit(EXIT_FAILURE);
+	  printf("\ttag %u (%s) was not found, but requested because defined\n", tag, TIFFTagName(tif, tag));
+          return -1;
   }
 }
 
@@ -716,7 +693,7 @@ ret_t check_tagorder(TIFF* tif) {
     if (i>0 && lasttag >= tag) {
       // printf("tag idx=%i, tag=%u (0x%04x) (0x%02x) (0x%02x)\n", i, tag, tag, hi, lo);
       free( ifdentries );
-      tif_fails("Invalid TIFF directory; tags are not sorted in ascending order, previous tag:%u (%s) , actual tag:%u (%s)\n", lasttag,  TIFFTagName(tif, lasttag),  tag,  TIFFTagName(tif, tag));
+      tif_fails("Invalid TIFF directory; tags are not sorted in ascending order, previous tag:%u (%s) , actual tag:%u (%s) at pos %i of %i\n", lasttag,  TIFFTagName(tif, lasttag),  tag,  TIFFTagName(tif, tag), i, count);
     }
     lasttag = tag;
     e+=10;

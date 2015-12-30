@@ -26,6 +26,6 @@ ifd_entry_t TIFFGetRawTagIFDListEntry( TIFF  * tif, int tagidx );
 offset_t read_offsetdata( TIFF * tif, uint32 address, uint16 count, uint16 datatype);
 uint32 get_first_IFD(TIFF * tif);
 //int TIFFIsByteSwapped(TIFF * tif);
-
+void clear_cache();
 
 #endif

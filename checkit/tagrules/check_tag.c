@@ -49,7 +49,7 @@ ret_t check_notag(TIFF* tif, tag_t tag) {
   tifp_check( tif)
     ret_t res = check_tag_quiet( tif, tag);
   if (res.returncode == 0) {
-    tif_fails("found tag %u (%s) which is not whitelisted\n", tag,  TIFFTagName(tif, tag));
+    tif_fails("found tag %u (%s) which is not whitelisted or rule has no matched dependency \n", tag,  TIFFTagName(tif, tag));
   } else {
     res.returnmsg=NULL;
     res.returncode=0;

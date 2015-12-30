@@ -17,8 +17,9 @@
 /** help function */
 void help () {
   printf ("checkit_tiff\n");
-  printf ("\tversion: %s, ", VERSION);
-  printf ("\tuses libtiff version %s\n", TIFFGetVersion());
+  printf ("\tversion: %s\n", VERSION);
+  printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n\n");
+  printf ("\tuses libtiff version %s\n\n", TIFFGetVersion());
   printf ("call it with:\n");
   printf ("\tcheckit_tiff [-h|-m|-d|-r] <tifffile> <configfile>\n");
   printf ("\nwhere <tifffile> is the tiff file (or directory) to be validated\n");
@@ -34,7 +35,7 @@ void help () {
 
 /** main */
 int main (int argc, char * argv[]) {
-  printf("'%s' version: %s, ", argv[0], VERSION);
+  printf("'%s' version: %s\n", argv[0], VERSION);
   printf("licensed under conditions of libtiff (see http://libtiff.maptools.org/misc.html)\n");
   int c;
   int flag_check_directory=UNFLAGGED;

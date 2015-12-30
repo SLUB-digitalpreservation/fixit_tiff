@@ -20,7 +20,7 @@ typedef struct ret_s {
 typedef struct ifd_entry_s {
   uint16 count;
   TIFFDataType datatype;
-  enum{ is_offset, is_value } value_or_offset;
+  enum{ is_offset, is_value, is_error } value_or_offset;
   union {
     uint32 data32;
     uint16 data16[2];

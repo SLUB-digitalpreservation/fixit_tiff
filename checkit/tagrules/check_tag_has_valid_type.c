@@ -16,7 +16,6 @@ ret_t check_tag_has_valid_type(TIFF* tif, tag_t tag) {
   tifp_check( tif)
   TIFFDataType datatype =  TIFFGetRawTagType( tif, tag );
 #ifdef DEBUG
-  printf("### found: value=%i data=%p \n",val, data);
   printf("### datatype=%i \n", datatype);
 #endif
   int res = 0;

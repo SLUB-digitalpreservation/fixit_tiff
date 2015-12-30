@@ -13,6 +13,7 @@
 #include <assert.h>
 #include "config_parser.h"
 #include "check.h"
+#include "check_helper.h"
 #include <pcre.h>
 
 /*
@@ -872,6 +873,7 @@ void parse_plan () {
 /* function to parse a config file from file stream */
 void parse_plan_via_stream( FILE * file ) {
   reset_parser_state();
+  clear_cache();
   yycontext ctx;
   memset(&ctx, 0, sizeof(yycontext));
   parser_state.stream=file;

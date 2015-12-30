@@ -880,6 +880,19 @@ void parse_plan_via_stream( FILE * file ) {
   yyrelease(&ctx);
 }
 
+/* function to parse a config file */
+void parse_plan_via_file( const char * cfg_file ) {
+ FILE * cfg = fopen(cfg_file, "r");
+  if (NULL == cfg) {
+	  fprintf( stderr, "file '%s' could not be opened\n", cfg_file);
+	  exit (EXIT_FAILURE);
+  };
+  clean_plan();
+  parse_plan_via_stream( cfg );
+  fclose(cfg);
+
+}
+
 /* set parse error
  * @param msg describes the details about what was going wrong
  * @param yytext gives context of the error

@@ -59,13 +59,20 @@ int check_specific_tiff_file( const char * tiff_file, int use_memmapped) {
 	ret_t res;
 	/* special checks */
 	res = check_all_IFDs_are_word_aligned( tif); if (0 != res.returncode) {is_valid++;}
+	free (res.returnmsg);
 	res = check_has_only_one_ifd( tif); if (0 != res.returncode) {is_valid++;}
+	free (res.returnmsg);
 	res = check_tagorder( tif); if (0 != res.returncode) {is_valid++;}
+	free (res.returnmsg);
 	res = check_all_offsets_are_used_once_only( tif ); if (0 != res.returncode) {is_valid++;}
+	free (res.returnmsg);
 	res = check_all_offsets_are_word_aligned( tif );  if (0 != res.returncode) {is_valid++;}
+	free (res.returnmsg);
 	res = check_tag_quiet( tif, TIFFTAG_DATETIME);
+	free (res.returnmsg);
 	if (res.returncode == 0) { 
 		res = check_datetime( tif );
+		free (res.returnmsg);
 		if (0 != res.returncode) {is_valid++;}
 	}
 	is_valid += execute_plan(tif);

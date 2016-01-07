@@ -169,7 +169,7 @@ int main (int argc, char * argv[]) {
 			  if(attribute.st_mode & S_IFREG) {
 				/* printf ("%s\n", fqname); */
 				parse_plan_via_file(cfg_file);
-				check_specific_tiff_file( fqname, flag_use_memorymapped_io);
+				is_valid += check_specific_tiff_file( fqname, flag_use_memorymapped_io);
 				clean_plan();
 				printf("\n");
 
@@ -184,7 +184,7 @@ int main (int argc, char * argv[]) {
   } else {
 	  /* use tiff_file_or_dir */
 	  parse_plan_via_file(cfg_file);
-	  check_specific_tiff_file( tiff_file_or_dir, flag_use_memorymapped_io);
+	  is_valid = check_specific_tiff_file( tiff_file_or_dir, flag_use_memorymapped_io);
 	  clean_plan();
   }
   if (0 == is_valid) {

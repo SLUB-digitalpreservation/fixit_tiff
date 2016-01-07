@@ -18,7 +18,7 @@ ret_t check_tag_has_u16value(TIFF*  tif, tag_t tag, uint16 value);
 ret_t check_tag_has_u32value(TIFF*  tif, tag_t tag, uint32 value);
 const char * TIFFTagName (  TIFF * tif, tag_t tag );
 uint32 TIFFGetRawTagTypeListEntry( TIFF  * tif, int tagidx );
-uint32 TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) ;
+tag_t TIFFGetRawTagListEntry( TIFF  * tif, int tagidx ) ;
 int TIFFGetRawTagListCount (TIFF * tif) ;
 TIFFDataType TIFFGetRawTagType(TIFF * tif, tag_t tag);
 ifd_entry_t TIFFGetRawIFDEntry( TIFF * tif, tag_t tag);

@@ -47,7 +47,7 @@ typedef struct offset_s {
   };
 } offset_t;
 
-typedef unsigned int tag_t;
+typedef uint16 tag_t;
 
 #define MAXSTRLEN 160
 
@@ -64,7 +64,7 @@ ret_t check_tag_has_value_quiet(TIFF* tif, tag_t tag, unsigned int value);
 ret_t check_tag(TIFF* tif, tag_t tag);
 ret_t check_tag_quiet(TIFF* tif, tag_t tag);
 ret_t check_notag(TIFF* tif, tag_t tag);
-ret_t check_tag_has_valid_type();
+ret_t check_tag_has_valid_type(TIFF* tiff, tag_t tag);
 ret_t check_datetime(TIFF* tif);
 ret_t check_has_only_one_ifd(TIFF* tif);
 ret_t check_tagorder(TIFF* tif);

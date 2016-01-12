@@ -1,0 +1,13 @@
+= RegEx =
+
+the program uses the pcre-library for regular expressions in ascii mathcing
+rules (in config file). 
+
+If you use a regex similar  to "^[:print:]*$" it does not match on
+* all strings containing characters outside of printable ascii range (see 'man
+pcre2pattern' for details)
+* an empty string "" will not matched, because we defined PCRE_NOTEMPTY. 
+  An empty string is not a valid match, this behaviour is a design choice.
+* Unicode is not set, because TIFF specification is in general ASCII based
+  (PCRE_UTF8 not set)
+

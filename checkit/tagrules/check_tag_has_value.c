@@ -86,6 +86,7 @@ ret_t check_tag_has_value_matching_regex(TIFF* tif, tag_t tag, const char * rege
                          if (NULL != re) {
 
                            int ovector[OVECCOUNT];
+                           /*  PCRE_NOTEMPTY: An empty string is not a valid match */
                            int rc = pcre_exec( re, NULL, val, count, 0,PCRE_NOTEMPTY , ovector, OVECCOUNT);
 #ifdef DEBUG
                            printf("tag %s with count=%d and value='%s' -> rc=%d\n", TIFFTagName(tif, tag), count, val, rc);

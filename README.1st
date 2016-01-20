@@ -1,9 +1,12 @@
-fixit_tiff comes with  two parts: 
-- checkit_tiff to check (baseline) TIFFs to specific rulesets. 
-  The rulesets are human readable and could be adapted to own needs.
-- fixit_tiff to repair broken TIFFs (pE. wrong tagorder, wrong datetime, clean tags)
+General
+=======
+
+fixit_tiff to repair broken TIFFs (pE. wrong tagorder, wrong datetime, clean tags)
 
 The tools are developed for purposes of curation and longterm preservation
+
+In detail
+=========
 
 fixit_tiff:
 - fixes a TIFF file with wrong metadata
@@ -12,11 +15,8 @@ fixit_tiff:
 - compile it with: make clean; make all; make strip
 - help comes with option "fixit_tiff -h"
 
-checkit_tiff:
-- checks a TIFF against ruleset
-- needs a Linux or an AIX system with installed libtiff4
-  (crosscompiling to Windows should work, too)
-- compile it with: make clean; make all; make strip
-- help comes with option "checkit_tiff -h"
+
+License
+=======
 
 the sourcecode is licensed under conditions of libtiff, see http://libtiff.maptools.org for details.

@@ -1,3 +1,5 @@
+# author: Andreas Romeyke, 2015
+# licensed under conditions of libtiff 
 LIB+=-ltiff
 CFLAGS=-O2 -g -Wall
 OBJS=tiff_helper.o check_baseline.o check_datetime.o cleanup_datetime.o cleanup_baseline.o cleanup_order.o cleanup_tag.o fixit_tiff.o

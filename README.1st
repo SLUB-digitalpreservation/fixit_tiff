@@ -2,8 +2,12 @@ General
 =======
 
 fixit_tiff to repair broken TIFFs (pE. wrong tagorder, wrong datetime, clean tags)
+The "fixit_tiff" works on commandline and therefore it is embedable in scripts
 
 The tools are developed for purposes of curation and longterm preservation
+
+To *validate* baseline TIFFs, you could give "checkit_tiff" a try: https://github.com/SLUB-digitalpreservation/fixit_tiff
+
 
 In detail
 =========

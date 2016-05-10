@@ -16,24 +16,8 @@ Crosscompiling to Windows
    under windows)
 ** make -j 2
 
-== libpcre ==
-* needed to compile checkit_tiff
-* download the libpcre Source package
-** http://www.pcre.org/ (pcre-8.3.7.tar.gz)
-* crosscompile libpcre for windows
-** cd to unzipped source package
-** autoconf
-** ./configure --host=i686-w64-mingw32 --disable-shared --enable-static
-** make
-
-
-
 == fixit_tiff ==
 * now compile fixit-tool
 ** cd to fixit-tool directory
 ** CC="i686-w64-mingw32-gcc" INC="-I ../tiff-4.0.6/libtiff/ -L ../tiff-4.0.6/libtiff/.libs/ -static" make
 
-== checkit_tiff ==
-* now compile fixit-tool
-** cd to checkit-tool directory
-** SANITIZE="" CC="i686-w64-mingw32-gcc" INC="-DPCRE_STATIC -I../tiff-4.0.6/libtiff/ -I../pcre-8.37/" LIB="-fPIC -static -L../tiff-4.0.6/libtiff/.libs/ -L../pcre-8.37/.libs/"  make checkit_tiff

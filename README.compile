@@ -1,0 +1,23 @@
+# You need an installed cmake
+########################################################
+# compiling under linux
+########################################################
+mkdir build
+cd build
+cmake ../src/
+make
+########################################################
+# alternatively for windows crosscompiling using mingw
+########################################################
+#mkdir build
+#cd build
+#cmake -DCMAKE_TOOLCHAIN_FILE=../src/toolchain-mingw32.cmake -DTIFF_LIBRARY=~/Downloads/tiff-4.0.6/libtiff/.libs/libtiff.a -DTIFF_INCLUDE_DIR=~/Downloads/tiff-4.0.6/libtiff/ ../src/
+#make
+#
+########################################################
+# examples/options to set specific C-compiler or Flags
+########################################################
+# cmake ../src/ -DCMAKE_C_COMPILER=$(which gcc)
+# cmake ../src/ -DCMAKE_C_FLAGS="-O0 -p -g"
+# cmake ../src/ -DCMAKE_C_COMPILER=$(which clang-3.5) -DCMAKE_C_FLAGS="-Oz -pedantic"
+#

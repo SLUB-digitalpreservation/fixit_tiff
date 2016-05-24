@@ -168,6 +168,7 @@ int cleanup_datetime(const char * filename ) {
             fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
             exit (FIXIT_TIFF_WRITE_ERROR);
           }
+	  if (NULL != new_datetime) free(new_datetime);
         } else { /* checked via check_datetime() */
         }
     TIFFClose(tif);

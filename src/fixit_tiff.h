@@ -12,6 +12,7 @@
 #define FIXIT_TIFF_IS_VALID 0
 #define FIXIT_TIFF_IS_CHECKED 1
 #define FIXIT_TIFF_IS_CORRECTED 1
+#define FIXIT_TIFF_IS_INVALID 3
 #define FIXIT_TIFF_MISSED_OUTFILE -1
 #define FIXIT_TIFF_MISSED_INFILE -2
 #define FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR -3
@@ -27,6 +28,7 @@
 #define TIFFDATETIMELENGTH 20
 
 int cleanup_datetime (const char *);
+int cleanup_icc_header (const char *);
 int cleanup_baseline (const char *); 
 int cleanup_tagorder (const char *);
 int cleanup_tag      (const char *, uint32);

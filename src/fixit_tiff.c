@@ -17,7 +17,7 @@ void help () {
   printf ("fixit_tiff\n");
   printf ("uses libtiff version %s\n", TIFFGetVersion());
   printf ("call it with:\n");
-  printf ("\tfixit_tiff [-h|-c|-s|-b|-x <tag>] -i <infile> [-o <outfile>]\n");
+  printf ("\tfixit_tiff [-h|-c|-s|-b|-x <tag>|-p] -i <infile> [-o <outfile>]\n");
   printf ("\nwhere <infile> is the possibly broken file\n");
   printf ("and <outfile> is the name of the corrected file\n");
   printf ("\t-c checks file only\n");
@@ -26,6 +26,7 @@ void help () {
   printf ("\t-q disables describing messages\n");
   printf ("\t-t try to fix tagorder (dangerous)\n");
   printf ("\t-x tag clean tiff from given tag\n");
+  printf ("\t-p try to repair ICC header profile\n");
   printf ("\tHint: 'fixit_tiff -i <infile> -o <outfile>' repairs date only\n");
 }
 
@@ -69,10 +70,11 @@ int main (int argc, char * argv[]) {
   int flag_substitute_only=UNFLAGGED;
   int flag_baseline_cleanup=UNFLAGGED;
   int flag_tagorder=UNFLAGGED;
+  int flag_clean_icc=UNFLAGGED;
   int flag_check_only=UNFLAGGED;
   int clean_tag=UNFLAGGED;
   flag_be_verbose = FLAGGED;
-  while ((c = getopt (argc, argv, "s::cbqt::hi:o:x:")) != -1) {
+  while ((c = getopt (argc, argv, "s::cbqtp::hi:o:x:")) != -1) {
       switch (c)
            {
            case 'h': /* help */
@@ -98,10 +100,13 @@ int main (int argc, char * argv[]) {
              break;
            case 'o': /* expects outfile */
              outfilename=optarg;
-	     break;
-	   case 'x': /* expects tagnumber */
-	     clean_tag =atoi(optarg);
-	     break;			
+             break;
+           case 'x': /* expects tagnumber */
+             clean_tag =atoi(optarg);
+             break;
+           case 'p': /* try to clean ICC header */
+             flag_clean_icc = FLAGGED;
+             break;
            case '?': /* something goes wrong */
              if (optopt == 'i' || optopt == 'o' || optopt == 'x')
                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -143,21 +148,29 @@ int main (int argc, char * argv[]) {
      exit (
         check_required(infilename));
         */
-    
+
     exit (
         check_required(infilename) ||
         check_baseline(infilename) || 
         check_datetime(infilename) 
         );
-    
+
   }
   /* try to fix tag order */
   if (FLAGGED == flag_tagorder) {
-        copy_file (infilename, outfilename);
-	if (FLAGGED == flag_be_verbose) printf ("tagorder cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
-        cleanup_tagorder(outfilename);
+    copy_file (infilename, outfilename);
+    if (FLAGGED == flag_be_verbose) printf ("tagorder cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
+    cleanup_tagorder(outfilename);
         exit (FIXIT_TIFF_IS_CORRECTED);
   }
+  /*  try to fix ICC header */
+  if (FLAGGED == flag_clean_icc) {
+    copy_file (infilename, outfilename);
+    if (FLAGGED == flag_be_verbose) printf ("ICC header cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
+    cleanup_icc_header(outfilename);
+    exit (FIXIT_TIFF_IS_CORRECTED);
+  }
+
   if (UNFLAGGED != clean_tag) { /* explicite correction via source target, clean given tag */
     copy_file (infilename, outfilename);
     if (FLAGGED == flag_be_verbose) printf ("tag cleanup infile='%s', outfile='%s'\n", infilename, outfilename);

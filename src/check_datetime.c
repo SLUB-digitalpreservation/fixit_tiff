@@ -54,8 +54,8 @@ int check_datetime(const char * filename ) {
   };
   /* find date-tag and fix it */
   char *datetime=NULL;
-  uint32 count=0;
-  int found=TIFFGetField(tif, TIFFTAG_DATETIME, &datetime, &count);
+  int returncode = 0;
+  int found=TIFFGetField(tif, TIFFTAG_DATETIME, &datetime);
   if (1==found) { /* there exists a datetime field */
     int day=0;
     int month=0;
@@ -65,14 +65,15 @@ int check_datetime(const char * filename ) {
     int sec=0;
 
     if (6 == sscanf(datetime, "%04d:%02d:%02d%02d:%02d:%02d", &year, &month, &day, &hour, &min, &sec)) {
-      return test_plausibility(&year, &month, &day, &hour, &min, &sec);
+      returncode = test_plausibility(&year, &month, &day, &hour, &min, &sec);
     } else {
-      return -2;
+      returncode=-2;
     }
   } else if (0 == found) {
     if (FLAGGED == flag_be_verbose) printf ("no datetime found!\n");
   }
   TIFFClose(tif);
-  return FIXIT_TIFF_IS_VALID;
+  if (0 == returncode) return FIXIT_TIFF_IS_VALID;
+  else return FIXIT_TIFF_IS_INVALID;
 }
 

@@ -159,18 +159,18 @@ int cleanup_datetime(const char * filename ) {
       /* should be corrected? */
       char * new_datetime = correct_datestring( datetime );
       /* repair */
-          TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
-          if (FLAGGED == flag_be_verbose) printf("After  correction\n-----------------\n");
-          if (FLAGGED == flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
-          /* write data back, only if no flag_check_only is set */
-          int written = TIFFRewriteDirectory(tif);
-          if (1 != written) {
-            fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
-            exit (FIXIT_TIFF_WRITE_ERROR);
-          }
-	  if (NULL != new_datetime) free(new_datetime);
-        } else { /* checked via check_datetime() */
-        }
+      TIFFSetField(tif, TIFFTAG_DATETIME, new_datetime);
+      if (FLAGGED == flag_be_verbose) printf("After  correction\n-----------------\n");
+      if (FLAGGED == flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
+      /* write data back, only if no flag_check_only is set */
+      int written = TIFFRewriteDirectory(tif);
+      if (1 != written) {
+        fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
+        exit (FIXIT_TIFF_WRITE_ERROR);
+      }
+      if (NULL != new_datetime) free(new_datetime);
+    } else { /* checked via check_datetime() */
+    }
     TIFFClose(tif);
   }
   if  (FIXIT_TIFF_IS_VALID == check_datetime (filename)) return FIXIT_TIFF_IS_CORRECTED;

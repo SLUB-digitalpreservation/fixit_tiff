@@ -56,7 +56,7 @@ int cleanup_baseline(const char * filename ) {
     if (FLAGGED == flag_be_verbose) printf("After  correction\n-----------------\n");
     if (FLAGGED == flag_be_verbose) TIFFPrintDirectory(tif, stdout, TIFFPRINT_NONE);
     /* write data back, only if no flag_check_only is set */
-    int written = TIFFRewriteDirectory(tif);
+    int written = TIFFWriteDirectory(tif); /* HINT: if errorneous, use TIFFReWriteDirectory instead */
     if (1 != written) {
       fprintf(stderr, "something is wrong, tiffdir could not be written to file '%s'\n", filename);
       exit (FIXIT_TIFF_WRITE_ERROR);

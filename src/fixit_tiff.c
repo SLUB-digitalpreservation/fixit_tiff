@@ -27,6 +27,7 @@ void help () {
   printf ("\t-t try to fix tagorder (dangerous)\n");
   printf ("\t-x tag clean tiff from given tag\n");
   printf ("\t-p try to repair ICC header profile\n");
+  printf ("\t-e try to repair wrong tagtype\n");
   printf ("\tHint: 'fixit_tiff -i <infile> -o <outfile>' repairs date only\n");
 }
 
@@ -72,9 +73,10 @@ int main (int argc, char * argv[]) {
   int flag_tagorder=UNFLAGGED;
   int flag_clean_icc=UNFLAGGED;
   int flag_check_only=UNFLAGGED;
+  int flag_fix_tagtypes=UNFLAGGED;
   int clean_tag=UNFLAGGED;
   flag_be_verbose = FLAGGED;
-  while ((c = getopt (argc, argv, "s::cbqtp::hi:o:x:")) != -1) {
+  while ((c = getopt (argc, argv, "s::cbqtp::hi:o:x:e")) != -1) {
       switch (c)
            {
            case 'h': /* help */
@@ -106,6 +108,9 @@ int main (int argc, char * argv[]) {
              break;
            case 'p': /* try to clean ICC header */
              flag_clean_icc = FLAGGED;
+             break;
+           case 'e': /* try to fix tag type */
+             flag_fix_tagtypes = FLAGGED;
              break;
            case '?': /* something goes wrong */
              if (optopt == 'i' || optopt == 'o' || optopt == 'x')
@@ -170,6 +175,14 @@ int main (int argc, char * argv[]) {
     cleanup_icc_header(outfilename);
     exit (FIXIT_TIFF_IS_CORRECTED);
   }
+  /*  try to fix tag types */
+  if (FLAGGED == flag_fix_tagtypes) {
+    copy_file (infilename, outfilename);
+    if (FLAGGED == flag_be_verbose) printf ("fix tagtypes cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
+    cleanup_tagtype(outfilename, 34665); // EXIFIFDOFFSET
+    exit (FIXIT_TIFF_IS_CORRECTED);
+  }
+
 
   if (UNFLAGGED != clean_tag) { /* explicite correction via source target, clean given tag */
     copy_file (infilename, outfilename);

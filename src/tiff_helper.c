@@ -100,4 +100,4 @@ void print_required_tags (TIFF * tif) {
   }
  }
 
-
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

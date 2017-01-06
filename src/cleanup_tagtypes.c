@@ -30,36 +30,45 @@ int cleanup_tagtype(const char * filename, uint32 tag_to_fix ) {
 	for (tagidx=0; tagidx < tag_counter; tagidx++) {
 		uint32 tag = TIFFGetRawTagListEntry( tif, tagidx );
 		if (tag == tag_to_fix) {
-			if (FLAGGED == flag_be_verbose) printf("tag to fix %i\n", tags[tagidx]);
-                        const struct _TIFFField * fip = TIFFFieldWithTag(tif, tag);
-                        if (NULL == fip) {
-                          fprintf(stderr, "tagtype correction for tag %i fails, because requested tag does not exist (file '%s')\n", tag, filename);
-                          exit (FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
-                        }
-                        switch (tag) {
-                          case TIFFTAG_EXIFIFD:
-                            {
-                              uint16 found = fip->field_type;
-                              if (found != TIFF_LONG) {
-                                uint16 newtype = TIFF_LONG;
-                                printf("found fieldtype=%i for tag=%i, try to repair with type=%i\n", found, tag, newtype);
-                                /*  via TIFFGetRawTagListEntry we have the tag
-                                 *  read, the next 2 bytes are the type */
-                                int fd = TIFFFileno( tif);
-                                write(fd, &newtype, sizeof( uint16));
-                                close(fd);
-                              }
-                              break;
-                            }
-                          default: 
-                            fprintf(stderr, "tagtype correction for tag %i not supported yet (file '%s')\n", tag, filename);
-                            exit (FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
-                        }
-                }
-        }
+      if (FLAGGED == flag_be_verbose) printf("tag to fix %i\n", tags[tagidx]);
+      const struct _TIFFField * fip = TIFFFieldWithTag(tif, tag);
+      if (NULL == fip) {
+        fprintf(stderr, "tagtype correction for tag %i fails, because requested tag does not exist (file '%s')\n", tag, filename);
+        exit (FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
+      }
+      switch (tag) {
+        case TIFFTAG_EXIFIFD:
+          {
+            uint16 found = fip->field_type;
+            if (found != TIFF_LONG) {
+              uint16 newtype = TIFF_LONG;
+              if (TIFFIsByteSwapped(tif))
+                TIFFSwabShort(&newtype);
+              printf("found fieldtype=%i for tag=%i, try to repair with type=%i\n", found, tag, newtype);
+              /*  via TIFFGetRawTagListEntry we have the tag
+               *  read, the next 2 bytes are the type */
+              int fd = TIFFFileno( tif);
+              if (write(fd, &newtype, 2) != 2) {
+                perror("TIFF write error in IFD0");
+                exit(EXIT_FAILURE);
+              }
+              if (0 != close(fd)) {
+                perror("TIFF could not be closed");
+                exit(EXIT_FAILURE);
+              }
+              goto EXIT;
+            }
+            break;
+          }
+        default: 
+          fprintf(stderr, "tagtype correction for tag %i not supported yet (file '%s')\n", tag, filename);
+          exit (FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
+      }
+    }
+  }
+EXIT:
         if (FLAGGED == flag_be_verbose) printf("After  correction\n-----------------\n");
-	/* write data back, only if no flag_check_only is set */
 	if  (FIXIT_TIFF_IS_VALID == check_baseline (filename)) return FIXIT_TIFF_IS_CORRECTED;
 	else return FIXIT_TIFF_IS_CHECKED;
 }
-
+/* vim: set tabstop=2 softtabstop=2 shiftwidth=2 smarttab expandtab :*/

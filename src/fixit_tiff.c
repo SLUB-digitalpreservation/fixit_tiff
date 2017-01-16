@@ -180,6 +180,7 @@ int main (int argc, char * argv[]) {
     copy_file (infilename, outfilename);
     if (FLAGGED == flag_be_verbose) printf ("fix tagtypes cleanup infile='%s', outfile='%s'\n", infilename, outfilename);
     cleanup_tagtype(outfilename, 34665); // EXIFIFDOFFSET
+    cleanup_tagtype(outfilename, 33723); // RICHTIFFIPTC
     exit (FIXIT_TIFF_IS_CORRECTED);
   }
 

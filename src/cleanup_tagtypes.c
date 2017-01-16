@@ -13,6 +13,48 @@
 #include "tiff_helper.h"
 #include <tiffio.h>
 #include "tif_dir.h"
+
+const char * _tagtype( uint16 tagtype ) {
+  switch (tagtype) {
+    case TIFF_NOTYPE: return "NOTYPE"; break;
+    case TIFF_BYTE: return "BYTE"; break;
+    case TIFF_ASCII: return "ASCII"; break;
+    case TIFF_SHORT: return "SHORT"; break;
+    case TIFF_LONG: return "LONG"; break;
+    case TIFF_RATIONAL: return "RATIONAL"; break;
+    case TIFF_SBYTE: return "SBYTE"; break;
+    case TIFF_UNDEFINED: return "UNDEFINED"; break;
+    case TIFF_SSHORT: return "SSHORT"; break;
+    case TIFF_SLONG: return "SLONG"; break;
+    case TIFF_SRATIONAL: return "SRATIONAL"; break;
+    case TIFF_FLOAT: return "FLOAT"; break;
+    case TIFF_DOUBLE: return "DOUBLE"; break;
+    case TIFF_IFD: return "IFD"; break;
+    case TIFF_LONG8: return "LONG8"; break;
+    case TIFF_SLONG8: return "SLONG8"; break;
+    case TIFF_IFD8: return "IFD8"; break;
+    default: return "unknown type"; break;
+  }
+}
+
+
+void _replace_type(TIFF * tif, uint32 tag, uint16 found, uint16 newtype) {
+  if (TIFFIsByteSwapped(tif))
+    TIFFSwabShort(&newtype);
+  printf("found fieldtype=%s (%i) for tag=%i, try to repair with type=%s (%i)\n", _tagtype(found), found, tag, _tagtype(newtype), newtype);
+  /*  via TIFFGetRawTagListEntry we have the tag
+   *  read, the next 2 bytes are the type */
+  int fd = TIFFFileno( tif);
+  if (write(fd, &newtype, 2) != 2) {
+    perror("TIFF write error in IFD0");
+    exit(EXIT_FAILURE);
+  }
+  if (0 != close(fd)) {
+    perror("TIFF could not be closed");
+    exit(EXIT_FAILURE);
+  }
+}
+
 /** load a tiff, clean it up if needed, store tiff
  * @param filename filename which should be processed, repaired
  * only TAG 34665 (EXIFIFDOFFset) is supported yet
@@ -41,21 +83,16 @@ int cleanup_tagtype(const char * filename, uint32 tag_to_fix ) {
           {
             uint16 found = fip->field_type;
             if (found != TIFF_LONG) {
-              uint16 newtype = TIFF_LONG;
-              if (TIFFIsByteSwapped(tif))
-                TIFFSwabShort(&newtype);
-              printf("found fieldtype=%i for tag=%i, try to repair with type=%i\n", found, tag, newtype);
-              /*  via TIFFGetRawTagListEntry we have the tag
-               *  read, the next 2 bytes are the type */
-              int fd = TIFFFileno( tif);
-              if (write(fd, &newtype, 2) != 2) {
-                perror("TIFF write error in IFD0");
-                exit(EXIT_FAILURE);
-              }
-              if (0 != close(fd)) {
-                perror("TIFF could not be closed");
-                exit(EXIT_FAILURE);
-              }
+              _replace_type(tif, tag, found, TIFF_LONG);
+              goto EXIT;
+            }
+            break;
+          }
+        case TIFFTAG_RICHTIFFIPTC:
+          {
+            uint16 found = fip->field_type;
+            if (found != TIFF_UNDEFINED && found != TIFF_BYTE) {
+              _replace_type(tif, tag, found, TIFF_UNDEFINED);
               goto EXIT;
             }
             break;

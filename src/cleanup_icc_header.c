@@ -61,6 +61,9 @@ int cleanup_icc_header(const char * filename ) {
     } else { /* checked via check_datetime() */
     }
     TIFFClose(tif);
+    /* FIXME: workaround for wrong EXIFIFD type set by libTIFF, should later be
+     * replaced by a more simple variant */
+    cleanup_tagtype(filename, 34665); // EXIFIFDOFFSET
   }
   if  (FIXIT_TIFF_IS_VALID == check_icc_header (filename)) return FIXIT_TIFF_IS_CORRECTED;
   else return FIXIT_TIFF_IS_CHECKED;

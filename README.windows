@@ -19,5 +19,8 @@ Crosscompiling to Windows
 == fixit_tiff ==
 * now compile fixit-tool
 ** cd to fixit-tool directory
-** CC="i686-w64-mingw32-gcc" INC="-I ../tiff-4.0.6/libtiff/ -L ../tiff-4.0.6/libtiff/.libs/ -static" make
+** mkdir build_windows
+** cd build_windows
+** cmake -DCMAKE_TOOLCHAIN_FILE=../src/toolchain-mingw32.cmake -DTIFF_LIBRARY=~/Downloads/tiff-4.0.6/libtiff/.libs/libtiff.a -DTIFF_INCLUDE_DIR=~/Downloads/tiff-4.0.6/libtiff/ ../src/
+** make
 

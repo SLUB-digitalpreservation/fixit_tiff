@@ -27,6 +27,7 @@ if(WIN32)
 endif(WIN32)
 
 add_executable(fixit_tiff fixit_tiff.c ${fixit_tiff_SOURCES})
+add_executable(find_potential_IFD_offsets find_potential_IFD_offsets.c)
 set(CMAKE_EXTRA_INCLUDE_FILES tiff.h)
 
 
@@ -95,6 +96,7 @@ else(TIFF_FOUND)
 endif(TIFF_FOUND)
 
 TARGET_LINK_LIBRARIES(fixit_tiff ${TIFF_LIBRARIES})
+TARGET_LINK_LIBRARIES(find_potential_IFD_offsets ${TIFF_LIBRARIES})
 
 install( TARGETS fixit_tiff
   RUNTIME DESTINATION bin

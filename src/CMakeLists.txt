@@ -27,7 +27,8 @@ if(WIN32)
 endif(WIN32)
 
 add_executable(fixit_tiff fixit_tiff.c ${fixit_tiff_SOURCES})
-add_executable(find_potential_IFD_offsets find_potential_IFD_offsets.c)
+add_executable(find_potential_IFD_offsets archeological_tools/find_potential_IFD_offsets.c)
+add_executable(print_ifd_at_adress archeological_tools/print_ifd_at_adress.c)
 set(CMAKE_EXTRA_INCLUDE_FILES tiff.h)
 
 
@@ -97,6 +98,7 @@ endif(TIFF_FOUND)
 
 TARGET_LINK_LIBRARIES(fixit_tiff ${TIFF_LIBRARIES})
 TARGET_LINK_LIBRARIES(find_potential_IFD_offsets ${TIFF_LIBRARIES})
+TARGET_LINK_LIBRARIES(print_ifd_at_adress ${TIFF_LIBRARIES})
 
 install( TARGETS fixit_tiff
   RUNTIME DESTINATION bin

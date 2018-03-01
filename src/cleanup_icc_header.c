@@ -25,6 +25,17 @@ char * correct_iccprofile(unsigned long iccsize, char * iccdata) {
     memcpy (newiccdata, iccdata, iccsize);
     memcpy(&newiccdata[4], "appl", 4);
     return newiccdata;
+  } else if (0 == strncmp("Lino", preferredcmmtype, 4)) {
+    /*  fixes only unregistered entry 'Lino' -> 0x00000000*/
+    printf("Found unregistered entry 'Lino' in preferred cmmtype, try to correct it\n");
+    char * newiccdata = malloc( sizeof( char ) * iccsize);
+    if (NULL == newiccdata) {
+      perror("Could not allocate memory for new iccdata");
+      exit(FIXIT_TIFF_MEMORY_ALLOCATION_ERROR);
+    }
+    memcpy (newiccdata, iccdata, iccsize);
+    memset(&newiccdata[4], 0x0, 4);
+    return newiccdata;
   }
   return iccdata;
 }

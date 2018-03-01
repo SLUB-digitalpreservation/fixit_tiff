@@ -26,7 +26,7 @@ void help () {
   printf ("\t-q disables describing messages\n");
   printf ("\t-t try to fix tagorder (dangerous)\n");
   printf ("\t-x tag clean tiff from given tag\n");
-  printf ("\t-p try to repair ICC header profile\n");
+  printf ("\t-p try to repair preferred CMM type in ICC header profile (autocorrect misspelled entries or erase 'Lino' to zero)\n");
   printf ("\t-e try to repair wrong tagtype\n");
   printf ("\tHint: 'fixit_tiff -i <infile> -o <outfile>' repairs date only\n");
 }

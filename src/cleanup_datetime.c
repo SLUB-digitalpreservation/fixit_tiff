@@ -47,7 +47,6 @@ static int rule_ddmmyyhhmmss_03 (const char * datestring, int * year, int * mont
   if (FLAGGED == flag_be_verbose) printf ("rule03\n");
   char dow[4] = "\0\0\0\0";
   char monthstring[4] = "\0\0\0\0";
-  int i;
   static char* months[] = {
     "Jan",
     "Feb",
@@ -67,7 +66,7 @@ static int rule_ddmmyyhhmmss_03 (const char * datestring, int * year, int * mont
   ret = sscanf(datestring, "%3s%3s%02d%02d:%02d:%02d%04d", dow, monthstring, day, hour, min, sec, year);
   if (7 == ret ) {
     *month=-1;
-    for ( i = 0; i<= 11; i++) {
+    for (int i = 0; i<= 11; i++) {
       if (strncmp (months[i], monthstring, 3) == 0) {
         *month=i+1;
         break;
@@ -120,8 +119,7 @@ char * correct_datestring (const char * broken_datetime) {
   }
   if (FLAGGED == flag_be_verbose) printf("datetime parsing of string '%s', year=%04d, month=%02d, day=%02d, hour=%02d, min=%02d, sec=%02d\n", broken_datetime, year, month, day, hour, min, sec);
   /* write corrected value to new string */
-  char * fixed_date = NULL;
-  fixed_date=malloc(sizeof(char) * TIFFDATETIMELENGTH); /* 20 comes from TIFF definition */
+  char * fixed_date = malloc(sizeof(char) * TIFFDATETIMELENGTH); /* 20 comes from TIFF definition */
   if (NULL == fixed_date) {
     fprintf(stderr, "could not allocate memory for datetime conversion, abort\n");
     exit (FIXIT_TIFF_MEMORY_ALLOCATION_ERROR);

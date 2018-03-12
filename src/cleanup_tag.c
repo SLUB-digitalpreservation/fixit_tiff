@@ -105,7 +105,7 @@ int cleanup_tag(const char * filename, uint32 tag_to_remove ) {
         exit(EXIT_FAILURE);
       }
       goto EXIT;
-      break;
+      /* break; */
     }
   }
 EXIT:

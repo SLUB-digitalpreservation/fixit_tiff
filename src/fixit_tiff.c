@@ -128,7 +128,7 @@ int main (int argc, char * argv[]) {
   }
   /* added additional checks */
   /* TODO: add check that no inline and no check if cleantag */
-  if ((UNFLAGGED != clean_tag) && (clean_tag < 254) && (clean_tag > 65535)) {
+  if ((UNFLAGGED != clean_tag) && (clean_tag < 254) || (clean_tag > 65535)) {
     fprintf(stderr, "The option '-x' expects a value in range 254..65535, see '%s -h' for details\n", argv[0]);
     exit(FIXIT_TIFF_CMDLINE_ARGUMENTS_ERROR);
   }

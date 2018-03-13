@@ -3,7 +3,7 @@
  *
  *       Filename:  print_ifds_at_adress.c
  *
- *    Description:  print a IFD on given adress
+ *    Description:  print a IFD on given address
  *
  *       Compiler:  gcc
  *
@@ -23,32 +23,32 @@
       #include <sys/stat.h>
 #endif
 
-void print_ifd_at_adress (const char * infile, uint32 adress) {
+void print_ifd_at_adress (const char * infile, uint32 address) {
   /* open infile */
   int fd_in = open(infile, O_RDWR );
   if (! fd_in) {
     perror("could not open input file");
   }
   uint32 filesize = lseek( fd_in, 0L, SEEK_END);
-  if (adress > filesize) {
-    fprintf(stderr, "Adress 0x%0x is outside of filesize (0x%0x", adress, filesize);
+  if (address > filesize) {
+    fprintf(stderr, "Address 0x%0x is outside of filesize (0x%0x", address, filesize);
     exit(0);
   }
-  lseek( fd_in, adress, SEEK_SET);
+  lseek( fd_in, address, SEEK_SET);
   uint16 countoftags = 0;
   if (read(fd_in, &countoftags, 2) != 2) perror ("input file not readable, countoftags");
   if (
       (countoftags > 4) &&
-      ((countoftags *12 + adress)+4 < filesize )
+      ((countoftags *12 + address)+4 < filesize )
      ) {
-    printf("IFD at adress 0x%x\n", adress);
+    printf("IFD at address 0x%x\n", address);
     uint32 nextifd = 0;
     lseek( fd_in, 12*countoftags, SEEK_CUR);
     if (read(fd_in, &nextifd, 4) != 4) perror("input file not readable, nextifd");
     if (0 == nextifd) { printf("no next IFD found, all fine\n"); }
     else { printf("IFD points to next IFD = 0x%0x\n", nextifd); }
     printf("found %i Tags\n", countoftags);
-    lseek( fd_in, adress 
+    lseek( fd_in, address 
         + 2 /* countoftags */
         , SEEK_SET);
     for (int i = 1; i <countoftags; i++) {
@@ -75,7 +75,7 @@ void print_ifd_at_adress (const char * infile, uint32 adress) {
 void help () {
   printf ("print_ifd_at_adress\n");
   printf ("call it with:\n");
-  printf ("\tprint_ifd_at_adress [-h] -i <infile> [-a <adress>]\n");
+  printf ("\tprint_ifd_at_adress [-h] -i <infile> [-a <address>]\n");
   printf ("\t where <infile> is the (broken) TIFF file\n");
 }
 

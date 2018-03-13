@@ -44,27 +44,27 @@ void scan_file_for_ifds(const char * infile, const char * outfile) {
   if(fd_out == NULL) {
     perror("could not open output file");
   }
-  fprintf( fd_out, "#adress,weight,is_sorted,has_required_baseline\n");
+  fprintf( fd_out, "#address,weight,is_sorted,has_required_baseline\n");
 
   uint32 filesize = lseek( fd_in, 0L, SEEK_END);
-  /* for each odd adress, do */
-  for (uint32 adress = 8; adress < filesize; adress+=2) {
-    if (adress % 1024 == 0) {
-      printf ("\r%li %%", (uint64) 100*adress/filesize);
+  /* for each odd address, do */
+  for (uint32 address = 8; address < filesize; address+=2) {
+    if (address % 1024 == 0) {
+      printf ("\r%li %%", (uint64) 100*address/filesize);
     }
-    lseek( fd_in, adress, SEEK_SET);
+    lseek( fd_in, address, SEEK_SET);
     /* check if "count of tags" is greater 4 (hard criteria) */
     uint16 countoftags = 0;
     if (read(fd_in, &countoftags, 2) != 2) perror ("input file not readable, countoftags");
     if (
         (countoftags > 4) &&
-        ((countoftags *12 + adress)+4 < filesize )
+        ((countoftags *12 + address)+4 < filesize )
         ) {
       uint32 nextifd = 0;
       lseek( fd_in, 12*countoftags, SEEK_CUR);
       if (read(fd_in, &nextifd, 4) != 4) perror("input file not readable, nextifd");
       if (nextifd % 2 == 0) {
-//printf("0x%0x countoftags=%i nextifd=%0x\n", adress, countoftags, nextifd);
+//printf("0x%0x countoftags=%i nextifd=%0x\n", address, countoftags, nextifd);
         /* check for each "tag" if fieldtype is in range 1..18 (in original 12, but libtiff supports 18) (hard criteria) */
         int tagids_ok = 0;
         int fieldtypes_ok = 0;
@@ -73,7 +73,7 @@ void scan_file_for_ifds(const char * infile, const char * outfile) {
           has_baselinetags[i]=0;
         }
         int sorted = 0;
-        lseek( fd_in, adress 
+        lseek( fd_in, address 
             + 2 /* countoftags */
             , SEEK_SET);
         int last_tagid = 0;
@@ -102,7 +102,7 @@ void scan_file_for_ifds(const char * infile, const char * outfile) {
            *   check if required tags are present (soft criteria)
            *   check for each "tag" if tagid is sorted (soft criteria)
            *   check for each "tag" if value/offset is a offset and this offset is odd
-           *     and point to adress within file (soft criteria)
+           *     and point to address within file (soft criteria)
            */
 
           /* check if required tags are present (soft criteria) */
@@ -119,7 +119,7 @@ void scan_file_for_ifds(const char * infile, const char * outfile) {
           if (sorted == 0) { weight++; }
           /* print result */
           fprintf( fd_out, "0x%04x,%i,%c,%c\n",
-              adress,
+              address,
               weight,
               (sorted==0)?'y':'n',
               all_baselinetags==count_of_required_baselinetags?'y':'n'

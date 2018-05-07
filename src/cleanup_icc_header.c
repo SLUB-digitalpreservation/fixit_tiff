@@ -104,6 +104,10 @@ int cleanup_icc_header(const char * filename ) {
         }
         /* repair */
         char * new_iccprofile = correct_iccprofile(count, iccprofile );
+        if (NULL == new_iccprofile) {
+          perror("Could not allocate memory for new icc profile");
+          exit(FIXIT_TIFF_MEMORY_ALLOCATION_ERROR);
+        }
         /*  rewind to offset */
         if (lseek(fd, offset, SEEK_SET) != offset) {
           perror("TIFF ICC profile seek error to offset");

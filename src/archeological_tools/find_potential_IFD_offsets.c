@@ -38,11 +38,13 @@ void scan_file_for_ifds(const char * infile, const char * outfile) {
   int fd_in = open(infile, O_RDWR );
   if (! fd_in) {
     perror("could not open input file");
+    exit(FIXIT_TIFF_READ_PERMISSION_ERROR);
   }
   /* open outfile */
   FILE *fd_out = fopen(outfile, "w");
   if(fd_out == NULL) {
     perror("could not open output file");
+    exit(FIXIT_TIFF_WRITE_PERMISSION_ERROR);
   }
   fprintf( fd_out, "#address,weight,is_sorted,has_required_baseline\n");
 

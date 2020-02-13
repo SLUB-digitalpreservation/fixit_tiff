@@ -1,0 +1,20 @@
+Compile for use with Cygwin
+============================
+
+== Preparation ==
+Install latest version of Cygwin (tested with CYGWIN_NT-6.3)
+In addition, you need to install the following packages:
+- libtiff 
+- GCC and G++ 
+- cmake 
+- make 
+
+== Compile from Cygwin ==
+Download and unpack zip with sourcefiles
+Create folder build in your fixit_tiff folder
+Change to build
+cmake ../src
+make
+
+== Disclaimer ==
+(this was tested on Win 8.1 Pro with CYGWIN_NT-6.3 and packages libtiff-devel & libtiff6 v 4.0.7-1, gcc-g++ v 7.4.0.1, cmake 3.14.5-1 and make 4.2.1-1)

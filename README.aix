@@ -1,7 +1,0 @@
-Because AIX is something different, here some hints to compile:
-1. check if you have gcc, if so then set environment to "CC=gcc"
-2. check if your make-command is AIX original, then call "make -f makefile.aix"
-3. if your make-command is GNU make, then call just "make"
-
-(Hint: the reason for 2. is, that AIX make has differences usign $< within
-makefiles)
